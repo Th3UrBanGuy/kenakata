@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
-import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Separator } from './ui/separator';
 import Link from 'next/link';
 
@@ -24,7 +24,7 @@ export function Cart() {
                 {cart.map((item) => (
                     <div key={item.variantId} className="flex items-start gap-4">
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
-                        <Image src={item.imageUrl} alt={item.name} layout="fill" objectFit="cover" data-ai-hint="product image" />
+                        <Image src={item.imageUrl} alt={item.name} fill objectFit="cover" data-ai-hint="product image" />
                     </div>
                     <div className="flex-1">
                         <h3 className="font-semibold">{item.name}</h3>
@@ -68,7 +68,7 @@ export function Cart() {
         </div>
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-          <ShoppingCart className="h-24 w-24 text-muted" />
+          <ShoppingBag className="h-24 w-24 text-muted" />
           <h3 className="text-xl font-semibold">Your cart is empty</h3>
           <p className="text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
         </div>
