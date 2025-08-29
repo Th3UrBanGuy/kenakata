@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { LogIn, Package2, Search, ShoppingBag, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Cart } from '@/components/Cart';
 import { useCart } from '@/context/CartProvider';
 
@@ -64,6 +64,7 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent>
+              <SheetTitle className="sr-only">Shopping Cart</SheetTitle>
               <Cart />
             </SheetContent>
           </Sheet>
@@ -75,21 +76,22 @@ export function Header() {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left">
-                <nav className="grid gap-6 text-lg font-medium">
-                    <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                        <Package2 className="h-6 w-6" />
-                        <span className="">KenaKata</span>
-                    </Link>
-                    <Link href="/#all-products" className="text-muted-foreground hover:text-foreground">
-                        Products
-                    </Link>
-                    <Link href="/#categories" className="text-muted-foreground hover:text-foreground">
-                        Categories
-                    </Link>
-                    <Link href="/admin" className="text-muted-foreground hover:text-foreground">
-                        Admin
-                    </Link>
-                </nav>
+                    <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                    <nav className="grid gap-6 text-lg font-medium">
+                        <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+                            <Package2 className="h-6 w-6" />
+                            <span className="">KenaKata</span>
+                        </Link>
+                        <Link href="/#all-products" className="text-muted-foreground hover:text-foreground">
+                            Products
+                        </Link>
+                        <Link href="/#categories" className="text-muted-foreground hover:text-foreground">
+                            Categories
+                        </Link>
+                        <Link href="/admin" className="text-muted-foreground hover:text-foreground">
+                            Admin
+                        </Link>
+                    </nav>
                 </SheetContent>
             </Sheet>
         </div>
