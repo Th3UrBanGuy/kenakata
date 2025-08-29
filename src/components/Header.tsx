@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Package2, Search, ShoppingCart } from 'lucide-react';
+import { LogIn, Package2, Search, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -21,10 +21,10 @@ export function Header() {
         <Link href="/" className="text-foreground transition-colors hover:text-primary font-bold">
           KenaKata
         </Link>
-        <Link href="#products" className="text-muted-foreground transition-colors hover:text-primary">
+        <Link href="/#products" className="text-muted-foreground transition-colors hover:text-primary">
           Products
         </Link>
-        <Link href="#categories" className="text-muted-foreground transition-colors hover:text-primary">
+        <Link href="/#categories" className="text-muted-foreground transition-colors hover:text-primary">
           Categories
         </Link>
         <Link href="/admin" className="text-muted-foreground transition-colors hover:text-primary">
@@ -42,6 +42,12 @@ export function Header() {
             />
           </div>
         </form>
+         <Link href="/login" passHref>
+          <Button variant="ghost" size="icon">
+            <LogIn className="h-5 w-5" />
+            <span className="sr-only">Login</span>
+          </Button>
+        </Link>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
