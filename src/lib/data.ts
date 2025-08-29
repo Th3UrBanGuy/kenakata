@@ -1,3 +1,4 @@
+
 import type { Product, Order } from './types';
 
 export const products: Product[] = [
@@ -104,8 +105,8 @@ export const products: Product[] = [
 ];
 
 export const orders: Order[] = [
-  { id: 'order_1', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-20', status: 'Delivered', total: 99.98 },
-  { id: 'order_2', customerName: 'Jane Smith', customerEmail: 'jane.smith@example.com', date: '2024-07-21', status: 'Shipped', total: 124.98 },
-  { id: 'order_3', customerName: 'Peter Jones', customerEmail: 'peter.jones@example.com', date: '2024-07-22', status: 'Pending', total: 29.99 },
-  { id: 'order_4', customerName: 'Mary Johnson', customerEmail: 'mary.j@example.com', date: '2024-07-22', status: 'Cancelled', total: 59.99 },
+  { id: 'order_1', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-20', status: 'Delivered', total: 99.98, paymentMethod: 'Credit Card' },
+  { id: 'order_2', customerName: 'Jane Smith', customerEmail: 'jane.smith@example.com', date: '2024-07-21', status: 'Shipped', total: 124.98, paymentMethod: 'PayPal' },
+  { id: 'order_3', customerName: 'Peter Jones', customerEmail: 'peter.jones@example.com', date: '2024-07-22', status: 'Pending', total: 29.99, paymentMethod: 'Credit Card' },
+  { id: 'order_4', customerName: 'Mary Johnson', customerEmail: 'mary.j@example.com', date: '2024-07-22', status: 'Cancelled', total: 59.99, paymentMethod: 'Credit Card' },
 ];

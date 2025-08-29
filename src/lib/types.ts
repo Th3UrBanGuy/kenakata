@@ -1,3 +1,4 @@
+
 export type ProductVariant = {
   id: string;
   color: string;
@@ -43,4 +44,5 @@ export type Order = {
   date: string;
   status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
   total: number;
+  paymentMethod: string;
 };

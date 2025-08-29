@@ -1,10 +1,10 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { orders } from "@/lib/data";
-import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
@@ -42,6 +42,7 @@ export default function OrdersPage() {
                                 <TableHead>Customer</TableHead>
                                 <TableHead>Date</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead>Method</TableHead>
                                 <TableHead className="text-right">Total</TableHead>
                                 <TableHead>
                                     <span className="sr-only">Actions</span>
@@ -51,7 +52,7 @@ export default function OrdersPage() {
                         <TableBody>
                             {orders.map((order) => (
                                 <TableRow key={order.id}>
-                                    <TableCell className="font-medium">{order.id}</TableCell>
+                                    <TableCell className="font-medium">{order.id.slice(-6).toUpperCase()}</TableCell>
                                     <TableCell>
                                         <div className="font-medium">{order.customerName}</div>
                                         <div className="text-sm text-muted-foreground">{order.customerEmail}</div>
@@ -60,6 +61,7 @@ export default function OrdersPage() {
                                     <TableCell>
                                         <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                                     </TableCell>
+                                    <TableCell>{order.paymentMethod}</TableCell>
                                     <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
@@ -71,6 +73,7 @@ export default function OrdersPage() {
                                             <DropdownMenuContent>
                                                 <DropdownMenuItem>View Details</DropdownMenuItem>
                                                 <DropdownMenuItem>Update Status</DropdownMenuItem>
+                                                <DropdownMenuItem>Contact Customer</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
