@@ -11,7 +11,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/context/CartProvider';
 import { cn } from '@/lib/utils';
-import { Check, ShoppingBag } from 'lucide-react';
+import { Check, ShoppingBag, Star } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const { addToCart } = useCart();
@@ -76,14 +79,17 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <Header />
       <main className="flex-1 container py-12 md:py-24">
         <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div className="aspect-square relative rounded-lg overflow-hidden border shadow-lg">
-            <Image
-              src={imageUrl}
-              alt={product.name}
-              fill
-              className="object-cover transition-opacity duration-300"
-              data-ai-hint="product photo"
-            />
+          <div className="space-y-4">
+            <div className="aspect-square relative rounded-lg overflow-hidden border shadow-lg">
+                <Image
+                src={imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover transition-opacity duration-300"
+                data-ai-hint="product photo"
+                />
+            </div>
+            {/* Thumbnails can be added here */}
           </div>
           <div className="space-y-6">
             <h1 className="text-4xl font-bold font-headline">{product.name}</h1>
@@ -154,6 +160,44 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 </p>
             )}
           </div>
+        </div>
+
+        <div className="mt-16">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">Customer Reviews</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {product.comments.length > 0 ? (
+                        <div className="space-y-6">
+                            {product.comments.map((comment, index) => (
+                                <div key={comment.id}>
+                                    <div className="flex gap-4">
+                                        <Avatar>
+                                            <AvatarFallback>{comment.author.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between">
+                                                <p className="font-semibold">{comment.author}</p>
+                                                <div className="flex items-center gap-1">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star key={i} className={cn("h-4 w-4", i < comment.rating ? "text-primary fill-primary" : "text-muted-foreground")}/>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-2">{new Date(comment.date).toLocaleDateString()}</p>
+                                            <p>{comment.text}</p>
+                                        </div>
+                                    </div>
+                                    {index < product.comments.length - 1 && <Separator className="mt-6" />}
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-muted-foreground">No reviews yet for this product.</p>
+                    )}
+                </CardContent>
+            </Card>
         </div>
       </main>
       <Footer />

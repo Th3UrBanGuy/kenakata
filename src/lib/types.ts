@@ -7,12 +7,22 @@ export type ProductVariant = {
   imageUrl: string;
 };
 
+export type Comment = {
+  id: string;
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+};
+
 export type Product = {
   id: string;
   name: string;
   description: string;
   category: string;
   variants: ProductVariant[];
+  comments: Comment[];
+  promotion?: string;
 };
 
 export type CartItem = {
@@ -24,4 +34,13 @@ export type CartItem = {
   size: string;
   price: number;
   imageUrl: string;
+};
+
+export type Order = {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  date: string;
+  status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
+  total: number;
 };

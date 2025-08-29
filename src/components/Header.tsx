@@ -21,7 +21,7 @@ export function Header() {
         <Link href="/" className="text-foreground transition-colors hover:text-primary font-bold">
           KenaKata
         </Link>
-        <Link href="/#products" className="text-muted-foreground transition-colors hover:text-primary">
+        <Link href="/#all-products" className="text-muted-foreground transition-colors hover:text-primary">
           Products
         </Link>
         <Link href="/#categories" className="text-muted-foreground transition-colors hover:text-primary">
@@ -32,16 +32,14 @@ export function Header() {
         </Link>
       </nav>
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <form className="ml-auto flex-1 sm:flex-initial">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
-            />
-          </div>
-        </form>
+        <div className="relative flex-1 ml-auto sm:flex-initial">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="What are you looking for?"
+            className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+          />
+        </div>
          <Link href="/login" passHref>
           <Button variant="ghost" size="icon">
             <LogIn className="h-5 w-5" />
