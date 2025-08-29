@@ -63,7 +63,7 @@ export default function CheckoutSuccessPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <div>
                     <h4 className="font-semibold mb-1">Shipping To</h4>
                     <address className="not-italic text-muted-foreground">

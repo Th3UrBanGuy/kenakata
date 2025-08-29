@@ -24,7 +24,7 @@ export default function CheckoutPage() {
                     <CardDescription>Enter the address where you want to receive your order.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="first-name">First Name</Label>
                             <Input id="first-name" placeholder="John" />
@@ -38,7 +38,7 @@ export default function CheckoutPage() {
                         <Label htmlFor="address">Address</Label>
                         <Input id="address" placeholder="123 Main St" />
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-3 gap-4">
                          <div className="space-y-2">
                             <Label htmlFor="city">City</Label>
                             <Input id="city" placeholder="Anytown" />
@@ -59,13 +59,13 @@ export default function CheckoutPage() {
                 <CardHeader>
                     <CardTitle>Payment Details</CardTitle>
                     <CardDescription>Enter your payment information.</CardDescription>
-                </CardHeader>
+                </Header>
                 <CardContent className="grid gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="card-number">Card Number</Label>
                         <Input id="card-number" placeholder="**** **** **** 1234" />
                     </div>
-                     <div className="grid grid-cols-3 gap-4">
+                     <div className="grid md:grid-cols-3 gap-4">
                         <div className="space-y-2 col-span-2">
                             <Label htmlFor="expiry">Expiry Date</Label>
                             <Input id="expiry" placeholder="MM/YY" />
