@@ -32,7 +32,8 @@ const AnalyzeInventoryLevelsOutputSchema = z.object({
       productName: z.string().describe('The product name of the low stock product.'),
       currentStock: z.number().describe('The current stock level of the low stock product.'),
       alertMessage: z.string().describe('A message indicating the shortage and suggesting actions.'),
-    })\n  ).describe('Array of products that are low in stock.'),
+    })
+  ).describe('Array of products that are low in stock.'),
   outOfStockProducts: z.array(
     z.object({
       productId: z.string().describe('The product ID of the out of stock product.'),
