@@ -83,7 +83,9 @@ export function Header() {
                     </DropdownMenuItem>
                   </Link>
                   <Link href="/account/profile" passHref>
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                     <DropdownMenuItem>
+                        Profile
+                    </DropdownMenuItem>
                   </Link>
                    <Link href="/account/orders" passHref>
                     <DropdownMenuItem>Orders</DropdownMenuItem>
