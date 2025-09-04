@@ -15,7 +15,8 @@ export function Cart() {
   return (
     <>
       <SheetHeader>
-        <SheetTitle className="text-primary">My Cart ({totalItems})</SheetTitle>
+        <SheetTitle className="text-primary sr-only">My Cart</SheetTitle>
+        <h2 className="text-lg font-semibold">My Cart ({totalItems})</h2>
       </SheetHeader>
       {cart.length > 0 ? (
         <div className="flex h-full flex-col justify-between">

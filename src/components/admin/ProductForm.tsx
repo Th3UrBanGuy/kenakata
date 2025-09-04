@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 const variantSchema = z.object({
+  id: z.string().optional(), // Keep track of existing variants
   color: z.string().min(1, 'Color is required'),
   size: z.string().min(1, 'Size is required'),
   stock: z.coerce.number().min(0, 'Stock must be non-negative'),
@@ -67,7 +68,7 @@ export function ProductForm({ product }: ProductFormProps) {
       title: `Product ${product ? 'Updated' : 'Created'}`,
       description: `${data.name} has been successfully saved.`,
     });
-    router.push('/admin');
+    router.push('/admin/products');
   }
 
   return (

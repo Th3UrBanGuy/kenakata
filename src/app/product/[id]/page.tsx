@@ -48,12 +48,18 @@ export default function ProductPage() {
   }, [product, selectedColor]);
   
   // Set initial selections
-  if (product && !selectedColor && availableColors.length > 0) {
-    setSelectedColor(availableColors[0]);
-  }
-  if (product && selectedColor && !selectedSize && availableSizes.length > 0) {
-      setSelectedSize(availableSizes[0]);
-  }
+  useEffect(() => {
+    if (product && !selectedColor && availableColors.length > 0) {
+      setSelectedColor(availableColors[0]);
+    }
+  }, [product, selectedColor, availableColors]);
+
+  useEffect(() => {
+      if (product && selectedColor && !selectedSize && availableSizes.length > 0) {
+        const firstAvailableSize = availableSizes[0];
+        setSelectedSize(firstAvailableSize);
+      }
+  }, [product, selectedColor, selectedSize, availableSizes]);
 
   const selectedVariant = useMemo(() => {
     if (!product || !selectedColor || !selectedSize) return null;
