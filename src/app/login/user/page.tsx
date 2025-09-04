@@ -1,29 +1,25 @@
 
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2 } from 'lucide-react';
 
 export default function UserLoginPage() {
   const router = useRouter();
 
-  const handleUserLogin = () => {
-    // In a real app, you'd have authentication logic here
-    router.push('/');
-  };
+  useEffect(() => {
+    // In a real app, you'd have authentication logic here.
+    // For dev purposes, we are redirecting immediately.
+    const timer = setTimeout(() => {
+        router.push('/');
+    }, 1000); // A small delay to show the logging in message
+
+    return () => clearTimeout(timer);
+  }, [router]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -31,29 +27,14 @@ export default function UserLoginPage() {
       <main className="flex-1 flex items-center justify-center container py-12 md:py-24">
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
+            <CardTitle className="text-2xl font-headline">Logging In</CardTitle>
             <CardDescription>
-              Login to continue shopping.
+              Please wait while we log you in as a demo user...
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-             <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="user@example.com" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" />
-            </div>
+          <CardContent className="flex justify-center items-center p-10">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
           </CardContent>
-          <CardFooter className='flex-col gap-4'>
-            <Button onClick={handleUserLogin} className="w-full">
-              Login
-            </Button>
-            <p className='text-xs text-muted-foreground'>
-                Don't have an account? <Link href="#" className="underline">Sign up</Link>
-            </p>
-          </CardFooter>
         </Card>
       </main>
       <Footer />

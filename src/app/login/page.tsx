@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,9 +22,9 @@ export default function LoginPage() {
       <main className="flex-1 flex items-center justify-center container py-12 md:py-24">
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-headline">Login</CardTitle>
+            <CardTitle className="text-2xl font-headline">Developer Login</CardTitle>
             <CardDescription>
-              Please select your login type.
+              Please select a login type for development.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -38,7 +37,7 @@ export default function LoginPage() {
             <Link href="/login/user" className='w-full block'>
                 <Button variant="secondary" className="w-full">
                     <User className="mr-2 h-4 w-4" />
-                    User Login
+                    Demo User Login
                 </Button>
             </Link>
           </CardContent>
