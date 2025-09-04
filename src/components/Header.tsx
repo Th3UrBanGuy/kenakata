@@ -47,38 +47,6 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2">
-            {isAuthenticated ? (
-               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="secondary" size="icon" className="rounded-full">
-                    <User className="h-5 w-5" />
-                    <span className="sr-only">Toggle user menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <Link href={role === 'admin' ? '/admin/dashboard' : '/account/dashboard'} passHref>
-                    <DropdownMenuItem>Dashboard</DropdownMenuItem>
-                  </Link>
-                  <Link href="/account/profile" passHref>
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
-                  </Link>
-                   <Link href="/account/orders" passHref>
-                    <DropdownMenuItem>Orders</DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link href="/login" passHref>
-                <Button>
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Login
-                </Button>
-              </Link>
-            )}
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
@@ -96,6 +64,45 @@ export function Header() {
                 <Cart />
               </SheetContent>
             </Sheet>
+            
+            {isAuthenticated ? (
+               <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" size="icon" className="rounded-full">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">Toggle user menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <Link href={role === 'admin' ? '/admin/dashboard' : '/account/dashboard'} passHref>
+                    <DropdownMenuItem>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/account/profile" passHref>
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                  </Link>
+                   <Link href="/account/orders" passHref>
+                    <DropdownMenuItem>Orders</DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/login" passHref>
+                <Button>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
         <div className="md:hidden pb-4">
