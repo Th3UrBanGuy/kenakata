@@ -3,11 +3,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LineChart, Package, Package2, ShoppingCart, Users, Tag, Heart } from "lucide-react";
+import { Home, LineChart, Package, Package2, ShoppingCart, Users, Tag, Heart, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/context/AuthProvider";
+
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const navItems = [
     { href: "/admin/dashboard", icon: Home, label: "Dashboard" },
@@ -44,6 +56,33 @@ export function AdminSidebar() {
               </Link>
             ))}
           </nav>
+        </div>
+        <div className="mt-auto p-4 border-t">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-start">
+                        <div className="flex items-center gap-3">
+                           <User className="h-5 w-5" />
+                           <div className="text-left">
+                               <p className="font-semibold">Admin User</p>
+                               <p className="text-xs text-muted-foreground">admin@example.com</p>
+                           </div>
+                        </div>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 mb-2">
+                    <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <Link href="/" passHref>
+                        <DropdownMenuItem>View Store</DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </div>
     </div>

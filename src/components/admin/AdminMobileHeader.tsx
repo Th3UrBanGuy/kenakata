@@ -2,12 +2,20 @@
 'use client';
 
 import Link from "next/link";
-import { Home, Menu, Package, Package2, ShoppingCart, Users, LineChart, Tag, Heart } from "lucide-react";
+import { Home, Menu, Package, Package2, ShoppingCart, Users, LineChart, Tag, Heart, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/context/AuthProvider";
 
 const navItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: Home },
@@ -21,6 +29,7 @@ const navItems = [
 
 export function AdminMobileHeader() {
     const pathname = usePathname();
+    const { logout } = useAuth();
 
     return (
          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 md:hidden">
@@ -60,9 +69,27 @@ export function AdminMobileHeader() {
               </nav>
             </SheetContent>
           </Sheet>
-          <div className="w-full flex-1">
-            {/* You can add a search form here if needed for mobile */}
-          </div>
+          <div className="w-full flex-1" />
+           <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="icon" className="rounded-full">
+                <User className="h-5 w-5" />
+                <span className="sr-only">Toggle user menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <Link href="/" passHref>
+                <DropdownMenuItem>View Store</DropdownMenuItem>
+              </Link>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={logout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Logout</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
     )
 }

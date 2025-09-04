@@ -8,6 +8,7 @@ import type { Product } from '@/lib/types';
 import { Button } from './ui/button';
 import { ArrowRight, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartProvider';
+import { useAuth } from '@/context/AuthProvider';
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +16,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { role } = useAuth();
   const defaultVariant = product.variants[0];
 
   const handleAddToCart = () => {
@@ -54,12 +56,14 @@ export function ProductCard({ product }: ProductCardProps) {
         </CardContent>
       </Link>
       <CardFooter className="p-4 grid grid-cols-2 gap-2">
-        <Button variant="outline" onClick={handleAddToCart} disabled={defaultVariant.stock === 0} className="w-full">
-            <ShoppingBag className="mr-2 h-4 w-4"/>
-            Add to Bag
-        </Button>
+        {role !== 'admin' && (
+            <Button variant="outline" onClick={handleAddToCart} disabled={defaultVariant.stock === 0} className="w-full">
+                <ShoppingBag className="mr-2 h-4 w-4"/>
+                Add to Bag
+            </Button>
+        )}
         <Link href={`/product/${product.id}`} className="w-full">
-          <Button variant="default" className="w-full">
+          <Button variant="default" className="w-full col-span-2 data-[admin=true]:col-span-2" data-admin={role === 'admin'}>
               View
               <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"/>
           </Button>

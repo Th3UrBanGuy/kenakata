@@ -9,9 +9,11 @@ import Image from 'next/image';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Separator } from './ui/separator';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthProvider';
 
 export function Cart() {
   const { cart, removeFromCart, updateQuantity, totalItems, totalPrice } = useCart();
+  const { role } = useAuth();
 
   return (
     <>
@@ -60,11 +62,13 @@ export function Cart() {
                         <span>Subtotal</span>
                         <span>${totalPrice.toFixed(2)}</span>
                     </div>
-                    <Link href="/checkout" className="w-full">
-                        <Button className="w-full" size="lg">
-                            Proceed to Checkout
-                        </Button>
-                    </Link>
+                    {role !== 'admin' && (
+                        <Link href="/checkout" className="w-full">
+                            <Button className="w-full" size="lg">
+                                Proceed to Checkout
+                            </Button>
+                        </Link>
+                    )}
                 </div>
           </SheetFooter>
         </div>

@@ -17,12 +17,14 @@ import { ShoppingBag, Star, Heart } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/context/AuthProvider';
 
 export default function ProductPage() {
   const params = useParams();
   const { id } = params;
   const { addToCart } = useCart();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { role } = useAuth();
   const product = products.find((p) => p.id === id);
 
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -185,19 +187,22 @@ export default function ProductPage() {
               </div>
             )}
             
-            <div className="flex gap-4">
-                <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={!selectedVariant || selectedVariant.stock === 0}>
-                    {selectedVariant?.stock === 0 ? 'Out of Stock' : (
-                        <>
-                            <ShoppingBag className="mr-2 h-5 w-5" />
-                            Add to Bag
-                        </>
-                    )}
-                </Button>
-                <Button size="lg" variant="outline" className="px-4" onClick={handleWishlistToggle} disabled={!selectedVariant}>
-                    <Heart className={cn("h-5 w-5", isWishlisted && "text-red-500 fill-current")} />
-                </Button>
-            </div>
+            {role !== 'admin' && (
+              <div className="flex gap-4">
+                  <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={!selectedVariant || selectedVariant.stock === 0}>
+                      {selectedVariant?.stock === 0 ? 'Out of Stock' : (
+                          <>
+                              <ShoppingBag className="mr-2 h-5 w-5" />
+                              Add to Bag
+                          </>
+                      )}
+                  </Button>
+                  <Button size="lg" variant="outline" className="px-4" onClick={handleWishlistToggle} disabled={!selectedVariant}>
+                      <Heart className={cn("h-5 w-5", isWishlisted && "text-red-500 fill-current")} />
+                  </Button>
+              </div>
+            )}
+
             {selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 10 && (
                 <p className="text-yellow-500 text-sm text-center">
                     Hurry! Only {selectedVariant.stock} left in stock.
