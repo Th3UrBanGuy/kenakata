@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthProvider';
 import { Header } from '@/components/Header';
@@ -13,27 +13,57 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/CartProvider';
+import { ArrowLeft } from 'lucide-react';
+
+type CheckoutStep = 'shipping' | 'payment';
 
 export default function CheckoutPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { totalPrice } = useCart();
+  const { cart, totalPrice } = useCart();
+  const [step, setStep] = useState<CheckoutStep>('shipping');
+
+  const [shippingInfo, setShippingInfo] = useState({
+    firstName: '',
+    lastName: '',
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+  });
 
   useEffect(() => {
-    if (isAuthenticated === false) { // Use explicit false check to wait for auth state to be determined
-      router.push('/login?from=/checkout');
+    // Pre-fill form if user is logged in
+    if (isAuthenticated) {
+      setShippingInfo({
+        firstName: 'Demo',
+        lastName: 'User',
+        address: '123 Tech Lane',
+        city: 'Webville',
+        state: 'CA',
+        zip: '90210',
+      });
     }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    // You can render a loading spinner here while checking auth status
-    return (
-      <div className="flex flex-col min-h-screen items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
+  }, [isAuthenticated]);
+  
+  if (cart.length === 0) {
+      return (
+           <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1 container py-12 md:py-24 flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold">Your Cart is Empty</h1>
+                    <p className="text-muted-foreground mt-2">You need to add items to your cart before you can check out.</p>
+                    <Link href="/">
+                        <Button className="mt-6">Continue Shopping</Button>
+                    </Link>
+                </div>
+              </main>
+              <Footer />
+            </div>
+      )
   }
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -42,95 +72,111 @@ export default function CheckoutPage() {
         <div className="mx-auto max-w-3xl space-y-8">
             <div className="text-center">
                 <h1 className="text-4xl font-bold font-headline">Checkout</h1>
-                <p className="text-muted-foreground mt-2">Complete your purchase</p>
+                <p className="text-muted-foreground mt-2">
+                    {step === 'shipping' ? 'Step 1: Shipping Details' : 'Step 2: Payment Information'}
+                </p>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Shipping Information</CardTitle>
-                    <CardDescription>Enter the address where you want to receive your order.</CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="first-name">First Name</Label>
-                            <Input id="first-name" placeholder="John" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="last-name">Last Name</Label>
-                            <Input id="last-name" placeholder="Doe" />
-                        </div>
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="address">Address</Label>
-                        <Input id="address" placeholder="123 Main St" />
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-4">
-                         <div className="space-y-2">
-                            <Label htmlFor="city">City</Label>
-                            <Input id="city" placeholder="Anytown" />
+            {step === 'shipping' && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Shipping Information</CardTitle>
+                        <CardDescription>Enter the address where you want to receive your order.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid gap-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="first-name">First Name</Label>
+                                <Input id="first-name" placeholder="John" value={shippingInfo.firstName} onChange={e => setShippingInfo({...shippingInfo, firstName: e.target.value})} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="last-name">Last Name</Label>
+                                <Input id="last-name" placeholder="Doe" value={shippingInfo.lastName} onChange={e => setShippingInfo({...shippingInfo, lastName: e.target.value})} />
+                            </div>
                         </div>
                          <div className="space-y-2">
-                            <Label htmlFor="state">State</Label>
-                            <Input id="state" placeholder="CA" />
+                            <Label htmlFor="address">Address</Label>
+                            <Input id="address" placeholder="123 Main St" value={shippingInfo.address} onChange={e => setShippingInfo({...shippingInfo, address: e.target.value})} />
                         </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="zip">ZIP Code</Label>
-                            <Input id="zip" placeholder="12345" />
+                        <div className="grid md:grid-cols-3 gap-4">
+                             <div className="space-y-2">
+                                <Label htmlFor="city">City</Label>
+                                <Input id="city" placeholder="Anytown" value={shippingInfo.city} onChange={e => setShippingInfo({...shippingInfo, city: e.target.value})}/>
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="state">State</Label>
+                                <Input id="state" placeholder="CA" value={shippingInfo.state} onChange={e => setShippingInfo({...shippingInfo, state: e.target.value})}/>
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="zip">ZIP Code</Label>
+                                <Input id="zip" placeholder="12345" value={shippingInfo.zip} onChange={e => setShippingInfo({...shippingIfo, zip: e.target.value})}/>
+                            </div>
                         </div>
-                    </div>
-                </CardContent>
-            </Card>
+                        <Button size="lg" className="w-full mt-4" onClick={() => setStep('payment')}>Continue to Payment</Button>
+                    </CardContent>
+                </Card>
+            )}
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Payment Details</CardTitle>
-                    <CardDescription>Enter your payment information.</CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="card-number">Card Number</Label>
-                        <Input id="card-number" placeholder="**** **** **** 1234" />
+            {step === 'payment' && (
+                 <>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Payment Details</CardTitle>
+                            <CardDescription>Enter your payment information.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="card-number">Card Number</Label>
+                                <Input id="card-number" placeholder="**** **** **** 1234" />
+                            </div>
+                             <div className="grid md:grid-cols-3 gap-4">
+                                <div className="space-y-2 col-span-2">
+                                    <Label htmlFor="expiry">Expiry Date</Label>
+                                    <Input id="expiry" placeholder="MM/YY" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="cvc">CVC</Label>
+                                    <Input id="cvc" placeholder="123" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Order Summary</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">Subtotal</span>
+                                <span>${totalPrice.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-muted-foreground">Shipping</span>
+                                <span>$5.00</span>
+                            </div>
+                            <Separator/>
+                            <div className="flex justify-between font-bold text-lg">
+                                <span>Total</span>
+                                <span>${(totalPrice + 5).toFixed(2)}</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    
+                    <div className="flex flex-col-reverse md:flex-row gap-4">
+                        <Button size="lg" variant="outline" onClick={() => setStep('shipping')} className="w-full md:w-auto">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Shipping
+                        </Button>
+                        <Link href="/checkout/success" className="w-full">
+                            <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                                Place Order
+                            </Button>
+                        </Link>
                     </div>
-                     <div className="grid md:grid-cols-3 gap-4">
-                        <div className="space-y-2 col-span-2">
-                            <Label htmlFor="expiry">Expiry Date</Label>
-                            <Input id="expiry" placeholder="MM/YY" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="cvc">CVC</Label>
-                            <Input id="cvc" placeholder="123" />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>Order Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">Subtotal</span>
-                        <span>${totalPrice.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">Shipping</span>
-                        <span>$5.00</span>
-                    </div>
-                    <Separator/>
-                    <div className="flex justify-between font-bold text-lg">
-                        <span>Total</span>
-                        <span>${(totalPrice + 5).toFixed(2)}</span>
-                    </div>
-                </CardContent>
-            </Card>
+                </>
+            )}
 
-            <Link href="/checkout/success">
-                <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                    Place Order
-                </Button>
-            </Link>
         </div>
       </main>
       <Footer />
