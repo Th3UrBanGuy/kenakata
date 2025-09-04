@@ -2,7 +2,7 @@
 'use client';
 
 import Link from "next/link";
-import { Home, Menu, Package, Package2, ShoppingCart, Users, LineChart } from "lucide-react";
+import { Home, Menu, Package, Package2, ShoppingCart, Users, LineChart, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -14,6 +14,7 @@ const navItems = [
     { href: "/admin/products", label: "Products", icon: Package },
     { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
     { href: "/admin/customers", label: "Customers", icon: Users },
+    { href: "/admin/coupons", label: "Coupons", icon: Tag },
     { href: "/admin/analytics", label: "Analytics", icon: LineChart },
   ];
 
@@ -47,7 +48,7 @@ export function AdminMobileHeader() {
                         key={item.href}
                         href={item.href}
                         className={cn("mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground",
-                            pathname === item.href && "bg-muted text-primary"
+                            pathname.startsWith(item.href) && "bg-muted text-primary"
                         )}
                     >
                         <item.icon className="h-5 w-5" />

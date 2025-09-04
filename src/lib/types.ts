@@ -1,4 +1,5 @@
 
+
 export type ProductVariant = {
   id: string;
   color: string;
@@ -45,4 +46,12 @@ export type Order = {
   status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
   total: number;
   paymentMethod: string;
+};
+
+export type Coupon = {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  isActive: boolean;
 };
