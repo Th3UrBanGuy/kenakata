@@ -2,15 +2,17 @@
 'use client';
 
 import Link from 'next/link';
-import { LogIn, Package2, Search, ShoppingBag } from 'lucide-react';
+import { LogIn, LogOut, Package2, Search, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Cart } from '@/components/Cart';
 import { useCart } from '@/context/CartProvider';
+import { useAuth } from '@/context/AuthProvider';
 
 export function Header() {
   const { totalItems } = useCart();
+  const { isAuthenticated, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
@@ -37,12 +39,19 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link href="/login" passHref>
-              <Button variant="ghost" size="icon">
-                <LogIn className="h-5 w-5" />
-                <span className="sr-only">Login</span>
+            {isAuthenticated ? (
+               <Button variant="ghost" size="icon" onClick={logout}>
+                <LogOut className="h-5 w-5" />
+                <span className="sr-only">Logout</span>
               </Button>
-            </Link>
+            ) : (
+              <Link href="/login" passHref>
+                <Button variant="ghost" size="icon">
+                  <LogIn className="h-5 w-5" />
+                  <span className="sr-only">Login</span>
+                </Button>
+              </Link>
+            )}
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">

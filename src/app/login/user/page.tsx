@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthProvider';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,16 +11,19 @@ import { Loader2 } from 'lucide-react';
 
 export default function UserLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login } = useAuth();
+  
+  const from = searchParams.get('from') || '/account/dashboard';
 
   useEffect(() => {
-    // In a real app, you'd have authentication logic here.
-    // For dev purposes, we are redirecting immediately.
+    login('user');
     const timer = setTimeout(() => {
-        router.push('/account/dashboard');
-    }, 1000); // A small delay to show the logging in message
+        router.push(from);
+    }, 1000); 
 
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [router, login, from]);
 
   return (
     <div className="flex flex-col min-h-screen">

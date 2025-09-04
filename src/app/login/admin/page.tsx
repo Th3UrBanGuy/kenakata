@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthProvider';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,16 +21,19 @@ import { Loader2 } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login } = useAuth();
+
+  const from = searchParams.get('from') || '/admin/dashboard';
 
   useEffect(() => {
-    // In a real app, you'd have authentication logic here.
-    // For dev purposes, we are redirecting immediately.
+    login('admin');
     const timer = setTimeout(() => {
-        router.push('/admin/dashboard');
-    }, 1000); // A small delay to show the logging in message
+        router.push(from);
+    }, 1000); 
 
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [router, login, from]);
 
 
   return (

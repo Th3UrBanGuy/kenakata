@@ -1,5 +1,10 @@
 
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthProvider';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +12,29 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { useCart } from '@/context/CartProvider';
 
 export default function CheckoutPage() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { totalPrice } = useCart();
+
+  useEffect(() => {
+    if (isAuthenticated === false) { // Use explicit false check to wait for auth state to be determined
+      router.push('/login?from=/checkout');
+    }
+  }, [isAuthenticated, router]);
+
+  if (!isAuthenticated) {
+    // You can render a loading spinner here while checking auth status
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -86,7 +112,7 @@ export default function CheckoutPage() {
                 <CardContent className="space-y-4">
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span>$119.98</span>
+                        <span>${totalPrice.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">Shipping</span>
@@ -95,7 +121,7 @@ export default function CheckoutPage() {
                     <Separator/>
                     <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span>$124.98</span>
+                        <span>${(totalPrice + 5).toFixed(2)}</span>
                     </div>
                 </CardContent>
             </Card>

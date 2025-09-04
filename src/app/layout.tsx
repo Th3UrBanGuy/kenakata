@@ -5,6 +5,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { CartProvider } from '@/context/CartProvider';
 import { WishlistProvider } from '@/context/WishlistProvider';
+import { AuthProvider } from '@/context/AuthProvider';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -39,12 +40,14 @@ export default function RootLayout({
           inter.variable
         )}
       >
-        <WishlistProvider>
-          <CartProvider>
-            {children}
-            <Toaster />
-          </CartProvider>
-        </WishlistProvider>
+        <AuthProvider>
+          <WishlistProvider>
+            <CartProvider>
+              {children}
+              <Toaster />
+            </CartProvider>
+          </WishlistProvider>
+        </AuthProvider>
       </body>
     </html>
   );
