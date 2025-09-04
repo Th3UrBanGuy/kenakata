@@ -1,12 +1,16 @@
+
+'use client';
+
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { products } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Hero } from '@/components/Hero';
 import { FeaturedProducts } from '@/components/FeaturedProducts';
+import { useData } from '@/context/DataProvider';
 
 export default function Home() {
+  const { products } = useData();
   const categories = [...new Set(products.map((p) => p.category))];
 
   return (

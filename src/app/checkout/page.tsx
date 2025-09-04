@@ -14,13 +14,15 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/CartProvider';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useData } from '@/context/DataProvider';
 
 type CheckoutStep = 'shipping' | 'payment';
 
 export default function CheckoutPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const { cart, totalPrice } = useCart();
+  const { cart, totalPrice, clearCart } = useCart();
+  const { addOrder, updateProductStock } = useData();
   const [step, setStep] = useState<CheckoutStep>('shipping');
 
   const [shippingInfo, setShippingInfo] = useState({
@@ -30,15 +32,13 @@ export default function CheckoutPage() {
     city: '',
     state: '',
     zip: '',
+    email: 'demo@example.com'
   });
 
   useEffect(() => {
     if (isAuthenticated === false) {
-      // Pass the current page to the login page
-      // so we can be redirected back here after login.
       router.push('/login?from=/checkout');
     } else if (isAuthenticated === true) {
-      // Pre-fill form if user is logged in
       setShippingInfo({
         firstName: 'Demo',
         lastName: 'User',
@@ -46,10 +46,34 @@ export default function CheckoutPage() {
         city: 'Webville',
         state: 'CA',
         zip: '90210',
+        email: 'demo@example.com'
       });
     }
   }, [isAuthenticated, router]);
   
+  const handlePlaceOrder = () => {
+    const newOrder = {
+      id: `order_${Date.now()}`,
+      customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+      customerEmail: shippingInfo.email,
+      date: new Date().toISOString(),
+      status: 'Pending' as const,
+      total: totalPrice + 5.00, // with shipping
+      paymentMethod: 'Credit Card',
+      items: cart,
+    };
+    
+    addOrder(newOrder);
+    
+    cart.forEach(item => {
+      updateProductStock(item.productId, item.variantId, -item.quantity);
+    });
+    
+    clearCart();
+    
+    router.push(`/checkout/success?orderId=${newOrder.id}`);
+  };
+
   if (isAuthenticated === null || isAuthenticated === false) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -174,10 +198,14 @@ export default function CheckoutPage() {
                                 <span className="text-muted-foreground">Shipping</span>
                                 <span>$5.00</span>
                             </div>
+                             <div className="flex justify-between">
+                                <span className="text-muted-foreground">Taxes</span>
+                                <span>${(totalPrice * 0.08).toFixed(2)}</span>
+                            </div>
                             <Separator/>
                             <div className="flex justify-between font-bold text-lg">
                                 <span>Total</span>
-                                <span>${(totalPrice + 5).toFixed(2)}</span>
+                                <span>${(totalPrice + 5 + totalPrice * 0.08).toFixed(2)}</span>
                             </div>
                         </CardContent>
                     </Card>
@@ -187,11 +215,9 @@ export default function CheckoutPage() {
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Shipping
                         </Button>
-                        <Link href="/checkout/success" className="w-full">
-                            <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                                Place Order
-                            </Button>
-                        </Link>
+                        <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={handlePlaceOrder}>
+                            Place Order
+                        </Button>
                     </div>
                 </>
             )}

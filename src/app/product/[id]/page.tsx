@@ -4,7 +4,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
-import { products } from '@/lib/data';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -18,10 +17,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/AuthProvider';
+import { useData } from '@/context/DataProvider';
 
 export default function ProductPage() {
   const params = useParams();
   const { id } = params;
+  const { products } = useData();
   const { addToCart } = useCart();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { role } = useAuth();
@@ -206,6 +207,11 @@ export default function ProductPage() {
             {selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 10 && (
                 <p className="text-yellow-500 text-sm text-center">
                     Hurry! Only {selectedVariant.stock} left in stock.
+                </p>
+            )}
+             {selectedVariant && selectedVariant.stock === 0 && (
+                 <p className="text-red-500 text-sm text-center">
+                    This variant is out of stock.
                 </p>
             )}
           </div>

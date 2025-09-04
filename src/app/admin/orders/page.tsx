@@ -4,13 +4,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { orders } from "@/lib/data";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import type { Order } from "@/lib/types";
+import { useData } from "@/context/DataProvider";
 
 export default function OrdersPage() {
+    const { orders } = useData();
 
     const getStatusVariant = (status: Order['status']) => {
         switch (status) {
@@ -50,14 +51,14 @@ export default function OrdersPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {orders.map((order) => (
+                            {[...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((order) => (
                                 <TableRow key={order.id}>
                                     <TableCell className="font-medium">{order.id.slice(-6).toUpperCase()}</TableCell>
                                     <TableCell>
                                         <div className="font-medium">{order.customerName}</div>
                                         <div className="text-sm text-muted-foreground">{order.customerEmail}</div>
                                     </TableCell>
-                                    <TableCell>{order.date}</TableCell>
+                                    <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
                                     <TableCell>
                                         <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                                     </TableCell>

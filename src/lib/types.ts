@@ -64,6 +64,7 @@ export type Order = {
   status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
   total: number;
   paymentMethod: string;
+  items: CartItem[];
 };
 
 export type Coupon = {

@@ -55,19 +55,22 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </CardContent>
       </Link>
-      <CardFooter className="p-4 grid grid-cols-2 gap-2">
-        {role !== 'admin' && (
-            <Button variant="outline" onClick={handleAddToCart} disabled={defaultVariant.stock === 0} className="w-full">
-                <ShoppingBag className="mr-2 h-4 w-4"/>
-                Add to Bag
-            </Button>
-        )}
-        <Link href={`/product/${product.id}`} className="w-full">
-          <Button variant="default" className="w-full col-span-2 data-[admin=true]:col-span-2" data-admin={role === 'admin'}>
-              View
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"/>
-          </Button>
-        </Link>
+      <CardFooter className="p-4 mt-auto">
+        <div className="w-full">
+            {role !== 'admin' ? (
+                <Button onClick={handleAddToCart} disabled={defaultVariant.stock === 0} className="w-full">
+                    <ShoppingBag className="mr-2 h-4 w-4"/>
+                    {defaultVariant.stock === 0 ? 'Out of Stock' : 'Add to Bag'}
+                </Button>
+            ) : (
+                 <Link href={`/product/${product.id}`} className="w-full">
+                    <Button variant="default" className="w-full">
+                        View
+                        <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"/>
+                    </Button>
+                </Link>
+            )}
+        </div>
       </CardFooter>
     </Card>
   );

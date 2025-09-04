@@ -2,7 +2,7 @@
 
 import type { Product, Order, Coupon, Announcement, UserWishlistItem } from './types';
 
-export const products: Product[] = [
+export const initialProducts: Product[] = [
   {
     id: 'prod_1',
     name: 'Cyber-Tee',
@@ -105,11 +105,11 @@ export const products: Product[] = [
   },
 ];
 
-export const orders: Order[] = [
-  { id: 'order_1', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-20', status: 'Delivered', total: 99.98, paymentMethod: 'Credit Card' },
-  { id: 'order_2', customerName: 'Jane Smith', customerEmail: 'jane.smith@example.com', date: '2024-07-21', status: 'Shipped', total: 124.98, paymentMethod: 'PayPal' },
-  { id: 'order_3', customerName: 'Peter Jones', customerEmail: 'peter.jones@example.com', date: '2024-07-22', status: 'Pending', total: 29.99, paymentMethod: 'Credit Card' },
-  { id: 'order_4', customerName: 'Mary Johnson', customerEmail: 'mary.j@example.com', date: '2024-07-22', status: 'Cancelled', total: 59.99, paymentMethod: 'Credit Card' },
+export const initialOrders: Order[] = [
+  { id: 'order_1', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-20', status: 'Delivered', total: 99.98, paymentMethod: 'Credit Card', items: [] },
+  { id: 'order_2', customerName: 'Jane Smith', customerEmail: 'jane.smith@example.com', date: '2024-07-21', status: 'Shipped', total: 124.98, paymentMethod: 'PayPal', items: [] },
+  { id: 'order_3', customerName: 'Peter Jones', customerEmail: 'peter.jones@example.com', date: '2024-07-22', status: 'Pending', total: 29.99, paymentMethod: 'Credit Card', items: [] },
+  { id: 'order_4', customerName: 'Mary Johnson', customerEmail: 'mary.j@example.com', date: '2024-07-22', status: 'Cancelled', total: 59.99, paymentMethod: 'Credit Card', items: [] },
 ];
 
 export const coupons: Coupon[] = [
@@ -150,3 +150,6 @@ export const userWishlist: UserWishlistItem[] = [
     { user: 'Demo User', productName: 'Quantum Cap', variant: 'Blue / One Size', productId: 'prod_3', variantId: 'var_3_2' },
     { user: 'Another User', productName: 'Cyber-Tee', variant: 'Black / L', productId: 'prod_1', variantId: 'var_1_2' }
 ];
+
+export const products: Product[] = initialProducts;
+export const orders: Order[] = initialOrders;

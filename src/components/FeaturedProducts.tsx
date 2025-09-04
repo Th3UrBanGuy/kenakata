@@ -1,7 +1,11 @@
-import { products } from '@/lib/data';
+
+'use client';
+
 import { ProductCard } from '@/components/ProductCard';
+import { useData } from '@/context/DataProvider';
 
 export function FeaturedProducts() {
+  const { products } = useData();
   // Simple logic to feature some products.
   const featuredProducts = products.slice(0, 4);
 
