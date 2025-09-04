@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { CartItem } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast"
 
@@ -19,6 +20,25 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Load cart from sessionStorage on initial render
+    try {
+      const storedCart = sessionStorage.getItem('cart');
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+      }
+    } catch (error) {
+      console.error("Failed to parse cart from sessionStorage", error);
+      setCart([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save cart to sessionStorage whenever it changes
+    sessionStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
+
 
   const addToCart = (newItem: Omit<CartItem, 'quantity'>) => {
     setCart((prevCart) => {
