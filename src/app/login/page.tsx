@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -12,17 +13,9 @@ import {
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { User, Shield } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LoginPage() {
-  const router = useRouter();
-
-  const handleAdminLogin = () => {
-    router.push('/admin');
-  };
-
-  const handleUserLogin = () => {
-    router.push('/');
-  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -30,20 +23,24 @@ export default function LoginPage() {
       <main className="flex-1 flex items-center justify-center container py-12 md:py-24">
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-headline">Development Login</CardTitle>
+            <CardTitle className="text-2xl font-headline">Login</CardTitle>
             <CardDescription>
-              Select a role to log in for development purposes.
+              Please select your login type.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button onClick={handleAdminLogin} className="w-full">
-              <Shield className="mr-2 h-4 w-4" />
-              Login as Admin
-            </Button>
-            <Button onClick={handleUserLogin} variant="secondary" className="w-full">
-              <User className="mr-2 h-4 w-4" />
-              Login as User
-            </Button>
+            <Link href="/login/admin" className='w-full block'>
+                <Button className="w-full">
+                    <Shield className="mr-2 h-4 w-4" />
+                    Admin Login
+                </Button>
+            </Link>
+            <Link href="/login/user" className='w-full block'>
+                <Button variant="secondary" className="w-full">
+                    <User className="mr-2 h-4 w-4" />
+                    User Login
+                </Button>
+            </Link>
           </CardContent>
         </Card>
       </main>
