@@ -12,8 +12,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/context/CartProvider';
 import { cn } from '@/lib/utils';
-import { Check, ShoppingBag, Star } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ShoppingBag, Star } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
@@ -56,7 +56,10 @@ export default function ProductPage() {
 
   useEffect(() => {
       if (product && selectedColor && !selectedSize && availableSizes.length > 0) {
-        const firstAvailableSize = availableSizes[0];
+        const firstAvailableSize = availableSizes.find(size => {
+            const variant = product.variants.find(v => v.color === selectedColor && v.size === size);
+            return variant && variant.stock > 0;
+        }) || availableSizes[0];
         setSelectedSize(firstAvailableSize);
       }
   }, [product, selectedColor, selectedSize, availableSizes]);
