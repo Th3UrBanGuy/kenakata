@@ -82,14 +82,6 @@ export function Header() {
                         <span>Dashboard</span>
                     </DropdownMenuItem>
                   </Link>
-                  <Link href="/account/profile" passHref>
-                     <DropdownMenuItem>
-                        Profile
-                    </DropdownMenuItem>
-                  </Link>
-                   <Link href="/account/orders" passHref>
-                    <DropdownMenuItem>Orders</DropdownMenuItem>
-                  </Link>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
