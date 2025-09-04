@@ -34,7 +34,9 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (isAuthenticated === false) {
-      router.push('/login/user?from=/checkout');
+      // Pass the current page to the login page
+      // so we can be redirected back here after login.
+      router.push('/login?from=/checkout');
     } else if (isAuthenticated === true) {
       // Pre-fill form if user is logged in
       setShippingInfo({

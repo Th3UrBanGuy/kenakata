@@ -2,17 +2,25 @@
 'use client';
 
 import Link from 'next/link';
-import { LogIn, LogOut, Package2, Search, ShoppingBag } from 'lucide-react';
+import { LogIn, LogOut, Package2, Search, ShoppingBag, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Cart } from '@/components/Cart';
 import { useCart } from '@/context/CartProvider';
 import { useAuth } from '@/context/AuthProvider';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function Header() {
   const { totalItems } = useCart();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, role } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
@@ -38,17 +46,36 @@ export function Header() {
             </form>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {isAuthenticated ? (
-               <Button variant="ghost" size="icon" onClick={logout}>
-                <LogOut className="h-5 w-5" />
-                <span className="sr-only">Logout</span>
-              </Button>
+               <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" size="icon" className="rounded-full">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">Toggle user menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <Link href={role === 'admin' ? '/admin/dashboard' : '/account/dashboard'} passHref>
+                    <DropdownMenuItem>Dashboard</DropdownMenuItem>
+                  </Link>
+                  <Link href="/account/profile" passHref>
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                  </Link>
+                   <Link href="/account/orders" passHref>
+                    <DropdownMenuItem>Orders</DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Link href="/login" passHref>
-                <Button variant="ghost" size="icon">
-                  <LogIn className="h-5 w-5" />
-                  <span className="sr-only">Login</span>
+                <Button>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Login
                 </Button>
               </Link>
             )}
