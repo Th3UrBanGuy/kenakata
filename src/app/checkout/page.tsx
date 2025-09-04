@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/CartProvider';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 
 type CheckoutStep = 'shipping' | 'payment';
 
@@ -33,8 +33,10 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    // Pre-fill form if user is logged in
-    if (isAuthenticated) {
+    if (isAuthenticated === false) {
+      router.push('/login/user?from=/checkout');
+    } else if (isAuthenticated === true) {
+      // Pre-fill form if user is logged in
       setShippingInfo({
         firstName: 'Demo',
         lastName: 'User',
@@ -44,8 +46,23 @@ export default function CheckoutPage() {
         zip: '90210',
       });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, router]);
   
+  if (isAuthenticated === null || isAuthenticated === false) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 flex items-center justify-center container">
+          <div className="flex items-center space-x-2">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-lg">Loading and verifying authentication...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   if (cart.length === 0) {
       return (
            <div className="flex flex-col min-h-screen">
@@ -81,7 +98,7 @@ export default function CheckoutPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Shipping Information</CardTitle>
-                        <CardDescription>Enter the address where you want to receive your order.</CardDescription>
+                        <CardDescription>Confirm the address where you want to receive your order.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
                         <div className="grid md:grid-cols-2 gap-4">
@@ -109,7 +126,7 @@ export default function CheckoutPage() {
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="zip">ZIP Code</Label>
-                                <Input id="zip" placeholder="12345" value={shippingInfo.zip} onChange={e => setShippingInfo({...shippingIfo, zip: e.target.value})}/>
+                                <Input id="zip" placeholder="12345" value={shippingInfo.zip} onChange={e => setShippingInfo({...shippingInfo, zip: e.target.value})}/>
                             </div>
                         </div>
                         <Button size="lg" className="w-full mt-4" onClick={() => setStep('payment')}>Continue to Payment</Button>
