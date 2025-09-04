@@ -60,7 +60,7 @@ export default function CheckoutPage() {
                 <CardHeader>
                     <CardTitle>Payment Details</CardTitle>
                     <CardDescription>Enter your payment information.</CardDescription>
-                </Header>
+                </CardHeader>
                 <CardContent className="grid gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="card-number">Card Number</Label>
