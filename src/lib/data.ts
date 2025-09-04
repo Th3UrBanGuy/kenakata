@@ -1,6 +1,6 @@
 
 
-import type { Product, Order, Coupon, Announcement, UserWishlistItem } from './types';
+import type { Product, Order, Coupon, Announcement, UserWishlistItem, SupportTicket } from './types';
 
 export const initialProducts: Product[] = [
   {
@@ -151,5 +151,24 @@ export const userWishlist: UserWishlistItem[] = [
     { user: 'Another User', productName: 'Cyber-Tee', variant: 'Black / L', productId: 'prod_1', variantId: 'var_1_2' }
 ];
 
+export const initialSupportTickets: SupportTicket[] = [
+    {
+        id: 'ticket_1',
+        status: 'open',
+        messages: [
+            { sender: 'user', text: 'Hi, I have a question about my order.', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString() },
+            { sender: 'admin', text: 'Hello! How can I help you today?', timestamp: new Date(Date.now() - 1000 * 60 * 4).toISOString() },
+        ]
+    },
+    {
+        id: 'ticket_2',
+        status: 'closed',
+        messages: [
+            { sender: 'user', text: 'What is your return policy?', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() }
+        ]
+    }
+];
+
 export const products: Product[] = initialProducts;
 export const orders: Order[] = initialOrders;
+export const supportTickets: SupportTicket[] = initialSupportTickets;

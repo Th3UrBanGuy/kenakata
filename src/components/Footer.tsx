@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Package2 } from "lucide-react";
 
@@ -17,6 +18,9 @@ export function Footer() {
           </Link>
           <Link href="#" className="text-sm text-muted-foreground hover:text-primary">
             Privacy Policy
+          </Link>
+          <Link href="/support" className="text-sm text-muted-foreground hover:text-primary">
+            Support
           </Link>
         </nav>
       </div>
