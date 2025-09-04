@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -26,7 +27,7 @@ export default function LoginPage() {
     return (
         <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
             <div className="flex items-center justify-center py-12">
-                <Card className="mx-auto grid w-[350px] gap-6 border-0 shadow-none sm:border-solid sm:shadow-sm">
+                <Card className="mx-auto grid w-[380px] gap-6 border-0 shadow-none sm:border-solid sm:shadow-sm">
                     <CardHeader>
                         <CardTitle className="text-3xl font-bold font-headline">Login</CardTitle>
                         <CardDescription>
@@ -58,12 +59,24 @@ export default function LoginPage() {
                                 <Input id="password" type="password" required defaultValue="password" />
                             </div>
                             <Button type="submit" className="w-full">
-                                Login
+                                Login as User
                             </Button>
                         </form>
                         <Button variant="outline" className="w-full">
                             Login with Google
                         </Button>
+                        
+                        <div className="relative my-2">
+                            <Separator />
+                            <span className="absolute left-1/2 -translate-x-1/2 top-[-10px] bg-background px-2 text-xs uppercase text-muted-foreground">
+                                or
+                            </span>
+                        </div>
+                        
+                        <Link href="/login/admin">
+                           <Button variant="secondary" className="w-full">Login as Admin (Dev)</Button>
+                        </Link>
+                        
                         <div className="mt-4 text-center text-sm">
                             Don&apos;t have an account?{' '}
                             <Link href="/register" className="underline">
