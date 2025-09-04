@@ -20,12 +20,6 @@ export function Header() {
               <span className="text-lg font-bold">KenaKata</span>
             </Link>
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-                <Link href="/#all-products" className="text-muted-foreground transition-colors hover:text-primary">
-                    Products
-                </Link>
-                <Link href="/#categories" className="text-muted-foreground transition-colors hover:text-primary">
-                    Categories
-                </Link>
                 <Link href="/admin" className="text-muted-foreground transition-colors hover:text-primary">
                     Admin
                 </Link>
@@ -81,12 +75,6 @@ export function Header() {
                         <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
                             <Package2 className="h-6 w-6" />
                             <span className="">KenaKata</span>
-                        </Link>
-                        <Link href="/#all-products" className="text-muted-foreground hover:text-foreground">
-                            Products
-                        </Link>
-                        <Link href="/#categories" className="text-muted-foreground hover:text-foreground">
-                            Categories
                         </Link>
                         <Link href="/admin" className="text-muted-foreground hover:text-foreground">
                             Admin
