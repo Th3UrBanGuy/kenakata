@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -12,18 +13,13 @@ export function Header() {
   const { totalItems } = useCart();
 
   return (
-    <header className="sticky top-0 z-50 flex flex-col border-b bg-background">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
               <Package2 className="h-6 w-6 text-primary" />
               <span className="text-lg font-bold">KenaKata</span>
             </Link>
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-                <Link href="/admin" className="text-muted-foreground transition-colors hover:text-primary">
-                    Admin
-                </Link>
-            </nav>
         </div>
 
         <div className="flex items-center gap-4">
@@ -76,25 +72,22 @@ export function Header() {
                             <Package2 className="h-6 w-6" />
                             <span className="">KenaKata</span>
                         </Link>
-                        <Link href="/admin" className="text-muted-foreground hover:text-foreground">
-                            Admin
-                        </Link>
+                         <div className="md:hidden border-t px-4 py-2 -mx-4">
+                            <form>
+                                <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    type="search"
+                                    placeholder="What are you looking for?"
+                                    className="w-full rounded-full bg-muted pl-10"
+                                />
+                                </div>
+                            </form>
+                        </div>
                     </nav>
                 </SheetContent>
             </Sheet>
         </div>
-      </div>
-      <div className="md:hidden border-t px-4 py-2">
-         <form>
-            <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-                type="search"
-                placeholder="What are you looking for?"
-                className="w-full rounded-full bg-muted pl-10"
-            />
-            </div>
-        </form>
       </div>
     </header>
   );
