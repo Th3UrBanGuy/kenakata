@@ -6,6 +6,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { products } from '@/lib/data';
 import type { Product } from '@/lib/types';
 import { Badge } from './ui/badge';
+import { cn } from '@/lib/utils';
 
 export function Hero() {
   const promotionalProducts = products.filter(p => p.promotion);
@@ -21,32 +22,34 @@ export function Hero() {
                 className="w-full"
             >
                 <CarouselContent>
-                {promotionalProducts.map((product: Product) => (
+                {promotionalProducts.map((product: Product, index) => (
                     <CarouselItem key={product.id}>
                         <div className="p-1">
-                            <Card className="overflow-hidden">
+                            <Card className="overflow-hidden border-0">
                                 <CardContent className="p-0">
-                                    <div className="grid md:grid-cols-2">
-                                        <div className="relative aspect-[4/3] md:aspect-auto">
-                                            <Image
-                                                src={product.variants[0].imageUrl}
-                                                alt={product.name}
-                                                fill
-                                                className="object-cover"
-                                                data-ai-hint="product photo"
-                                            />
-                                        </div>
-                                        <div className="flex flex-col justify-center p-8 space-y-4">
+                                    <div className="relative aspect-video">
+                                        <Image
+                                            src={product.variants[0].imageUrl}
+                                            alt={product.name}
+                                            fill
+                                            className="object-cover rounded-lg"
+                                            data-ai-hint="product photo"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg" />
+                                        <div className={cn(
+                                            "absolute bottom-0 p-8 md:p-12 text-white space-y-4",
+                                            index % 2 === 0 ? "left-0 text-left" : "right-0 text-right"
+                                            )}>
                                             {product.promotion && (
-                                                <Badge variant="secondary" className="text-sm self-start">{product.promotion}</Badge>
+                                                <Badge variant="secondary" className="text-sm">{product.promotion}</Badge>
                                             )}
-                                            <h1 className="text-4xl font-bold tracking-tighter font-headline">{product.name}</h1>
-                                            <p className="text-lg text-muted-foreground">{product.description}</p>
-                                            <div className="flex items-baseline space-x-2">
-                                                <span className="text-3xl font-bold text-primary">${product.variants[0].price.toFixed(2)}</span>
+                                            <h1 className="text-4xl lg:text-5xl font-bold tracking-tighter font-headline drop-shadow-md">{product.name}</h1>
+                                            <p className="text-lg text-white/80 max-w-lg hidden md:block">{product.description}</p>
+                                            <div className="flex items-baseline space-x-2" style={{justifyContent: index % 2 === 0 ? 'flex-start' : 'flex-end'}}>
+                                                <span className="text-3xl font-bold">${product.variants[0].price.toFixed(2)}</span>
                                             </div>
                                             <Link href={`/product/${product.id}`}>
-                                                <Button size="lg">Shop Now</Button>
+                                                <Button size="lg" variant="secondary">Shop Now</Button>
                                             </Link>
                                         </div>
                                     </div>
@@ -56,8 +59,8 @@ export function Hero() {
                     </CarouselItem>
                 ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4" />
+                <CarouselPrevious className="left-4 hidden md:flex" />
+                <CarouselNext className="right-4 hidden md:flex" />
             </Carousel>
         </div>
     </section>
