@@ -18,7 +18,7 @@ export function UserSidebar() {
   ];
 
   return (
-    <aside>
+    <>
       <nav className="hidden md:flex flex-col gap-2 text-sm font-medium">
         {navItems.map((item) => (
           <Link
@@ -34,21 +34,25 @@ export function UserSidebar() {
           </Link>
         ))}
       </nav>
-      <nav className="md:hidden flex overflow-x-auto border-b mb-6">
-         {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex flex-col items-center gap-1 px-4 py-2 text-muted-foreground transition-all text-sm shrink-0",
-              pathname === item.href && "text-primary border-b-2 border-primary"
-            )}
-          >
-            <item.icon className="h-5 w-5" />
-            <span>{item.label}</span>
-          </Link>
-        ))}
+      
+      {/* Mobile Bottom Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t shadow-t-lg z-50">
+         <div className="grid h-16 grid-cols-5 items-center">
+            {navItems.map((item) => (
+            <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                "flex flex-col items-center justify-center gap-1 text-muted-foreground transition-all text-sm h-full",
+                pathname === item.href ? "text-primary bg-muted/50" : "hover:bg-muted/50"
+                )}
+            >
+                <item.icon className="h-5 w-5" />
+                <span className="text-xs">{item.label}</span>
+            </Link>
+            ))}
+         </div>
       </nav>
-    </aside>
+    </>
   );
 }

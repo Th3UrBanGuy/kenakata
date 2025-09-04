@@ -8,9 +8,11 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 container py-12">
+      <main className="flex-1 container py-12 md:pb-12 pb-24">
         <div className="grid md:grid-cols-[240px_1fr] gap-8">
-          <UserSidebar />
+          <aside className="md:block">
+            <UserSidebar />
+          </aside>
           <div>
             {children}
           </div>
