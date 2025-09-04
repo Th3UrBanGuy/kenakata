@@ -12,12 +12,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { Coupon } from '@/lib/types';
+import { Textarea } from '../ui/textarea';
 
 const couponSchema = z.object({
   code: z.string().min(3, 'Code must be at least 3 characters').toUpperCase(),
   discountType: z.enum(['percentage', 'fixed']),
   discountValue: z.coerce.number().min(0.01, 'Discount value is required'),
   isActive: z.boolean(),
+  applicableProductIds: z.string().optional(),
 });
 
 type CouponFormValues = z.infer<typeof couponSchema>;
@@ -31,12 +33,13 @@ export function CouponForm({ coupon }: CouponFormProps) {
   const router = useRouter();
   
   const defaultValues = coupon
-    ? { ...coupon }
+    ? { ...coupon, applicableProductIds: coupon.applicableProductIds?.join(', ') }
     : {
         code: '',
         discountType: 'percentage' as const,
         discountValue: 10,
         isActive: true,
+        applicableProductIds: '',
       };
 
   const form = useForm<CouponFormValues>({
@@ -45,7 +48,10 @@ export function CouponForm({ coupon }: CouponFormProps) {
   });
 
   function onSubmit(data: CouponFormValues) {
-    console.log(data);
+    console.log({
+        ...data,
+        applicableProductIds: data.applicableProductIds?.split(',').map(s => s.trim()).filter(Boolean)
+    });
     toast({
       title: `Coupon ${coupon ? 'Updated' : 'Created'}`,
       description: `Coupon "${data.code}" has been successfully saved.`,
@@ -56,22 +62,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Coupon Code</FormLabel>
-                <FormControl>
-                  <Input placeholder="SUMMER25" {...field} />
-                </FormControl>
-                <FormDescription>The code customers will enter at checkout.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
+        <FormField
             control={form.control}
             name="isActive"
             render={({ field }) => (
@@ -89,7 +80,21 @@ export function CouponForm({ coupon }: CouponFormProps) {
               </FormItem>
             )}
           />
-        </div>
+        <FormField
+            control={form.control}
+            name="code"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Coupon Code</FormLabel>
+                <FormControl>
+                  <Input placeholder="SUMMER25" {...field} />
+                </FormControl>
+                <FormDescription>The code customers will enter at checkout.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
         <div className="grid md:grid-cols-2 gap-8">
             <FormField
             control={form.control}
@@ -126,6 +131,22 @@ export function CouponForm({ coupon }: CouponFormProps) {
             )}
             />
         </div>
+         <FormField
+            control={form.control}
+            name="applicableProductIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Applicable Products (Optional)</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="prod_1, prod_2, prod_5" {...field} />
+                </FormControl>
+                <FormDescription>
+                    Enter a comma-separated list of product IDs. If left blank, the coupon will apply to all products.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
         <Button type="submit" size="lg">
           {coupon ? 'Save Changes' : 'Create Coupon'}

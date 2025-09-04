@@ -114,6 +114,6 @@ export const orders: Order[] = [
 
 export const coupons: Coupon[] = [
     { id: 'coupon_1', code: 'SUMMER10', discountType: 'percentage', discountValue: 10, isActive: true },
-    { id: 'coupon_2', code: 'WELCOME5', discountType: 'fixed', discountValue: 5, isActive: true },
+    { id: 'coupon_2', code: 'WELCOME5', discountType: 'fixed', discountValue: 5, isActive: true, applicableProductIds: ['prod_1'] },
     { id: 'coupon_3', code: 'SALE50', discountType: 'percentage', discountValue: 50, isActive: false },
 ];

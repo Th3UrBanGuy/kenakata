@@ -18,7 +18,7 @@ export type Comment = {
 };
 
 export type Product = {
-  id: string;
+  id:string;
   name: string;
   description: string;
   category: string;
@@ -54,4 +54,5 @@ export type Coupon = {
   discountType: 'percentage' | 'fixed';
   discountValue: number;
   isActive: boolean;
+  applicableProductIds?: string[];
 };
