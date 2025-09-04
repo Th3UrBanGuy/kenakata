@@ -2,7 +2,7 @@
 'use client';
 
 import Link from "next/link";
-import { Menu, Package2, Search } from "lucide-react";
+import { Home, Menu, Package, Package2, ShoppingCart, Users, LineChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -10,10 +10,11 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-    { href: "/admin", label: "Products" },
-    { href: "/admin/orders", label: "Orders" },
-    { href: "/admin/customers", label: "Customers" },
-    { href: "/admin/analytics", label: "Analytics" },
+    { href: "/admin/dashboard", label: "Dashboard", icon: Home },
+    { href: "/admin/products", label: "Products", icon: Package },
+    { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
+    { href: "/admin/customers", label: "Customers", icon: Users },
+    { href: "/admin/analytics", label: "Analytics", icon: LineChart },
   ];
 
 export function AdminMobileHeader() {
@@ -49,6 +50,7 @@ export function AdminMobileHeader() {
                             pathname === item.href && "bg-muted text-primary"
                         )}
                     >
+                        <item.icon className="h-5 w-5" />
                         {item.label}
                     </Link>
                 ))}

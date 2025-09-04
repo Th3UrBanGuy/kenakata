@@ -3,14 +3,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LineChart, Package, Package2, ShoppingCart, Users } from "lucide-react";
+import { Home, LineChart, Package, Package2, ShoppingCart, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function AdminSidebar() {
   const pathname = usePathname();
 
   const navItems = [
-    { href: "/admin", icon: Package, label: "Products" },
+    { href: "/admin/dashboard", icon: Home, label: "Dashboard" },
+    { href: "/admin/products", icon: Package, label: "Products" },
     { href: "/admin/orders", icon: ShoppingCart, label: "Orders" },
     { href: "/admin/customers", icon: Users, label: "Customers" },
     { href: "/admin/analytics", icon: LineChart, label: "Analytics" },

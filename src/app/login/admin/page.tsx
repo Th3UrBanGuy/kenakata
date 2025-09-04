@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
     // In a real app, you'd have authentication logic here.
     // For dev purposes, we are redirecting immediately.
     const timer = setTimeout(() => {
-        router.push('/admin');
+        router.push('/admin/dashboard');
     }, 1000); // A small delay to show the logging in message
 
     return () => clearTimeout(timer);
