@@ -34,7 +34,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2 group">
-      <Link href={`/product/${product.id}`} className="block">
+      <Link href={`/product/${product.id}`} className="block flex-grow">
         <CardHeader className="p-0">
           <div className="relative aspect-square w-full overflow-hidden">
             <Image
@@ -46,24 +46,24 @@ export function ProductCard({ product }: ProductCardProps) {
             />
           </div>
         </CardHeader>
-        <CardContent className="p-4 flex-grow">
-          <CardTitle className="text-lg font-headline group-hover:text-primary transition-colors">{product.name}</CardTitle>
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start gap-2">
+            <CardTitle className="text-lg font-headline group-hover:text-primary transition-colors flex-1">{product.name}</CardTitle>
+            <p className="text-lg font-bold text-primary">${defaultVariant.price.toFixed(2)}</p>
+          </div>
         </CardContent>
       </Link>
-      <CardFooter className="p-4 flex justify-between items-center">
-        <p className="text-xl font-bold text-primary">${defaultVariant.price.toFixed(2)}</p>
-        <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={handleAddToCart} disabled={defaultVariant.stock === 0}>
-                <ShoppingBag className="h-5 w-5"/>
-                <span className="sr-only">Add to Bag</span>
-            </Button>
-            <Link href={`/product/${product.id}`}>
-              <Button variant="ghost" size="sm">
-                  View
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"/>
-              </Button>
-            </Link>
-        </div>
+      <CardFooter className="p-4 grid grid-cols-2 gap-2">
+        <Button variant="outline" onClick={handleAddToCart} disabled={defaultVariant.stock === 0} className="w-full">
+            <ShoppingBag className="mr-2 h-4 w-4"/>
+            Add to Bag
+        </Button>
+        <Link href={`/product/${product.id}`} className="w-full">
+          <Button variant="default" className="w-full">
+              View
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"/>
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
