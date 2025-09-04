@@ -1,16 +1,36 @@
+
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Product } from '@/lib/types';
 import { Button } from './ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ShoppingBag } from 'lucide-react';
+import { useCart } from '@/context/CartProvider';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { addToCart } = useCart();
   const defaultVariant = product.variants[0];
+
+  const handleAddToCart = () => {
+    if (defaultVariant && product) {
+      addToCart({
+        productId: product.id,
+        variantId: defaultVariant.id,
+        name: product.name,
+        color: defaultVariant.color,
+        size: defaultVariant.size,
+        price: defaultVariant.price,
+        imageUrl: defaultVariant.imageUrl,
+      });
+    }
+  };
+
 
   return (
     <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2 group">
@@ -32,12 +52,18 @@ export function ProductCard({ product }: ProductCardProps) {
       </Link>
       <CardFooter className="p-4 flex justify-between items-center">
         <p className="text-xl font-bold text-primary">${defaultVariant.price.toFixed(2)}</p>
-        <Link href={`/product/${product.id}`}>
-          <Button variant="ghost" size="sm" className="opacity-80 group-hover:opacity-100 transition-opacity">
-              View
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"/>
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={handleAddToCart} disabled={defaultVariant.stock === 0}>
+                <ShoppingBag className="h-5 w-5"/>
+                <span className="sr-only">Add to Bag</span>
+            </Button>
+            <Link href={`/product/${product.id}`}>
+              <Button variant="ghost" size="sm">
+                  View
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"/>
+              </Button>
+            </Link>
+        </div>
       </CardFooter>
     </Card>
   );
