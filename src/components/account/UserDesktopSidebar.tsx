@@ -3,18 +3,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Settings, User, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { navItems } from "./navItems";
 
-export const navItems = [
-    { href: "/account/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/account/orders", icon: Package, label: "Orders" },
-    { href: "/account/wishlist", icon: Heart, label: "Wishlist" },
-    { href: "/account/profile", icon: User, label: "Profile" },
-    { href: "/account/settings", icon: Settings, label: "Settings" },
-  ];
-
-export function UserSidebar() {
+export function UserDesktopSidebar() {
   const pathname = usePathname();
 
   return (
