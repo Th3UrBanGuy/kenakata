@@ -48,6 +48,14 @@ export type WishlistItem = {
   size: string;
 };
 
+export type UserWishlistItem = {
+  user: string;
+  productName: string;
+  variant: string;
+  productId: string;
+  variantId: string;
+};
+
 export type Order = {
   id: string;
   customerName: string;

@@ -2,7 +2,7 @@
 'use client';
 
 import Link from "next/link";
-import { Home, Menu, Package, Package2, ShoppingCart, Users, LineChart, Tag } from "lucide-react";
+import { Home, Menu, Package, Package2, ShoppingCart, Users, LineChart, Tag, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -15,6 +15,7 @@ const navItems = [
     { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
     { href: "/admin/customers", label: "Customers", icon: Users },
     { href: "/admin/coupons", label: "Coupons", icon: Tag },
+    { href: "/admin/wishlist", label: "Wishlist", icon: Heart },
     { href: "/admin/analytics", label: "Analytics", icon: LineChart },
   ];
 

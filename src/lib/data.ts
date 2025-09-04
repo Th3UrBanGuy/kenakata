@@ -1,6 +1,6 @@
 
 
-import type { Product, Order, Coupon, Announcement } from './types';
+import type { Product, Order, Coupon, Announcement, UserWishlistItem } from './types';
 
 export const products: Product[] = [
   {
@@ -143,4 +143,10 @@ export const announcements: Announcement[] = [
         link: '/login',
         tag: 'Get Rewards'
     }
-]
+];
+
+export const userWishlist: UserWishlistItem[] = [
+    { user: 'Demo User', productName: 'Nova Hoodie', variant: 'Navy / S', productId: 'prod_2', variantId: 'var_2_1' },
+    { user: 'Demo User', productName: 'Quantum Cap', variant: 'Blue / One Size', productId: 'prod_3', variantId: 'var_3_2' },
+    { user: 'Another User', productName: 'Cyber-Tee', variant: 'Black / L', productId: 'prod_1', variantId: 'var_1_2' }
+];

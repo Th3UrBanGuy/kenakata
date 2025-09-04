@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LineChart, Package, Package2, ShoppingCart, Users, Tag } from "lucide-react";
+import { Home, LineChart, Package, Package2, ShoppingCart, Users, Tag, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function AdminSidebar() {
@@ -15,6 +15,7 @@ export function AdminSidebar() {
     { href: "/admin/orders", icon: ShoppingCart, label: "Orders" },
     { href: "/admin/customers", icon: Users, label: "Customers" },
     { href: "/admin/coupons", icon: Tag, label: "Coupons" },
+    { href: "/admin/wishlist", icon: Heart, label: "Wishlist" },
     { href: "/admin/analytics", icon: LineChart, label: "Analytics" },
   ];
 
