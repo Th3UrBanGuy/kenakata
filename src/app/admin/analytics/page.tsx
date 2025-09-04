@@ -1,104 +1,166 @@
 
 'use client';
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from 'recharts';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
-import { DollarSign, Users, ShoppingCart, Activity } from 'lucide-react';
+import { useData } from '@/context/DataProvider';
+import { useMemo } from 'react';
+import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 
-const salesData = [
-    { month: "January", sales: 1200 },
-    { month: "February", sales: 2100 },
-    { month: "March", sales: 1800 },
-    { month: "April", sales: 2400 },
-    { month: "May", sales: 2000 },
-    { month: "June", sales: 2800 },
-];
-
-const chartConfig = {
+const chartConfig: ChartConfig = {
   sales: {
     label: 'Sales',
     color: 'hsl(var(--chart-1))',
   },
-} satisfies ChartConfig;
-
+  clothing: {
+    label: 'Apparel',
+    color: 'hsl(var(--chart-1))',
+  },
+  accessories: {
+    label: 'Accessories',
+    color: 'hsl(var(--chart-2))',
+  },
+  gadgets: {
+    label: 'Gadgets',
+    color: 'hsl(var(--chart-3))',
+  },
+  footwear: {
+    label: 'Footwear',
+    color: 'hsl(var(--chart-4))',
+  },
+};
 
 export default function AnalyticsPage() {
-    return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-lg font-semibold md:text-2xl font-headline">Analytics</h1>
-                    <p className="text-muted-foreground">An overview of your store's performance.</p>
-                </div>
-            </div>
-            
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">$45,231.89</div>
-                        <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">New Customers</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">+2350</div>
-                        <p className="text-xs text-muted-foreground">+180.1% from last month</p>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Sales</CardTitle>
-                        <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">+12,234</div>
-                        <p className="text-xs text-muted-foreground">+19% from last month</p>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Active Now</CardTitle>
-                        <Activity className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">+573</div>
-                        <p className="text-xs text-muted-foreground">+201 since last hour</p>
-                    </CardContent>
-                </Card>
-            </div>
+  const { products, orders } = useData();
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Sales Trend</CardTitle>
-                    <CardDescription>A chart showing sales over the last 6 months.</CardDescription>
+  const monthlySales = useMemo(() => {
+    const salesByMonth: { [key: string]: number } = {};
+    orders.forEach(order => {
+      const month = new Date(order.date).toLocaleString('default', { month: 'long' });
+      salesByMonth[month] = (salesByMonth[month] || 0) + order.total;
+    });
+    return Object.entries(salesByMonth).map(([month, sales]) => ({ month, sales: Math.round(sales) }));
+  }, [orders]);
+  
+  const salesByCategory = useMemo(() => {
+    const categorySales: { [key: string]: number } = {};
+    orders.forEach(order => {
+        order.items.forEach(item => {
+            const product = products.find(p => p.id === item.productId);
+            if(product) {
+                const category = product.category.toLowerCase();
+                categorySales[category] = (categorySales[category] || 0) + item.price * item.quantity;
+            }
+        });
+    });
+    return Object.entries(categorySales).map(([name, value]) => ({ name: name, value, fill: `var(--color-${name})`}));
+  }, [orders, products]);
+  
+  const topSellingProducts = useMemo(() => {
+      const productSales: { [key: string]: { product: any, quantity: number} } = {};
+      orders.forEach(order => {
+          order.items.forEach(item => {
+              if (productSales[item.productId]) {
+                  productSales[item.productId].quantity += item.quantity;
+              } else {
+                  const product = products.find(p => p.id === item.productId);
+                  if (product) {
+                    productSales[item.productId] = {
+                        product: { name: product.name, category: product.category, imageUrl: product.variants[0].imageUrl },
+                        quantity: item.quantity
+                    };
+                  }
+              }
+          });
+      });
+      return Object.values(productSales).sort((a,b) => b.quantity - a.quantity).slice(0, 3);
+  }, [orders, products]);
+
+  return (
+    <div className="flex flex-col gap-6">
+        <div className="flex flex-col">
+          <h1 className="text-3xl font-bold font-headline">Analytics</h1>
+          <p className="text-muted-foreground">Deep dive into your store's performance.</p>
+        </div>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Sales Overview</CardTitle>
+                <CardDescription>A chart showing total sales over the last months.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                <BarChart accessibilityLayer data={monthlySales}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                        dataKey="month"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                    />
+                    <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="sales" fill="var(--color-sales)" radius={4} />
+                </BarChart>
+                </ChartContainer>
+            </CardContent>
+        </Card>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-1">
+                 <CardHeader>
+                    <CardTitle>Sales by Category</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                        <BarChart accessibilityLayer data={salesData}>
-                            <CartesianGrid vertical={false} />
-                            <XAxis
-                                dataKey="month"
-                                tickLine={false}
-                                tickMargin={10}
-                                axisLine={false}
-                            />
-                             <YAxis />
-                            <ChartTooltip content={<ChartTooltipContent />} />
-                            <Bar dataKey="sales" fill="var(--color-sales)" radius={4} />
-                        </BarChart>
+                     <ChartContainer
+                        config={chartConfig}
+                        className="mx-auto aspect-square max-h-[250px]"
+                    >
+                        <PieChart>
+                            <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                            <Pie data={salesByCategory} dataKey="value">
+                                 {salesByCategory.map((entry) => (
+                                    <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                                 ))}
+                            </Pie>
+                        </PieChart>
                     </ChartContainer>
                 </CardContent>
             </Card>
+
+             <Card className="lg:col-span-2">
+                 <CardHeader>
+                    <CardTitle>Top Selling Products</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-6">
+                    {topSellingProducts.map(item => (
+                        <div key={item.product.name} className="flex items-center gap-4">
+                           <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border">
+                                <Image src={item.product.imageUrl} alt={item.product.name} fill objectFit="cover" data-ai-hint="product photo" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="font-semibold">{item.product.name}</p>
+                                <Badge variant="outline">{item.product.category}</Badge>
+                            </div>
+                            <p className="font-bold">{item.quantity} sold</p>
+                        </div>
+                    ))}
+                </CardContent>
+            </Card>
         </div>
-    );
+    </div>
+  );
 }
