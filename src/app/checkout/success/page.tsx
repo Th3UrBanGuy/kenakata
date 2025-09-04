@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -7,6 +11,12 @@ import { CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export default function CheckoutSuccessPage() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+    
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -21,7 +31,7 @@ export default function CheckoutSuccessPage() {
             <div className="p-4 rounded-md bg-muted/50">
                 <h3 className="font-semibold mb-2">Order Summary</h3>
                 <p className="text-sm text-muted-foreground">Order #12345</p>
-                <p className="text-sm text-muted-foreground">Date: {new Date().toLocaleDateString()}</p>
+                <p className="text-sm text-muted-foreground">Date: {isClient ? new Date().toLocaleDateString() : ''}</p>
             </div>
             
             <div className="space-y-4">

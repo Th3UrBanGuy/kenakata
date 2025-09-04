@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { products } from '@/lib/data';
@@ -25,6 +25,11 @@ export default function ProductPage() {
 
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const availableColors = useMemo(() => {
     if (!product) return [];
@@ -188,7 +193,7 @@ export default function ProductPage() {
                                                     ))}
                                                 </div>
                                             </div>
-                                            <p className="text-sm text-muted-foreground mb-2">{new Date(comment.date).toLocaleDateString()}</p>
+                                            <p className="text-sm text-muted-foreground mb-2">{isClient ? new Date(comment.date).toLocaleDateString() : ''}</p>
                                             <p>{comment.text}</p>
                                         </div>
                                     </div>
