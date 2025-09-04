@@ -20,6 +20,19 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const previousWishlist = useRef<WishlistItem[]>([]);
 
   useEffect(() => {
+    // Check if an item was added
+    if (previousWishlist.current.length < wishlist.length) {
+      const addedItem = wishlist.find(
+        (currentItem) => !previousWishlist.current.some((prevItem) => prevItem.variantId === currentItem.variantId)
+      );
+      if (addedItem) {
+        toast({
+          title: "Added to wishlist",
+          description: `${addedItem.name} has been added to your wishlist.`,
+        });
+      }
+    }
+    
     // Check if an item was removed
     if (previousWishlist.current.length > wishlist.length) {
       const removedItem = previousWishlist.current.find(
@@ -43,10 +56,6 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       if (prevWishlist.some(item => item.variantId === newItem.variantId)) {
         return prevWishlist;
       }
-      toast({
-        title: "Added to wishlist",
-        description: `${newItem.name} has been added to your wishlist.`,
-      });
       return [...prevWishlist, newItem];
     });
   };
