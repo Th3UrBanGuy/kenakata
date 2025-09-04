@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
 import type { WishlistItem } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,6 +17,26 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const { toast } = useToast();
+  const previousWishlist = useRef<WishlistItem[]>([]);
+
+  useEffect(() => {
+    // Check if an item was removed
+    if (previousWishlist.current.length > wishlist.length) {
+      const removedItem = previousWishlist.current.find(
+        (prevItem) => !wishlist.some((currentItem) => currentItem.variantId === prevItem.variantId)
+      );
+
+      if (removedItem) {
+        toast({
+          title: "Removed from wishlist",
+          description: `${removedItem.name} has been removed from your wishlist.`,
+          variant: 'destructive'
+        });
+      }
+    }
+    // Update the ref to the current wishlist for the next render
+    previousWishlist.current = wishlist;
+  }, [wishlist, toast]);
 
   const addToWishlist = (newItem: WishlistItem) => {
     setWishlist((prevWishlist) => {
@@ -32,17 +52,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const removeFromWishlist = (variantId: string) => {
-    setWishlist((prevWishlist) => {
-        const itemToRemove = prevWishlist.find(item => item.variantId === variantId);
-        if (itemToRemove) {
-            toast({
-                title: "Removed from wishlist",
-                description: `${itemToRemove.name} has been removed from your wishlist.`,
-                variant: 'destructive'
-            });
-        }
-        return prevWishlist.filter((item) => item.variantId !== variantId)
-    });
+    setWishlist((prevWishlist) => 
+        prevWishlist.filter((item) => item.variantId !== variantId)
+    );
   };
 
   const isWishlisted = (variantId: string) => {
