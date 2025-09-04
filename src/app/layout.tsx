@@ -1,13 +1,29 @@
+
 import type { Metadata } from 'next';
+import { Poppins, Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { CartProvider } from '@/context/CartProvider';
+import { WishlistProvider } from '@/context/WishlistProvider';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'KenaKata Online Store',
   description: 'A modern online store experience.',
 };
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-poppins',
+  weight: ['400', '500', '600', '700'],
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export default function RootLayout({
   children,
@@ -16,16 +32,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className={cn('min-h-screen bg-background font-body antialiased')}>
-        <CartProvider>
-          {children}
-          <Toaster />
-        </CartProvider>
+      <body
+        className={cn(
+          'min-h-screen bg-background font-body antialiased',
+          poppins.variable,
+          inter.variable
+        )}
+      >
+        <WishlistProvider>
+          <CartProvider>
+            {children}
+            <Toaster />
+          </CartProvider>
+        </WishlistProvider>
       </body>
     </html>
   );

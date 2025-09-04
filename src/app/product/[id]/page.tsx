@@ -11,8 +11,9 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/context/CartProvider';
+import { useWishlist } from '@/context/WishlistProvider';
 import { cn } from '@/lib/utils';
-import { ShoppingBag, Star } from 'lucide-react';
+import { ShoppingBag, Star, Heart } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -21,6 +22,7 @@ export default function ProductPage() {
   const params = useParams();
   const { id } = params;
   const { addToCart } = useCart();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const product = products.find((p) => p.id === id);
 
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -89,6 +91,26 @@ export default function ProductPage() {
     }
   };
   
+  const isWishlisted = selectedVariant ? wishlist.some(item => item.variantId === selectedVariant.id) : false;
+
+  const handleWishlistToggle = () => {
+    if (selectedVariant && product) {
+      if (isWishlisted) {
+        removeFromWishlist(selectedVariant.id);
+      } else {
+        addToWishlist({
+          productId: product.id,
+          variantId: selectedVariant.id,
+          name: product.name,
+          color: selectedVariant.color,
+          size: selectedVariant.size,
+          price: selectedVariant.price,
+          imageUrl: selectedVariant.imageUrl,
+        });
+      }
+    }
+  };
+
   const imageUrl = selectedVariant?.imageUrl || product.variants[0].imageUrl;
 
   return (
@@ -163,14 +185,19 @@ export default function ProductPage() {
               </div>
             )}
             
-            <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={!selectedVariant || selectedVariant.stock === 0}>
-                {selectedVariant?.stock === 0 ? 'Out of Stock' : (
-                    <>
-                        <ShoppingBag className="mr-2 h-5 w-5" />
-                        Add to Bag
-                    </>
-                )}
-            </Button>
+            <div className="flex gap-4">
+                <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={!selectedVariant || selectedVariant.stock === 0}>
+                    {selectedVariant?.stock === 0 ? 'Out of Stock' : (
+                        <>
+                            <ShoppingBag className="mr-2 h-5 w-5" />
+                            Add to Bag
+                        </>
+                    )}
+                </Button>
+                <Button size="lg" variant="outline" className="px-4" onClick={handleWishlistToggle} disabled={!selectedVariant}>
+                    <Heart className={cn("h-5 w-5", isWishlisted && "text-red-500 fill-current")} />
+                </Button>
+            </div>
             {selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 10 && (
                 <p className="text-yellow-500 text-sm text-center">
                     Hurry! Only {selectedVariant.stock} left in stock.

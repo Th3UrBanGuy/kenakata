@@ -31,11 +31,21 @@ export type CartItem = {
   productId: string;
   variantId: string;
   quantity: number;
-  name: string;
+  name:string;
   color: string;
   size: string;
   price: number;
   imageUrl: string;
+};
+
+export type WishlistItem = {
+  productId: string;
+  variantId: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  color: string;
+  size: string;
 };
 
 export type Order = {
