@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Home, Menu, Package, Package2, ShoppingCart, Users, LineChart, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +35,7 @@ export function AdminMobileHeader() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col">
+              <SheetTitle className="sr-only">Admin Mobile Menu</SheetTitle>
               <nav className="grid gap-2 text-lg font-medium">
                 <Link
                   href="#"
