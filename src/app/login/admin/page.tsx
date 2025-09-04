@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,14 +16,21 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Loader2 } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
 
-  const handleAdminLogin = () => {
-    // In a real app, you'd have authentication logic here
-    router.push('/admin');
-  };
+  useEffect(() => {
+    // In a real app, you'd have authentication logic here.
+    // For dev purposes, we are redirecting immediately.
+    const timer = setTimeout(() => {
+        router.push('/admin');
+    }, 1000); // A small delay to show the logging in message
+
+    return () => clearTimeout(timer);
+  }, [router]);
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -32,24 +40,12 @@ export default function AdminLoginPage() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-headline">Admin Login</CardTitle>
             <CardDescription>
-              Enter your credentials to access the dashboard.
+              Please wait while we log you in...
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="admin@example.com" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" />
-            </div>
+           <CardContent className="flex justify-center items-center p-10">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
           </CardContent>
-          <CardFooter>
-            <Button onClick={handleAdminLogin} className="w-full">
-              Login
-            </Button>
-          </CardFooter>
         </Card>
       </main>
       <Footer />
