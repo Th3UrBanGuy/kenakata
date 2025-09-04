@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { products } from '@/lib/data';
 import { Header } from '@/components/Header';
@@ -16,9 +17,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default function ProductPage() {
+  const params = useParams();
+  const { id } = params;
   const { addToCart } = useCart();
-  const product = products.find((p) => p.id === params.id);
+  const product = products.find((p) => p.id === id);
 
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
