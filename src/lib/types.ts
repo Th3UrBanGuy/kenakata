@@ -56,3 +56,12 @@ export type Coupon = {
   isActive: boolean;
   applicableProductIds?: string[];
 };
+
+export type Announcement = {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  link: string;
+  tag: string;
+};

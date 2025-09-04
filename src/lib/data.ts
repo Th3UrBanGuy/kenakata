@@ -1,6 +1,6 @@
 
 
-import type { Product, Order, Coupon } from './types';
+import type { Product, Order, Coupon, Announcement } from './types';
 
 export const products: Product[] = [
   {
@@ -117,3 +117,30 @@ export const coupons: Coupon[] = [
     { id: 'coupon_2', code: 'WELCOME5', discountType: 'fixed', discountValue: 5, isActive: true, applicableProductIds: ['prod_1'] },
     { id: 'coupon_3', code: 'SALE50', discountType: 'percentage', discountValue: 50, isActive: false },
 ];
+
+export const announcements: Announcement[] = [
+    {
+        id: 'announcement_1',
+        title: 'Summer Collection is Here!',
+        description: 'Check out our latest arrivals for the summer season. Fresh styles, bright colors, and the same great quality.',
+        imageUrl: 'https://picsum.photos/1280/720?random=20',
+        link: '/#all-products',
+        tag: 'New Arrivals'
+    },
+    {
+        id: 'announcement_2',
+        title: 'Free Shipping on Orders Over $50',
+        description: 'For a limited time, get free standard shipping on all orders over $50. No coupon code required!',
+        imageUrl: 'https://picsum.photos/1280/720?random=21',
+        link: '/#all-products',
+        tag: 'Limited Time Offer'
+    },
+     {
+        id: 'announcement_3',
+        title: 'Join Our Rewards Program',
+        description: 'Earn points on every purchase and get exclusive access to sales and new products. Sign up today!',
+        imageUrl: 'https://picsum.photos/1280/720?random=22',
+        link: '/login',
+        tag: 'Get Rewards'
+    }
+]
