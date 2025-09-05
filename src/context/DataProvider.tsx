@@ -1,15 +1,17 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { Product, Order, SupportTicket } from '@/lib/types';
 import { initialProducts, initialOrders, initialSupportTickets } from '@/lib/data';
+import { useFirebase } from './FirebaseProvider';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 interface DataContextType {
   products: Product[];
   orders: Order[];
   supportTickets: SupportTicket[];
-  addOrder: (order: Order) => void;
+  addOrder: (order: Omit<Order, 'id' | 'date' | 'status'>) => void;
   updateProductStock: (productId: string, variantId: string, change: number) => void;
   addSupportMessage: (ticketId: string, text: string) => void;
   addSupportReply: (ticketId: string, text: string) => void;
@@ -18,63 +20,34 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const { db } = useFirebase();
+  const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(initialSupportTickets);
 
-  const addOrder = (newOrder: Order) => {
-    setOrders((prevOrders) => [...prevOrders, newOrder]);
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'products'), (snapshot) => {
+        const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+        setProducts(productsData);
+    });
+    return () => unsub();
+  }, [db]);
+
+
+  const addOrder = (newOrder: Omit<Order, 'id' | 'date' | 'status'>) => {
+    // This will be updated to use firestore
   };
 
   const updateProductStock = (productId: string, variantId: string, change: number) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) => {
-        if (product.id === productId) {
-          return {
-            ...product,
-            variants: product.variants.map((variant) => {
-              if (variant.id === variantId) {
-                return { ...variant, stock: variant.stock + change };
-              }
-              return variant;
-            }),
-          };
-        }
-        return product;
-      })
-    );
+     // This will be updated to use firestore
   };
   
   const addSupportMessage = (ticketId: string, text: string) => {
-    setSupportTickets(prevTickets => {
-        const existingTicket = prevTickets.find(t => t.id === ticketId);
-        const newMessage = { sender: 'user' as const, text, timestamp: new Date().toISOString() };
-        
-        if (existingTicket) {
-            return prevTickets.map(t => 
-                t.id === ticketId ? { ...t, status: 'open' as const, messages: [...t.messages, newMessage] } : t
-            );
-        } else {
-            const newTicket: SupportTicket = {
-                id: ticketId,
-                status: 'open',
-                messages: [newMessage]
-            };
-            return [...prevTickets, newTicket];
-        }
-    });
+     // This will be updated to use firestore
   };
 
   const addSupportReply = (ticketId: string, text: string) => {
-      setSupportTickets(prevTickets => {
-          return prevTickets.map(t => {
-              if (t.id === ticketId) {
-                  const newReply = { sender: 'admin' as const, text, timestamp: new Date().toISOString() };
-                  return { ...t, messages: [...t.messages, newReply] };
-              }
-              return t;
-          });
-      });
+       // This will be updated to use firestore
   };
 
 

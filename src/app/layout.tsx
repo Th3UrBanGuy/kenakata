@@ -3,11 +3,8 @@ import type { Metadata } from 'next';
 import { Poppins, Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { CartProvider } from '@/context/CartProvider';
-import { WishlistProvider } from '@/context/WishlistProvider';
-import { AuthProvider } from '@/context/AuthProvider';
 import { cn } from '@/lib/utils';
-import { DataProvider } from '@/context/DataProvider';
+import { Providers } from '@/context/Providers';
 
 export const metadata: Metadata = {
   title: 'KenaKata Online Store',
@@ -41,16 +38,10 @@ export default function RootLayout({
           inter.variable
         )}
       >
-        <AuthProvider>
-          <DataProvider>
-            <WishlistProvider>
-              <CartProvider>
-                {children}
-                <Toaster />
-              </CartProvider>
-            </WishlistProvider>
-          </DataProvider>
-        </AuthProvider>
+        <Providers>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );
