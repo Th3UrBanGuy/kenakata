@@ -52,22 +52,22 @@ export default function ProductPage() {
     ];
   }, [product, selectedColor]);
   
-  // Set initial selections
+  // Set initial selections once the product data is available
   useEffect(() => {
-    if (product && !selectedColor && availableColors.length > 0) {
-      setSelectedColor(availableColors[0]);
-    }
-  }, [product, selectedColor, availableColors]);
-
-  useEffect(() => {
-      if (product && selectedColor && !selectedSize && availableSizes.length > 0) {
-        const firstAvailableSize = availableSizes.find(size => {
-            const variant = product.variants.find(v => v.color === selectedColor && v.size === size);
-            return variant && variant.stock > 0;
-        }) || availableSizes[0];
-        setSelectedSize(firstAvailableSize);
+    if (product) {
+      // Find the first variant that is in stock
+      const firstAvailableVariant = product.variants.find(v => v.stock > 0);
+      
+      if (firstAvailableVariant) {
+        setSelectedColor(firstAvailableVariant.color);
+        setSelectedSize(firstAvailableVariant.size);
+      } else if (product.variants.length > 0) {
+        // If nothing is in stock, just select the first variant
+        setSelectedColor(product.variants[0].color);
+        setSelectedSize(product.variants[0].size);
       }
-  }, [product, selectedColor, selectedSize, availableSizes]);
+    }
+  }, [product]);
 
   const selectedVariant = useMemo(() => {
     if (!product || !selectedColor || !selectedSize) return null;
@@ -113,6 +113,16 @@ export default function ProductPage() {
       }
     }
   };
+  
+  // When a color is selected, find the first available size for that color
+  const handleColorSelect = (color: string) => {
+    setSelectedColor(color);
+    const firstSizeForColor = product?.variants.find(v => v.color === color)?.size;
+    if (firstSizeForColor) {
+        setSelectedSize(firstSizeForColor);
+    }
+  };
+
 
   const imageUrl = selectedVariant?.imageUrl || product.variants[0].imageUrl;
 
@@ -151,7 +161,7 @@ export default function ProductPage() {
                       'capitalize p-4 border-2',
                       selectedColor === color ? 'border-primary' : 'border-border'
                     )}
-                    onClick={() => { setSelectedColor(color); setSelectedSize(null); }}
+                    onClick={() => handleColorSelect(color)}
                   >
                     {color}
                   </Button>
