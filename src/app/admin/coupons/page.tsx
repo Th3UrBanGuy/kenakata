@@ -28,8 +28,8 @@ export default function CouponsPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6 gap-4">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-semibold md:text-2xl font-headline">Coupons</h1>
           <p className="text-sm text-muted-foreground">Manage promotional codes for your store.</p>
@@ -42,11 +42,7 @@ export default function CouponsPage() {
         </Link>
       </div>
       <Card>
-        <CardHeader>
-          <CardTitle>All Coupons</CardTitle>
-          <CardDescription>A list of all promotional coupons in your store.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
