@@ -15,34 +15,30 @@ export default function AdminProductsPage() {
   const { products } = useData();
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-semibold md:text-2xl font-headline">Products</h1>
-          <p className="text-muted-foreground">Manage your products and view their inventory status.</p>
+          <p className="text-muted-foreground text-sm">Manage your products and view their inventory status.</p>
         </div>
         <Link href="/admin/products/new">
             <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Product
+                <PlusCircle className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Add Product</span>
             </Button>
         </Link>
       </div>
       <Card>
-        <CardHeader>
-          <CardTitle>All Products</CardTitle>
-          <CardDescription>A list of all products in your store.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="hidden w-[100px] sm:table-cell">
+                <TableHead className="hidden w-[80px] sm:table-cell">
                   <span className="sr-only">Image</span>
                 </TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Variants</TableHead>
+                <TableHead className="hidden md:table-cell">Category</TableHead>
+                <TableHead className="hidden sm:table-cell">Variants</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -51,7 +47,7 @@ export default function AdminProductsPage() {
             <TableBody>
               {products.map((product) => (
                 <TableRow key={product.id}>
-                  <TableCell className="hidden sm:table-cell">
+                  <TableCell className="hidden sm:table-cell p-2">
                     <Image
                       alt={product.name}
                       className="aspect-square rounded-md object-cover"
@@ -62,10 +58,10 @@ export default function AdminProductsPage() {
                     />
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     <Badge variant="outline">{product.category}</Badge>
                   </TableCell>
-                  <TableCell>{product.variants.length}</TableCell>
+                  <TableCell className="hidden sm:table-cell">{product.variants.length}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -74,8 +70,12 @@ export default function AdminProductsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>View on Store</DropdownMenuItem>
+                        <Link href={`/admin/products/${product.id}/edit`}>
+                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                        </Link>
+                        <Link href={`/product/${product.id}`} target="_blank">
+                          <DropdownMenuItem>View on Store</DropdownMenuItem>
+                        </Link>
                         <DropdownMenuItem className="text-destructive">
                           Delete
                         </DropdownMenuItem>

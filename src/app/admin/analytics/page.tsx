@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, ResponsiveContainer } from 'recharts';
 import {
   Card,
   CardContent,
@@ -41,6 +41,10 @@ const chartConfig: ChartConfig = {
     label: 'Footwear',
     color: 'hsl(var(--chart-4))',
   },
+  apparel: {
+      label: 'Apparel',
+      color: 'hsl(var(--chart-1))',
+  }
 };
 
 export default function AnalyticsPage() {
@@ -49,7 +53,7 @@ export default function AnalyticsPage() {
   const monthlySales = useMemo(() => {
     const salesByMonth: { [key: string]: number } = {};
     orders.forEach(order => {
-      const month = new Date(order.date).toLocaleString('default', { month: 'long' });
+      const month = new Date(order.date).toLocaleString('default', { month: 'short' });
       salesByMonth[month] = (salesByMonth[month] || 0) + order.total;
     });
     return Object.entries(salesByMonth).map(([month, sales]) => ({ month, sales: Math.round(sales) }));
@@ -66,7 +70,7 @@ export default function AnalyticsPage() {
             }
         });
     });
-    return Object.entries(categorySales).map(([name, value]) => ({ name: name, value, fill: `var(--color-${name})`}));
+    return Object.entries(categorySales).map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value, fill: `var(--color-${name})`}));
   }, [orders, products]);
   
   const topSellingProducts = useMemo(() => {
@@ -98,24 +102,25 @@ export default function AnalyticsPage() {
 
         <Card>
             <CardHeader>
-                <CardTitle>Sales Overview</CardTitle>
-                <CardDescription>A chart showing total sales over the last months.</CardDescription>
+                <CardTitle>Monthly Sales</CardTitle>
             </CardHeader>
-            <CardContent>
-                <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                <BarChart accessibilityLayer data={monthlySales}>
+            <CardContent className="pl-2">
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={monthlySales}>
                     <CartesianGrid vertical={false} />
                     <XAxis
                         dataKey="month"
                         tickLine={false}
                         tickMargin={10}
                         axisLine={false}
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={12}
                     />
-                    <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                    <YAxis tickLine={false} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(value) => `$${value}`} />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="sales" fill="var(--color-sales)" radius={4} />
+                    <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                 </BarChart>
-                </ChartContainer>
+              </ResponsiveContainer>
             </CardContent>
         </Card>
 
@@ -125,19 +130,16 @@ export default function AnalyticsPage() {
                     <CardTitle>Sales by Category</CardTitle>
                 </CardHeader>
                 <CardContent>
-                     <ChartContainer
-                        config={chartConfig}
-                        className="mx-auto aspect-square max-h-[250px]"
-                    >
+                     <ResponsiveContainer width="100%" height={250}>
                         <PieChart>
                             <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                            <Pie data={salesByCategory} dataKey="value">
+                            <Pie data={salesByCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
                                  {salesByCategory.map((entry) => (
-                                    <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                                    <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name.toLowerCase()]?.color || '#8884d8'} />
                                  ))}
                             </Pie>
                         </PieChart>
-                    </ChartContainer>
+                    </ResponsiveContainer>
                 </CardContent>
             </Card>
 
@@ -149,13 +151,13 @@ export default function AnalyticsPage() {
                     {topSellingProducts.map(item => (
                         <div key={item.product.name} className="flex items-center gap-4">
                            <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border">
-                                <Image src={item.product.imageUrl} alt={item.product.name} fill objectFit="cover" data-ai-hint="product photo" />
+                                <Image src={item.product.imageUrl} alt={item.product.name} fill style={{objectFit:"cover"}} data-ai-hint="product photo" />
                             </div>
                             <div className="flex-1">
-                                <p className="font-semibold">{item.product.name}</p>
-                                <Badge variant="outline">{item.product.category}</Badge>
+                                <p className="font-semibold leading-tight">{item.product.name}</p>
+                                <Badge variant="outline" className="mt-1">{item.product.category}</Badge>
                             </div>
-                            <p className="font-bold">{item.quantity} sold</p>
+                            <p className="font-bold whitespace-nowrap">{item.quantity} sold</p>
                         </div>
                     ))}
                 </CardContent>

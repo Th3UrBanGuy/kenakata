@@ -2,16 +2,20 @@
 'use client';
 import { notFound, useParams } from "next/navigation";
 import { ProductForm } from "@/components/admin/ProductForm";
-import { products } from "@/lib/data";
+import { useData } from "@/context/DataProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMemo } from "react";
 
 export default function EditProductPage() {
     const params = useParams();
     const { id } = params;
-    const product = products.find(p => p.id === id);
+    const { products } = useData();
+    
+    const product = useMemo(() => products.find(p => p.id === id), [products, id]);
 
     if (!product) {
-        notFound();
+        // You can return a loading state or null while waiting for data
+        return <div>Loading...</div>;
     }
     
     return (

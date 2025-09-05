@@ -23,27 +23,21 @@ export default function OrdersPage() {
     }
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-lg font-semibold md:text-2xl font-headline">Orders</h1>
-                    <p className="text-muted-foreground">View and manage all customer orders.</p>
+                    <p className="text-muted-foreground text-sm">View and manage all customer orders.</p>
                 </div>
             </div>
              <Card>
-                <CardHeader>
-                    <CardTitle>All Orders</CardTitle>
-                    <CardDescription>A list of all orders placed in your store.</CardDescription>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-0">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Order ID</TableHead>
                                 <TableHead>Customer</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Method</TableHead>
+                                <TableHead className="hidden sm:table-cell">Status</TableHead>
+                                <TableHead className="hidden md:table-cell">Date</TableHead>
                                 <TableHead className="text-right">Total</TableHead>
                                 <TableHead>
                                     <span className="sr-only">Actions</span>
@@ -53,16 +47,14 @@ export default function OrdersPage() {
                         <TableBody>
                             {[...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((order) => (
                                 <TableRow key={order.id}>
-                                    <TableCell className="font-medium">{order.id.slice(-6).toUpperCase()}</TableCell>
                                     <TableCell>
                                         <div className="font-medium">{order.customerName}</div>
-                                        <div className="text-sm text-muted-foreground">{order.customerEmail}</div>
+                                        <div className="text-sm text-muted-foreground hidden md:block">{order.customerEmail}</div>
                                     </TableCell>
-                                    <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                                    <TableCell className="hidden sm:table-cell">
+                                        <Badge variant={getStatusVariant(order.status)} className="capitalize">{order.status}</Badge>
                                     </TableCell>
-                                    <TableCell>{order.paymentMethod}</TableCell>
+                                    <TableCell className="hidden md:table-cell">{new Date(order.date).toLocaleDateString()}</TableCell>
                                     <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>

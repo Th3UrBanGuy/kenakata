@@ -10,61 +10,40 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
+import type { AppUser } from "@/lib/types";
 
 export default function CustomersPage() {
-    const { orders } = useData();
-    
-    // Placeholder data using unique customers from orders
-    const customers = useMemo(() => Array.from(new Set(orders.map(o => o.customerEmail)))
-        .map(email => {
-            const customerOrders = orders.filter(o => o.customerEmail === email);
-            const latestOrder = customerOrders.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-            return {
-                id: email, // Use email as unique id
-                name: latestOrder.customerName,
-                email: latestOrder.customerEmail,
-                role: 'Customer', // Placeholder
-                createdAt: new Date(latestOrder.date).toLocaleDateString(), // Use first order date as created date
-                orderCount: customerOrders.length
-            };
-        }), [orders]);
-
+    const { users } = useData();
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-lg font-semibold md:text-2xl font-headline">Customers</h1>
-                    <p className="text-muted-foreground">View and manage all registered users.</p>
+                    <p className="text-muted-foreground text-sm">View and manage all registered users.</p>
                 </div>
             </div>
              <Card>
-                <CardHeader>
-                    <CardTitle>All Users</CardTitle>
-                    <CardDescription>A list of all users in your store.</CardDescription>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-0">
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead>Orders</TableHead>
+                                <TableHead className="hidden sm:table-cell">Email</TableHead>
+                                <TableHead className="hidden md:table-cell">Role</TableHead>
                                 <TableHead>
                                     <span className="sr-only">Actions</span>
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {customers.map((customer) => (
-                                <TableRow key={customer.id}>
-                                    <TableCell className="font-medium">{customer.name}</TableCell>
-                                    <TableCell>{customer.email}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={customer.role === 'Admin' ? 'default' : 'secondary'}>{customer.role}</Badge>
+                            {users.map((user: AppUser) => (
+                                <TableRow key={user.uid}>
+                                    <TableCell className="font-medium">{user.name || 'N/A'}</TableCell>
+                                    <TableCell className="hidden sm:table-cell">{user.email}</TableCell>
+                                    <TableCell className="hidden md:table-cell">
+                                        <Badge variant={user.role === 'admin' ? 'default' : 'secondary'} className="capitalize">{user.role}</Badge>
                                     </TableCell>
-                                    <TableCell>{customer.orderCount}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -73,7 +52,7 @@ export default function CustomersPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent>
-                                                <Link href={`/admin/customers/${customer.id}`}>
+                                                <Link href={`/admin/customers/${user.uid}`}>
                                                     <DropdownMenuItem>View Profile</DropdownMenuItem>
                                                 </Link>
                                                 <DropdownMenuItem>Make Admin</DropdownMenuItem>
