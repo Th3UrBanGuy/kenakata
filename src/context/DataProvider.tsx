@@ -23,13 +23,13 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
   const { db } = useFirebase();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(initialSupportTickets);
 
   useEffect(() => {
-    // Listen for product changes
+    // Listen for product changes - this is public data
     const unsubProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
         const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
         setProducts(productsData);
@@ -39,20 +39,37 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   }, [db]);
   
   useEffect(() => {
+    // Role-based data fetching
     if (!user) {
         setOrders([]);
         return;
     }
-    // Listen for changes to orders for the current user
-    const q = query(collection(db, "orders"), where("customerUid", "==", user.uid));
-    const unsubOrders = onSnapshot(q, (snapshot) => {
-        const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
-        setOrders(ordersData);
-    });
 
-    return () => unsubOrders();
+    let unsubOrders: () => void;
 
-  }, [db, user]);
+    if (role === 'admin') {
+        // Admin: fetch all orders
+        unsubOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
+            const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+            setOrders(ordersData);
+        });
+
+    } else {
+        // Regular user: fetch only their own orders
+        const q = query(collection(db, "orders"), where("customerUid", "==", user.uid));
+        unsubOrders = onSnapshot(q, (snapshot) => {
+            const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+            setOrders(ordersData);
+        });
+    }
+
+    return () => {
+        if (unsubOrders) {
+            unsubOrders();
+        }
+    };
+
+  }, [db, user, role]);
 
 
   const addOrder = (newOrder: Omit<Order, 'id' | 'date' | 'status'>) => {
