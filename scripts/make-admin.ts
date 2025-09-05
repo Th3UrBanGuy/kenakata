@@ -1,8 +1,6 @@
 
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import type { AppUser } from '../src/lib/types';
+import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 
 // This is the same config from your FirebaseProvider
 const firebaseConfig = {
@@ -17,43 +15,45 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-const adminEmail = "admin@a.com";
-const adminPassword = "Ra726ma@#$";
-
 async function makeAdmin() {
-  console.log(`Attempting to create admin user: ${adminEmail}`);
+  const emailToMakeAdmin = process.argv[2];
+
+  if (!emailToMakeAdmin) {
+    console.error("Please provide an email address for the user you want to make an admin.");
+    console.error("Usage: npm run make:admin -- <user@example.com>");
+    process.exit(1);
+  }
+
+  console.log(`Attempting to make '${emailToMakeAdmin}' an admin...`);
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, adminEmail, adminPassword);
-    const newUser = userCredential.user;
-
-    console.log(`User created successfully in Firebase Auth with UID: ${newUser.uid}`);
-
-    const userDocRef = doc(db, 'users', newUser.uid);
-    const newAppUser: AppUser = {
-      uid: newUser.uid,
-      email: newUser.email,
-      name: 'Store Administrator',
-      role: 'admin',
-      createdAt: new Date(),
-      wishlist: []
-    };
-
-    await setDoc(userDocRef, newAppUser);
-
-    console.log(`User role set to 'admin' in Firestore.`);
-    console.log("Admin user created successfully!");
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where("email", "==", emailToMakeAdmin));
     
-  } catch (error: any) {
-    if (error.code === 'auth/email-already-in-use') {
-        console.error(`Error: The email ${adminEmail} is already in use.`);
-        console.error("If you want to make this existing user an admin, please do so from the Firebase console or create a script to update the user's role.");
-    } else {
-        console.error("Error creating admin user:", error);
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.error(`Error: No user found with the email '${emailToMakeAdmin}'.`);
+      process.exit(1);
     }
+    
+    if (querySnapshot.size > 1) {
+        console.warn(`Warning: Multiple users found with the email '${emailToMakeAdmin}'. Promoting the first one found.`);
+    }
+
+    const userDoc = querySnapshot.docs[0];
+    const userDocRef = doc(db, 'users', userDoc.id);
+
+    await updateDoc(userDocRef, {
+      role: 'admin'
+    });
+
+    console.log(`Successfully promoted '${emailToMakeAdmin}' (UID: ${userDoc.id}) to an admin.`);
+
+  } catch (error: any) {
+    console.error("Error making user an admin:", error);
     process.exit(1);
   }
 }
