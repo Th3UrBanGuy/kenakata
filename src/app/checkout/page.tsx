@@ -15,6 +15,9 @@ import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/CartProvider';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useData } from '@/context/DataProvider';
+import { useToast } from '@/hooks/use-toast';
+import type { Order } from '@/lib/types';
+
 
 type CheckoutStep = 'shipping' | 'payment';
 
@@ -22,8 +25,10 @@ export default function CheckoutPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const { cart, totalPrice, clearCart } = useCart();
-  const { addOrder, updateProductStock } = useData();
+  const { addOrder } = useData();
+  const { toast } = useToast();
   const [step, setStep] = useState<CheckoutStep>('shipping');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
@@ -49,29 +54,42 @@ export default function CheckoutPage() {
     }
   }, [user, isAuthLoading, router]);
   
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!user) return;
-    const newOrder = {
-      id: `order_${Date.now()}`,
+    setIsProcessing(true);
+
+    const subtotal = totalPrice;
+    const shipping = 5.00;
+    const taxes = subtotal * 0.08;
+    const total = subtotal + shipping + taxes;
+
+    const newOrder: Omit<Order, 'id' | 'date' | 'status'> = {
       customerUid: user.uid,
       customerName: shippingInfo.name,
       customerEmail: shippingInfo.email,
-      date: new Date().toISOString(),
-      status: 'Pending' as const,
-      total: totalPrice + 5.00, // with shipping
+      total: total,
       paymentMethod: 'Credit Card',
       items: cart,
     };
     
-    addOrder(newOrder);
-    
-    cart.forEach(item => {
-      updateProductStock(item.productId, item.variantId, -item.quantity);
-    });
-    
-    clearCart();
-    
-    router.push(`/checkout/success?orderId=${newOrder.id}`);
+    try {
+        const newOrderId = await addOrder(newOrder);
+        toast({
+            title: "Order Placed!",
+            description: "Your order has been successfully placed.",
+        });
+        clearCart();
+        router.push(`/checkout/success?orderId=${newOrderId}`);
+    } catch(error: any) {
+        console.error("Failed to place order:", error);
+        toast({
+            title: "Order Failed",
+            description: error.message || "There was an issue placing your order.",
+            variant: "destructive"
+        })
+    } finally {
+        setIsProcessing(false);
+    }
   };
 
   if (isAuthLoading) {
@@ -89,7 +107,7 @@ export default function CheckoutPage() {
     );
   }
 
-  if (cart.length === 0) {
+  if (cart.length === 0 && !isProcessing) {
       return (
            <div className="flex flex-col min-h-screen">
               <Header />
@@ -205,12 +223,13 @@ export default function CheckoutPage() {
                     </Card>
                     
                     <div className="flex flex-col-reverse md:flex-row gap-4">
-                        <Button size="lg" variant="outline" onClick={() => setStep('shipping')} className="w-full md:w-auto">
+                        <Button size="lg" variant="outline" onClick={() => setStep('shipping')} className="w-full md:w-auto" disabled={isProcessing}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Shipping
                         </Button>
-                        <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={handlePlaceOrder}>
-                            Place Order
+                        <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={handlePlaceOrder} disabled={isProcessing}>
+                            {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isProcessing ? 'Processing...' : 'Place Order'}
                         </Button>
                     </div>
                 </>
