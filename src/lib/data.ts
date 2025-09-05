@@ -10,10 +10,10 @@ export const initialProducts: Product[] = [
     category: 'Apparel',
     promotion: 'New Arrival',
     variants: [
-      { id: 'var_1_1', color: 'black', size: 'M', stock: 15, price: 29.99, imageUrl: 'https://picsum.photos/600/600?random=1' },
-      { id: 'var_1_2', color: 'black', size: 'L', stock: 8, price: 29.99, imageUrl: 'https://picsum.photos/600/600?random=1' },
-      { id: 'var_1_3', color: 'white', size: 'M', stock: 20, price: 29.99, imageUrl: 'https://picsum.photos/600/600?random=2' },
-      { id: 'var_1_4', color: 'white', size: 'XL', stock: 0, price: 29.99, imageUrl: 'https://picsum.photos/600/600?random=2' },
+      { id: 'var_1_1', color: 'black', size: 'M', stock: 15, price: 29.99, imageUrl: 'https://picsum.photos/seed/prod1/600/600' },
+      { id: 'var_1_2', color: 'black', size: 'L', stock: 8, price: 29.99, imageUrl: 'https://picsum.photos/seed/prod1/600/600' },
+      { id: 'var_1_3', color: 'white', size: 'M', stock: 20, price: 29.99, imageUrl: 'https://picsum.photos/seed/prod2/600/600' },
+      { id: 'var_1_4', color: 'white', size: 'XL', stock: 0, price: 29.99, imageUrl: 'https://picsum.photos/seed/prod2/600/600' },
     ],
     comments: [
         { id: 'comment_1', author: 'TechGuru', rating: 5, text: 'Best shirt ever! So comfy.', date: '2024-07-15' }
@@ -25,9 +25,9 @@ export const initialProducts: Product[] = [
     description: 'Stay warm and stylish with the Nova Hoodie. Features a fleece lining and a minimalist design.',
     category: 'Apparel',
     variants: [
-      { id: 'var_2_1', color: 'navy', size: 'S', stock: 12, price: 59.99, imageUrl: 'https://picsum.photos/600/600?random=3' },
-      { id: 'var_2_2', color: 'navy', size: 'M', stock: 3, price: 59.99, imageUrl: 'https://picsum.photos/600/600?random=3' },
-      { id: 'var_2_3', color: 'gray', size: 'L', stock: 9, price: 59.99, imageUrl: 'https://picsum.photos/600/600?random=4' },
+      { id: 'var_2_1', color: 'navy', size: 'S', stock: 12, price: 59.99, imageUrl: 'https://picsum.photos/seed/prod3/600/600' },
+      { id: 'var_2_2', color: 'navy', size: 'M', stock: 3, price: 59.99, imageUrl: 'https://picsum.photos/seed/prod3/600/600' },
+      { id: 'var_2_3', color: 'gray', size: 'L', stock: 9, price: 59.99, imageUrl: 'https://picsum.photos/seed/prod4/600/600' },
     ],
     comments: []
   },
@@ -38,8 +38,8 @@ export const initialProducts: Product[] = [
     category: 'Accessories',
     promotion: 'On Sale',
     variants: [
-      { id: 'var_3_1', color: 'black', size: 'one size', stock: 30, price: 24.99, imageUrl: 'https://picsum.photos/600/600?random=5' },
-      { id: 'var_3_2', color: 'blue', size: 'one size', stock: 18, price: 24.99, imageUrl: 'https://picsum.photos/600/600?random=6' },
+      { id: 'var_3_1', color: 'black', size: 'one size', stock: 30, price: 24.99, imageUrl: 'https://picsum.photos/seed/prod5/600/600' },
+      { id: 'var_3_2', color: 'blue', size: 'one size', stock: 18, price: 24.99, imageUrl: 'https://picsum.photos/seed/prod6/600/600' },
     ],
     comments: [
         { id: 'comment_2', author: 'StyleMaven', rating: 4, text: 'Looks great, fits well.', date: '2024-07-16' },
@@ -52,8 +52,8 @@ export const initialProducts: Product[] = [
     description: 'Track your fitness, receive notifications, and more with the Echo Smartwatch. A perfect blend of technology and style.',
     category: 'Gadgets',
     variants: [
-      { id: 'var_4_1', color: 'silver', size: '44mm', stock: 7, price: 249.99, imageUrl: 'https://picsum.photos/600/600?random=7' },
-      { id: 'var_4_2', color: 'space gray', size: '44mm', stock: 5, price: 249.99, imageUrl: 'https://picsum.photos/600/600?random=8' },
+      { id: 'var_4_1', color: 'silver', size: '44mm', stock: 7, price: 249.99, imageUrl: 'https://picsum.photos/seed/prod7/600/600' },
+      { id: 'var_4_2', color: 'space gray', size: '44mm', stock: 5, price: 249.99, imageUrl: 'https://picsum.photos/seed/prod8/600/600' },
     ],
     comments: []
   },
@@ -63,9 +63,9 @@ export const initialProducts: Product[] = [
     description: 'Lightweight and breathable sneakers for everyday wear. Engineered for maximum comfort.',
     category: 'Footwear',
     variants: [
-      { id: 'var_5_1', color: 'red', size: '9', stock: 11, price: 89.99, imageUrl: 'https://picsum.photos/600/600?random=9' },
-      { id: 'var_5_2', color: 'red', size: '10', stock: 4, price: 89.99, imageUrl: 'https://picsum.photos/600/600?random=9' },
-      { id: 'var_5_3', color: 'white', size: '9', stock: 14, price: 89.99, imageUrl: 'https://picsum.photos/600/600?random=10' },
+      { id: 'var_5_1', color: 'red', size: '9', stock: 11, price: 89.99, imageUrl: 'https://picsum.photos/seed/prod9/600/600' },
+      { id: 'var_5_2', color: 'red', size: '10', stock: 4, price: 89.99, imageUrl: 'https://picsum.photos/seed/prod9/600/600' },
+      { id: 'var_5_3', color: 'white', size: '9', stock: 14, price: 89.99, imageUrl: 'https://picsum.photos/seed/prod10/600/600' },
     ],
     comments: [
         { id: 'comment_4', author: 'Runner22', rating: 5, text: 'So light and comfortable for my daily runs.', date: '2024-07-20' }
@@ -77,7 +77,7 @@ export const initialProducts: Product[] = [
     description: 'A durable and spacious backpack with multiple compartments, perfect for work or travel.',
     category: 'Accessories',
     variants: [
-      { id: 'var_6_1', color: 'charcoal', size: 'one size', stock: 22, price: 79.99, imageUrl: 'https://picsum.photos/600/600?random=11' },
+      { id: 'var_6_1', color: 'charcoal', size: 'one size', stock: 22, price: 79.99, imageUrl: 'https://picsum.photos/seed/prod11/600/600' },
     ],
     comments: []
   },
@@ -87,8 +87,8 @@ export const initialProducts: Product[] = [
     description: 'Immerse yourself in high-fidelity sound with these premium wireless earbuds.',
     category: 'Gadgets',
     variants: [
-      { id: 'var_7_1', color: 'pearl', size: 'one size', stock: 0, price: 129.99, imageUrl: 'https://picsum.photos/600/600?random=12' },
-      { id: 'var_7_2', color: 'obsidian', size: 'one size', stock: 1, price: 129.99, imageUrl: 'https://picsum.photos/600/600?random=13' },
+      { id: 'var_7_1', color: 'pearl', size: 'one size', stock: 0, price: 129.99, imageUrl: 'https://picsum.photos/seed/prod12/600/600' },
+      { id: 'var_7_2', color: 'obsidian', size: 'one size', stock: 1, price: 129.99, imageUrl: 'https://picsum.photos/seed/prod13/600/600' },
     ],
     comments: []
   },
@@ -98,19 +98,19 @@ export const initialProducts: Product[] = [
     description: 'Functional and rugged cargo pants designed for adventure. Multiple pockets for all your essentials.',
     category: 'Apparel',
     variants: [
-      { id: 'var_8_1', color: 'khaki', size: '32', stock: 18, price: 64.99, imageUrl: 'https://picsum.photos/600/600?random=14' },
-      { id: 'var_8_2', color: 'olive', size: '34', stock: 6, price: 64.99, imageUrl: 'https://picsum.photos/600/600?random=15' },
+      { id: 'var_8_1', color: 'khaki', size: '32', stock: 18, price: 64.99, imageUrl: 'https://picsum.photos/seed/prod14/600/600' },
+      { id: 'var_8_2', color: 'olive', size: '34', stock: 6, price: 64.99, imageUrl: 'https://picsum.photos/seed/prod15/600/600' },
     ],
     comments: []
   },
 ];
 
 export const initialOrders: Order[] = [
-  { id: 'order_1', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-20', status: 'Delivered', total: 89.98, paymentMethod: 'Credit Card', items: [], couponCode: 'SUMMER10' },
-  { id: 'order_2', customerName: 'Jane Smith', customerEmail: 'jane.smith@example.com', date: '2024-07-21', status: 'Shipped', total: 124.98, paymentMethod: 'PayPal', items: [] },
-  { id: 'order_3', customerName: 'Peter Jones', customerEmail: 'peter.jones@example.com', date: '2024-07-22', status: 'Pending', total: 24.99, paymentMethod: 'Credit Card', items: [], couponCode: 'WELCOME5' },
-  { id: 'order_4', customerName: 'Mary Johnson', customerEmail: 'mary.j@example.com', date: '2024-07-22', status: 'Cancelled', total: 59.99, paymentMethod: 'Credit Card', items: [] },
-  { id: 'order_5', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-23', status: 'Delivered', total: 5, paymentMethod: 'Credit Card', items: [], couponCode: 'WELCOME5' },
+  { id: 'order_1', customerUid: 'user1', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-20', status: 'Delivered', total: 89.98, paymentMethod: 'Credit Card', items: [], couponCode: 'SUMMER10' },
+  { id: 'order_2', customerUid: 'user2', customerName: 'Jane Smith', customerEmail: 'jane.smith@example.com', date: '2024-07-21', status: 'Shipped', total: 124.98, paymentMethod: 'PayPal', items: [] },
+  { id: 'order_3', customerUid: 'user3', customerName: 'Peter Jones', customerEmail: 'peter.jones@example.com', date: '2024-07-22', status: 'Pending', total: 24.99, paymentMethod: 'Credit Card', items: [], couponCode: 'WELCOME5' },
+  { id: 'order_4', customerUid: 'user4', customerName: 'Mary Johnson', customerEmail: 'mary.j@example.com', date: '2024-07-22', status: 'Cancelled', total: 59.99, paymentMethod: 'Credit Card', items: [] },
+  { id: 'order_5', customerUid: 'user1', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-23', status: 'Delivered', total: 5, paymentMethod: 'Credit Card', items: [], couponCode: 'WELCOME5' },
 
 ];
 
@@ -177,6 +177,7 @@ export const initialSupportTickets: SupportTicket[] = [
     }
 ];
 
-export const products: Product[] = initialProducts;
-export const orders: Order[] = initialOrders;
-export const supportTickets: SupportTicket[] = initialSupportTickets;
+// In a real app, you would not export these. They are here for demonstration purposes.
+export const products: Product[] = [];
+export const orders: Order[] = [];
+export const supportTickets: SupportTicket[] = [];

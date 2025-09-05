@@ -1,5 +1,14 @@
 
 
+export type AppUser = {
+  uid: string;
+  email: string | null;
+  name: string | null;
+  role: 'user' | 'admin';
+  createdAt: any; // Firestore timestamp
+  wishlist?: string[];
+}
+
 export type ProductVariant = {
   id: string;
   color: string;
@@ -58,6 +67,7 @@ export type UserWishlistItem = {
 
 export type Order = {
   id: string;
+  customerUid: string;
   customerName: string;
   customerEmail: string;
   date: string;

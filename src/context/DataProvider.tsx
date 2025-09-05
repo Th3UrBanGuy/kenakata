@@ -1,11 +1,13 @@
 
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { Product, Order, SupportTicket } from '@/lib/types';
-import { initialProducts, initialOrders, initialSupportTickets } from '@/lib/data';
+import { initialSupportTickets } from '@/lib/data';
 import { useFirebase } from './FirebaseProvider';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { useAuth } from './AuthProvider';
 
 interface DataContextType {
   products: Product[];
@@ -21,17 +23,36 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
   const { db } = useFirebase();
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(initialSupportTickets);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'products'), (snapshot) => {
+    // Listen for product changes
+    const unsubProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
         const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
         setProducts(productsData);
     });
-    return () => unsub();
+
+    return () => unsubProducts();
   }, [db]);
+  
+  useEffect(() => {
+    if (!user) {
+        setOrders([]);
+        return;
+    }
+    // Listen for changes to orders for the current user
+    const q = query(collection(db, "orders"), where("customerUid", "==", user.uid));
+    const unsubOrders = onSnapshot(q, (snapshot) => {
+        const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+        setOrders(ordersData);
+    });
+
+    return () => unsubOrders();
+
+  }, [db, user]);
 
 
   const addOrder = (newOrder: Omit<Order, 'id' | 'date' | 'status'>) => {
