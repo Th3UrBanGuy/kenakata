@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, PlusCircle, Trash2, LineChart } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash2, LineChart, Pencil } from 'lucide-react';
 import { coupons } from '@/lib/data';
 import type { Coupon } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
@@ -29,15 +29,15 @@ export default function CouponsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-lg font-semibold md:text-2xl font-headline">Coupons</h1>
-          <p className="text-muted-foreground">Manage promotional codes for your store.</p>
+          <p className="text-sm text-muted-foreground">Manage promotional codes for your store.</p>
         </div>
         <Link href="/admin/coupons/new">
           <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Coupon
+            <PlusCircle className="mr-0 md:mr-2 h-4 w-4" />
+            <span className="hidden md:inline">Add Coupon</span>
           </Button>
         </Link>
       </div>
@@ -51,10 +51,10 @@ export default function CouponsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Code</TableHead>
-                <TableHead>Discount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Usage</TableHead>
-                <TableHead>Expires</TableHead>
+                <TableHead className="hidden sm:table-cell">Discount</TableHead>
+                <TableHead className="hidden md:table-cell">Status</TableHead>
+                <TableHead className="hidden lg:table-cell">Usage</TableHead>
+                <TableHead className="hidden sm:table-cell">Expires</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -68,13 +68,13 @@ export default function CouponsPage() {
                 return (
                     <TableRow key={coupon.id}>
                     <TableCell className="font-medium">{coupon.code}</TableCell>
-                    <TableCell>{formatDiscount(coupon.discountType, coupon.discountValue)}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">{formatDiscount(coupon.discountType, coupon.discountValue)}</TableCell>
+                    <TableCell className="hidden md:table-cell">
                         <Badge variant={status.variant}>
                             {status.text}
                         </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden lg:table-cell">
                         {coupon.maxClaims ? (
                             <div className="flex items-center gap-2">
                                <Progress value={usagePercentage} className="w-24" />
@@ -84,7 +84,7 @@ export default function CouponsPage() {
                             <span className="text-muted-foreground">{coupon.claims || 0} used</span>
                         )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                         {coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString() : 'Never'}
                     </TableCell>
                     <TableCell className="text-right">
@@ -102,7 +102,10 @@ export default function CouponsPage() {
                                 </DropdownMenuItem>
                             </Link>
                             <Link href={`/admin/coupons/${coupon.id}/edit`}>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Edit
+                                </DropdownMenuItem>
                             </Link>
                             <DropdownMenuItem>{coupon.isActive ? 'Deactivate' : 'Activate'}</DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive">

@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import type { Coupon } from '@/lib/types';
 import { Textarea } from '../ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Pen, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
@@ -226,6 +226,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
           />
 
         <Button type="submit" size="lg">
+          <Pencil className="mr-2 h-4 w-4" />
           {coupon ? 'Save Changes' : 'Create Coupon'}
         </Button>
       </form>
