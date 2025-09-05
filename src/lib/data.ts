@@ -1,6 +1,6 @@
 
 
-import type { Product, Order, Coupon, Announcement, UserWishlistItem, SupportTicket } from './types';
+import type { Product, Order, Coupon, Announcement, UserWishlistItem, SupportTicket, CouponUsage } from './types';
 
 export const initialProducts: Product[] = [
   {
@@ -106,17 +106,25 @@ export const initialProducts: Product[] = [
 ];
 
 export const initialOrders: Order[] = [
-  { id: 'order_1', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-20', status: 'Delivered', total: 99.98, paymentMethod: 'Credit Card', items: [] },
+  { id: 'order_1', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-20', status: 'Delivered', total: 89.98, paymentMethod: 'Credit Card', items: [], couponCode: 'SUMMER10' },
   { id: 'order_2', customerName: 'Jane Smith', customerEmail: 'jane.smith@example.com', date: '2024-07-21', status: 'Shipped', total: 124.98, paymentMethod: 'PayPal', items: [] },
-  { id: 'order_3', customerName: 'Peter Jones', customerEmail: 'peter.jones@example.com', date: '2024-07-22', status: 'Pending', total: 29.99, paymentMethod: 'Credit Card', items: [] },
+  { id: 'order_3', customerName: 'Peter Jones', customerEmail: 'peter.jones@example.com', date: '2024-07-22', status: 'Pending', total: 24.99, paymentMethod: 'Credit Card', items: [], couponCode: 'WELCOME5' },
   { id: 'order_4', customerName: 'Mary Johnson', customerEmail: 'mary.j@example.com', date: '2024-07-22', status: 'Cancelled', total: 59.99, paymentMethod: 'Credit Card', items: [] },
+  { id: 'order_5', customerName: 'John Doe', customerEmail: 'john.doe@example.com', date: '2024-07-23', status: 'Delivered', total: 5, paymentMethod: 'Credit Card', items: [], couponCode: 'WELCOME5' },
+
 ];
 
 export const coupons: Coupon[] = [
-    { id: 'coupon_1', code: 'SUMMER10', discountType: 'percentage', discountValue: 10, isActive: true },
-    { id: 'coupon_2', code: 'WELCOME5', discountType: 'fixed', discountValue: 5, isActive: true, applicableProductIds: ['prod_1'] },
-    { id: 'coupon_3', code: 'SALE50', discountType: 'percentage', discountValue: 50, isActive: false },
+    { id: 'coupon_1', code: 'SUMMER10', discountType: 'percentage', discountValue: 10, isActive: true, claims: 1, maxClaims: 100, validUntil: '2024-08-31' },
+    { id: 'coupon_2', code: 'WELCOME5', discountType: 'fixed', discountValue: 5, isActive: true, applicableProductIds: ['prod_1', 'prod_3'], claims: 2, maxClaims: 2 },
+    { id: 'coupon_3', code: 'SALE50', discountType: 'percentage', discountValue: 50, isActive: false, claims: 50, maxClaims: 50 },
 ];
+
+export const couponUsage: CouponUsage[] = [
+    { couponCode: 'SUMMER10', orderId: 'order_1', customerEmail: 'john.doe@example.com', usageDate: '2024-07-20', discountAmount: 10.00 },
+    { couponCode: 'WELCOME5', orderId: 'order_3', customerEmail: 'peter.jones@example.com', usageDate: '2024-07-22', discountAmount: 5.00 },
+    { couponCode: 'WELCOME5', orderId: 'order_5', customerEmail: 'john.doe@example.com', usageDate: '2024-07-23', discountAmount: 5.00 },
+]
 
 export const announcements: Announcement[] = [
     {

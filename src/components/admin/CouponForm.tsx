@@ -13,6 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { Coupon } from '@/lib/types';
 import { Textarea } from '../ui/textarea';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Calendar } from '../ui/calendar';
+import { format } from 'date-fns';
 
 const couponSchema = z.object({
   code: z.string().min(3, 'Code must be at least 3 characters').toUpperCase(),
@@ -20,6 +25,8 @@ const couponSchema = z.object({
   discountValue: z.coerce.number().min(0.01, 'Discount value is required'),
   isActive: z.boolean(),
   applicableProductIds: z.string().optional(),
+  validUntil: z.date().optional(),
+  maxClaims: z.coerce.number().optional(),
 });
 
 type CouponFormValues = z.infer<typeof couponSchema>;
@@ -33,13 +40,20 @@ export function CouponForm({ coupon }: CouponFormProps) {
   const router = useRouter();
   
   const defaultValues = coupon
-    ? { ...coupon, applicableProductIds: coupon.applicableProductIds?.join(', ') }
+    ? { 
+        ...coupon, 
+        applicableProductIds: coupon.applicableProductIds?.join(', '),
+        validUntil: coupon.validUntil ? new Date(coupon.validUntil) : undefined,
+        maxClaims: coupon.maxClaims,
+      }
     : {
         code: '',
         discountType: 'percentage' as const,
         discountValue: 10,
         isActive: true,
         applicableProductIds: '',
+        validUntil: undefined,
+        maxClaims: undefined,
       };
 
   const form = useForm<CouponFormValues>({
@@ -48,10 +62,12 @@ export function CouponForm({ coupon }: CouponFormProps) {
   });
 
   function onSubmit(data: CouponFormValues) {
-    console.log({
+    const finalData = {
         ...data,
-        applicableProductIds: data.applicableProductIds?.split(',').map(s => s.trim()).filter(Boolean)
-    });
+        applicableProductIds: data.applicableProductIds?.split(',').map(s => s.trim()).filter(Boolean),
+        validUntil: data.validUntil?.toISOString()
+    }
+    console.log(finalData);
     toast({
       title: `Coupon ${coupon ? 'Updated' : 'Created'}`,
       description: `Coupon "${data.code}" has been successfully saved.`,
@@ -131,6 +147,67 @@ export function CouponForm({ coupon }: CouponFormProps) {
             )}
             />
         </div>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+             <FormField
+                control={form.control}
+                name="validUntil"
+                render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                    <FormLabel>Valid Until (Optional)</FormLabel>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <FormControl>
+                            <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                            )}
+                            >
+                            {field.value ? (
+                                format(field.value, "PPP")
+                            ) : (
+                                <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                        </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                        />
+                        </PopoverContent>
+                    </Popover>
+                    <FormDescription>
+                        The last date this coupon is valid.
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+             />
+             <FormField
+                control={form.control}
+                name="maxClaims"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Max Claims (Optional)</FormLabel>
+                    <FormControl>
+                        <Input type="number" placeholder="100" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                        The maximum number of times this coupon can be used.
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+        </div>
+
          <FormField
             control={form.control}
             name="applicableProductIds"

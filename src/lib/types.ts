@@ -65,6 +65,7 @@ export type Order = {
   total: number;
   paymentMethod: string;
   items: CartItem[];
+  couponCode?: string;
 };
 
 export type Coupon = {
@@ -74,7 +75,18 @@ export type Coupon = {
   discountValue: number;
   isActive: boolean;
   applicableProductIds?: string[];
+  validUntil?: string; // ISO date string
+  maxClaims?: number;
+  claims?: number;
 };
+
+export type CouponUsage = {
+    couponCode: string;
+    orderId: string;
+    customerEmail: string;
+    usageDate: string; // ISO date string
+    discountAmount: number;
+}
 
 export type Announcement = {
   id: string;

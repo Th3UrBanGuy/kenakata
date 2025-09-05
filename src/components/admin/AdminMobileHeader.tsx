@@ -40,8 +40,9 @@ export function AdminMobileHeader() {
     
     const getTitle = () => {
         if (pathname.startsWith('/admin/products/new')) return 'Add New Product';
-        if (pathname.includes('/edit')) return 'Edit Product';
+        if (pathname.includes('/edit')) return 'Edit';
         if (pathname.startsWith('/admin/coupons/new')) return 'Add New Coupon';
+        if (pathname.includes('/analytics')) return 'Analytics';
 
         return pageTitles[pathname] || 'Admin';
     }
