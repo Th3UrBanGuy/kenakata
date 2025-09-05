@@ -52,7 +52,7 @@ export default function CustomersPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent>
-                                                <Link href={`/admin/customers/${user.uid}`}>
+                                                <Link href={`/admin/customers/${encodeURIComponent(user.uid)}`}>
                                                     <DropdownMenuItem>View Profile</DropdownMenuItem>
                                                 </Link>
                                                 <DropdownMenuItem>Make Admin</DropdownMenuItem>
