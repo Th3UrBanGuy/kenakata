@@ -47,6 +47,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     let unsubOrders: () => void;
 
+    // IMPORTANT: Check that role is confirmed before attempting to fetch all orders
     if (role === 'admin') {
         // Admin: fetch all orders
         unsubOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
@@ -54,7 +55,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             setOrders(ordersData);
         });
 
-    } else {
+    } else if (role === 'user') {
         // Regular user: fetch only their own orders
         const q = query(collection(db, "orders"), where("customerUid", "==", user.uid));
         unsubOrders = onSnapshot(q, (snapshot) => {
