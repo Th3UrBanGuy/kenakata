@@ -20,7 +20,7 @@ export default function CustomersPage() {
             const customerOrders = orders.filter(o => o.customerEmail === email);
             const latestOrder = customerOrders.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
             return {
-                id: encodeURIComponent(email), // Use email as unique id
+                id: email, // Use email as unique id
                 name: latestOrder.customerName,
                 email: latestOrder.customerEmail,
                 role: 'Customer', // Placeholder

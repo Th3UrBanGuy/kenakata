@@ -14,12 +14,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthProvider";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 
 
 const navItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: Home },
-    { href: "/admin/toolbox", label: "Toolbox", icon: Wrench },
+    { href: "/admin/products", label: "Products", icon: Package },
+    { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
+    { href: "/admin/customers", label: "Customers", icon: Users },
+    { href: "/admin/coupons", label: "Coupons", icon: Tag },
+    { href: "/admin/wishlist", label: "Wishlist", icon: Heart },
+    { href: "/admin/analytics", label: "Analytics", icon: LineChart },
 ];
 
 const pageTitles: { [key: string]: string } = {
@@ -39,11 +43,6 @@ export function AdminMobileHeader() {
     const pathname = usePathname();
     
     const getTitle = () => {
-        if (pathname.startsWith('/admin/products/new')) return 'Add New Product';
-        if (pathname.includes('/edit')) return 'Edit';
-        if (pathname.startsWith('/admin/coupons/new')) return 'Add New Coupon';
-        if (pathname.includes('/analytics')) return 'Analytics';
-
         return pageTitles[pathname] || 'Admin';
     }
 
