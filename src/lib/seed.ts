@@ -1,11 +1,13 @@
 
 // This is a script to seed your Firestore database with initial data.
-// You can run this from your browser's developer console.
+// You can run this from your browser's developer console or via the npm script.
 
 import { collection, doc, writeBatch } from "firebase/firestore";
 import { initialProducts } from "./data";
+import type { Firestore } from "firebase/firestore";
 
-export async function seedDatabase(db: any) {
+
+export async function seedDatabase(db: Firestore) {
     const productsCollection = collection(db, "products");
     const batch = writeBatch(db);
 
