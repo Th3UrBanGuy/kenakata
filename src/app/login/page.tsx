@@ -10,19 +10,40 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-    const { login } = useAuth();
+    const { login, loginAsAdmin } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
     const from = searchParams.get('from') || '/account/dashboard';
+    const [email, setEmail] = useState('demo@example.com');
+    const [password, setPassword] = useState('password');
+    const [isLoading, setIsLoading] = useState(false);
+    const { toast } = useToast();
 
-    const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // Simulate a user login for now
-        login('user');
-        router.push(from);
+        setIsLoading(true);
+        try {
+            await login(email, password);
+            toast({ title: "Login Successful", description: "Welcome back!" });
+            router.push(from);
+        } catch (error: any) {
+            console.error("Login failed:", error);
+            toast({ title: "Login Failed", description: error.message, variant: 'destructive' });
+        } finally {
+            setIsLoading(false);
+        }
     };
+    
+    const handleAdminLogin = () => {
+        loginAsAdmin();
+        router.push('/admin/dashboard');
+    }
 
     return (
         <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
@@ -43,7 +64,8 @@ export default function LoginPage() {
                                     type="email"
                                     placeholder="m@example.com"
                                     required
-                                    defaultValue="demo@example.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
                             <div className="grid gap-2">
@@ -56,15 +78,13 @@ export default function LoginPage() {
                                         Forgot your password?
                                     </Link>
                                 </div>
-                                <Input id="password" type="password" required defaultValue="password" />
+                                <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                             </div>
-                            <Button type="submit" className="w-full">
-                                Login as User
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Login
                             </Button>
                         </form>
-                        <Button variant="outline" className="w-full">
-                            Login with Google
-                        </Button>
                         
                         <div className="relative my-2">
                             <Separator />
@@ -73,9 +93,7 @@ export default function LoginPage() {
                             </span>
                         </div>
                         
-                        <Link href="/login/admin">
-                           <Button variant="secondary" className="w-full">Login as Admin (Dev)</Button>
-                        </Link>
+                        <Button variant="secondary" className="w-full" onClick={handleAdminLogin}>Login as Admin (Dev)</Button>
                         
                         <div className="mt-4 text-center text-sm">
                             Don&apos;t have an account?{' '}

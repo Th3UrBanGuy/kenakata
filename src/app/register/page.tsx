@@ -15,16 +15,32 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/context/AuthProvider'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useToast } from '@/hooks/use-toast'
+import { Loader2 } from 'lucide-react'
 
 export default function RegisterPage() {
-    const { login } = useAuth();
+    const { register } = useAuth();
     const router = useRouter();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const { toast } = useToast();
 
-    const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // Simulate a user registration and login
-        login('user');
-        router.push('/account/dashboard');
+        setIsLoading(true);
+        try {
+            await register(email, password, fullName);
+            toast({ title: "Registration Successful", description: "Your account has been created." });
+            router.push('/account/dashboard');
+        } catch (error: any) {
+            console.error("Registration failed:", error);
+            toast({ title: "Registration Failed", description: error.message, variant: 'destructive' });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
 
@@ -42,7 +58,7 @@ export default function RegisterPage() {
                     <form onSubmit={handleRegister} className="grid gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="full-name">Full Name</Label>
-                            <Input id="full-name" placeholder="John Doe" required />
+                            <Input id="full-name" placeholder="John Doe" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
@@ -51,13 +67,16 @@ export default function RegisterPage() {
                                 type="email"
                                 placeholder="m@example.com"
                                 required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" type="password" required />
+                            <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)}/>
                         </div>
-                        <Button type="submit" className="w-full">
+                        <Button type="submit" className="w-full" disabled={isLoading}>
+                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Create Account
                         </Button>
                     </form>

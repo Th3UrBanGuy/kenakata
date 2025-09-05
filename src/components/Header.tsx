@@ -20,7 +20,7 @@ import {
 
 export function Header() {
   const { totalItems } = useCart();
-  const { isAuthenticated, logout, role } = useAuth();
+  const { user, role, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
@@ -65,7 +65,7 @@ export function Header() {
               </SheetContent>
             </Sheet>
             
-            {isAuthenticated ? (
+            {user ? (
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="secondary" size="icon" className="rounded-full">
@@ -74,7 +74,7 @@ export function Header() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <Link href={role === 'admin' ? '/admin/dashboard' : '/account/dashboard'} passHref>
                     <DropdownMenuItem>

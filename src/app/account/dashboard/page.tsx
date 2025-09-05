@@ -1,19 +1,39 @@
 
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingBag, User, ArrowRight } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { orders } from "@/lib/data";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-const recentOrders = orders.slice(0, 3);
+import { useAuth } from "@/context/AuthProvider";
+import { useData } from "@/context/DataProvider";
+import { useMemo } from "react";
 
 export default function DashboardPage() {
+    const { user } = useAuth();
+    const { orders } = useData();
+
+    const recentOrders = useMemo(() => {
+        return [...orders].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0,3)
+    }, [orders]);
+
+    const totalItemsPurchased = useMemo(() => {
+        return orders.reduce((acc, order) => acc + order.items.length, 0);
+    }, [orders]);
+
+    const memberSince = useMemo(() => {
+        if (user?.metadata.creationTime) {
+            return new Date(user.metadata.creationTime).getFullYear();
+        }
+        return 'a while';
+    }, [user]);
+
     return (
         <div className="space-y-8">
             <div className="p-6 rounded-lg bg-card shadow-sm">
-                <h1 className="text-3xl font-bold font-headline text-primary">Welcome back, Demo User!</h1>
+                <h1 className="text-3xl font-bold font-headline text-primary">Welcome back, {user?.displayName || user?.email || 'User'}!</h1>
                 <p className="text-muted-foreground mt-1">Here's a quick look at your account.</p>
             </div>
             
@@ -24,7 +44,7 @@ export default function DashboardPage() {
                         <ShoppingBag className="h-5 w-5 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-4xl font-bold">4</div>
+                        <div className="text-4xl font-bold">{orders.length}</div>
                         <p className="text-xs text-muted-foreground">Across all time</p>
                     </CardContent>
                 </Card>
@@ -34,7 +54,7 @@ export default function DashboardPage() {
                         <Package className="h-5 w-5 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-4xl font-bold">12</div>
+                        <div className="text-4xl font-bold">{totalItemsPurchased}</div>
                          <p className="text-xs text-muted-foreground">In your order history</p>
                     </CardContent>
                 </Card>
@@ -45,7 +65,7 @@ export default function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-green-400">Active</div>
-                        <p className="text-xs text-muted-foreground">Member since 2024</p>
+                        <p className="text-xs text-muted-foreground">Member since {memberSince}</p>
                     </CardContent>
                 </Card>
             </div>
@@ -74,7 +94,7 @@ export default function DashboardPage() {
                             {recentOrders.map((order) => (
                                 <TableRow key={order.id}>
                                     <TableCell className="font-medium">{order.id.slice(-6).toUpperCase()}</TableCell>
-                                    <TableCell>{order.date}</TableCell>
+                                    <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
                                     <TableCell>
                                         <Badge variant="outline">{order.status}</Badge>
                                     </TableCell>

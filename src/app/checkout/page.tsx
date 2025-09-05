@@ -19,42 +19,42 @@ import { useData } from '@/context/DataProvider';
 type CheckoutStep = 'shipping' | 'payment';
 
 export default function CheckoutPage() {
-  const { isAuthenticated } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const { cart, totalPrice, clearCart } = useCart();
   const { addOrder, updateProductStock } = useData();
   const [step, setStep] = useState<CheckoutStep>('shipping');
 
   const [shippingInfo, setShippingInfo] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     address: '',
     city: '',
     state: '',
     zip: '',
-    email: 'demo@example.com'
+    email: ''
   });
 
   useEffect(() => {
-    if (isAuthenticated === false) {
+    if (!isAuthLoading && !user) {
       router.push('/login?from=/checkout');
-    } else if (isAuthenticated === true) {
+    } else if (user) {
       setShippingInfo({
-        firstName: 'Demo',
-        lastName: 'User',
-        address: '123 Tech Lane',
-        city: 'Webville',
-        state: 'CA',
-        zip: '90210',
-        email: 'demo@example.com'
+        name: user.displayName || '',
+        address: '', // These would typically be fetched from a user profile
+        city: '',
+        state: '',
+        zip: '',
+        email: user.email || ''
       });
     }
-  }, [isAuthenticated, router]);
+  }, [user, isAuthLoading, router]);
   
   const handlePlaceOrder = () => {
+    if (!user) return;
     const newOrder = {
       id: `order_${Date.now()}`,
-      customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+      customerUid: user.uid,
+      customerName: shippingInfo.name,
       customerEmail: shippingInfo.email,
       date: new Date().toISOString(),
       status: 'Pending' as const,
@@ -74,14 +74,14 @@ export default function CheckoutPage() {
     router.push(`/checkout/success?orderId=${newOrder.id}`);
   };
 
-  if (isAuthenticated === null || isAuthenticated === false) {
+  if (isAuthLoading) {
     return (
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-1 flex items-center justify-center container">
           <div className="flex items-center space-x-2">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-lg">Loading and verifying authentication...</p>
+            <p className="text-lg">Verifying authentication...</p>
           </div>
         </main>
         <Footer />
@@ -127,15 +127,9 @@ export default function CheckoutPage() {
                         <CardDescription>Confirm the address where you want to receive your order.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="first-name">First Name</Label>
-                                <Input id="first-name" placeholder="John" value={shippingInfo.firstName} onChange={e => setShippingInfo({...shippingInfo, firstName: e.target.value})} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="last-name">Last Name</Label>
-                                <Input id="last-name" placeholder="Doe" value={shippingInfo.lastName} onChange={e => setShippingInfo({...shippingInfo, lastName: e.target.value})} />
-                            </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="full-name">Full Name</Label>
+                            <Input id="full-name" placeholder="John Doe" value={shippingInfo.name} onChange={e => setShippingInfo({...shippingInfo, name: e.target.value})} />
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="address">Address</Label>
