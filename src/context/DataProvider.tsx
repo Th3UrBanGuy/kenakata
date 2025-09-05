@@ -6,8 +6,10 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import type { Product, Order, SupportTicket, AppUser } from '@/lib/types';
 import { initialSupportTickets } from '@/lib/data';
 import { useFirebase } from './FirebaseProvider';
-import { collection, onSnapshot, query, where, doc, runTransaction, serverTimestamp, addDoc, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, doc, runTransaction, addDoc, updateDoc, deleteDoc, setDoc, getDocs, writeBatch } from 'firebase/firestore';
 import { useAuth } from './AuthProvider';
+import { v4 as uuidv4 } from 'uuid';
+
 
 interface DataContextType {
   products: Product[];
@@ -15,7 +17,9 @@ interface DataContextType {
   users: AppUser[];
   supportTickets: SupportTicket[];
   addOrder: (order: Omit<Order, 'id' | 'date' | 'status'>) => Promise<string>;
-  updateProductStock: (productId: string, variantId: string, change: number) => void; // This will be handled by addOrder transaction
+  addProduct: (productData: Omit<Product, 'id' | 'comments'>) => Promise<void>;
+  updateProduct: (productId: string, productData: Omit<Product, 'id' | 'comments'>) => Promise<void>;
+  deleteProduct: (productId: string) => Promise<void>;
   addSupportMessage: (ticketId: string, text: string) => void;
   addSupportReply: (ticketId: string, text: string) => void;
 }
@@ -40,7 +44,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   }, [db]);
   
   useEffect(() => {
-    if (!user || !role) { // Ensure role is determined
+    if (!user || !role) {
         setOrders([]);
         setUsers([]);
         return;
@@ -65,7 +69,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
             setOrders(ordersData);
         });
-        // Regular users don't fetch all users
         setUsers([]);
     }
 
@@ -85,7 +88,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             const productRefs = new Map<string, any>();
             const productsToUpdate: {ref: any, data: Product}[] = [];
 
-            // First, read all necessary product documents
             for (const item of orderData.items) {
                 if (!productRefs.has(item.productId)) {
                     const productRef = doc(db, 'products', item.productId);
@@ -97,28 +99,27 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                 }
             }
 
-            // Now, process updates
             for (const item of orderData.items) {
                 const { doc: productDoc, ref: productRef } = productRefs.get(item.productId);
                 const productData = productDoc.data() as Product;
                 
-                const variant = productData.variants.find(v => v.id === item.variantId);
-                if (!variant) {
+                const variantIndex = productData.variants.findIndex(v => v.id === item.variantId);
+                if (variantIndex === -1) {
                     throw new Error(`Variant ${item.variantId} not found in product ${item.productId}`);
                 }
-                if (variant.stock < item.quantity) {
-                    throw new Error(`Not enough stock for ${productData.name} (${variant.color}/${variant.size})`);
+                if (productData.variants[variantIndex].stock < item.quantity) {
+                    throw new Error(`Not enough stock for ${productData.name} (${productData.variants[variantIndex].color}/${productData.variants[variantIndex].size})`);
                 }
                 
-                // Decrement stock
-                variant.stock -= item.quantity;
+                productData.variants[variantIndex].stock -= item.quantity;
                 
-                productsToUpdate.push({ ref: productRef, data: productData });
+                if (!productsToUpdate.some(p => p.ref.path === productRef.path)) {
+                    productsToUpdate.push({ ref: productRef, data: productData });
+                }
             }
 
-            // Perform all writes
             productsToUpdate.forEach(({ ref, data }) => {
-                transaction.set(ref, data);
+                transaction.update(ref, { variants: data.variants });
             });
 
             const completeOrder = {
@@ -133,15 +134,32 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         return newOrderRef.id;
     } catch (e: any) {
         console.error("Order transaction failed: ", e);
-        throw e; // Re-throw to be caught by the UI
+        throw e;
     }
   };
 
-  const updateProductStock = (productId: string, variantId: string, change: number) => {
-     // This is now handled within the `addOrder` transaction for atomicity.
-     // This function can be removed or kept for other potential uses.
-     console.warn("updateProductStock should not be called directly for sales. It's handled by the addOrder transaction.");
+  const addProduct = async (productData: Omit<Product, 'id' | 'comments'>) => {
+    const newProductId = `prod_${uuidv4()}`;
+    const variantsWithIds = productData.variants.map(v => ({...v, id: `var_${uuidv4()}`}));
+    const newProduct: Product = {
+        ...productData,
+        id: newProductId,
+        variants: variantsWithIds,
+        comments: []
+    }
+    await setDoc(doc(db, 'products', newProductId), newProduct);
   };
+
+  const updateProduct = async (productId: string, productData: Omit<Product, 'id' | 'comments'>) => {
+    const productRef = doc(db, 'products', productId);
+    const variantsWithIds = productData.variants.map(v => v.id ? v : {...v, id: `var_${uuidv4()}`});
+    await updateDoc(productRef, {...productData, variants: variantsWithIds});
+  };
+
+  const deleteProduct = async (productId: string) => {
+    const productRef = doc(db, 'products', productId);
+    await deleteDoc(productRef);
+  }
   
   const addSupportMessage = (ticketId: string, text: string) => {
      // TODO: Implement Firestore logic
@@ -153,7 +171,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
 
   return (
-    <DataContext.Provider value={{ products, orders, users, supportTickets, addOrder, updateProductStock, addSupportMessage, addSupportReply }}>
+    <DataContext.Provider value={{ products, orders, users, supportTickets, addOrder, addProduct, updateProduct, deleteProduct, addSupportMessage, addSupportReply }}>
       {children}
     </DataContext.Provider>
   );

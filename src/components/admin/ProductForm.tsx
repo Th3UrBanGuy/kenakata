@@ -5,17 +5,19 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { Product } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { Loader2, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useData } from '@/context/DataProvider';
+import { useState } from 'react';
 
 const variantSchema = z.object({
-  id: z.string().optional(), // Keep track of existing variants
+  id: z.string().optional(), 
   color: z.string().min(1, 'Color is required'),
   size: z.string().min(1, 'Size is required'),
   stock: z.coerce.number().min(0, 'Stock must be non-negative'),
@@ -39,6 +41,9 @@ interface ProductFormProps {
 export function ProductForm({ product }: ProductFormProps) {
     const { toast } = useToast();
     const router = useRouter();
+    const { addProduct, updateProduct } = useData();
+    const [isSaving, setIsSaving] = useState(false);
+
     const defaultValues = product ? 
         {
             name: product.name,
@@ -50,7 +55,7 @@ export function ProductForm({ product }: ProductFormProps) {
             name: '',
             description: '',
             category: '',
-            variants: [{ color: '', size: '', stock: 0, price: 0, imageUrl: '' }],
+            variants: [{ color: '', size: '', stock: 0, price: 0, imageUrl: `https://picsum.photos/seed/${Math.random()}/600/600` }],
         };
 
   const form = useForm<ProductFormValues>({
@@ -63,13 +68,34 @@ export function ProductForm({ product }: ProductFormProps) {
     name: 'variants',
   });
 
-  function onSubmit(data: ProductFormValues) {
-    console.log(data);
-    toast({
-      title: `Product ${product ? 'Updated' : 'Created'}`,
-      description: `${data.name} has been successfully saved.`,
-    });
-    router.push('/admin/products');
+  async function onSubmit(data: ProductFormValues) {
+    setIsSaving(true);
+    try {
+        if (product) {
+            await updateProduct(product.id, data);
+             toast({
+                title: "Product Updated",
+                description: `"${data.name}" has been successfully updated.`,
+            });
+        } else {
+            await addProduct(data);
+            toast({
+                title: "Product Created",
+                description: `"${data.name}" has been successfully created.`,
+            });
+        }
+        router.push('/admin/products');
+        router.refresh(); // Helps ensure the page re-fetches if needed, though onSnapshot should handle it.
+    } catch (error: any) {
+        console.error("Failed to save product:", error);
+        toast({
+            title: "Save Failed",
+            description: error.message || "There was a problem saving the product.",
+            variant: "destructive"
+        });
+    } finally {
+        setIsSaving(false);
+    }
   }
 
   return (
@@ -83,7 +109,7 @@ export function ProductForm({ product }: ProductFormProps) {
                 <FormItem>
                 <FormLabel>Product Name</FormLabel>
                 <FormControl>
-                    <Input placeholder="Cyber-Tee" {...field} />
+                    <Input placeholder="Cyber-Tee" {...field} disabled={isSaving} />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -96,7 +122,7 @@ export function ProductForm({ product }: ProductFormProps) {
                 <FormItem>
                 <FormLabel>Category</FormLabel>
                 <FormControl>
-                    <Input placeholder="Apparel" {...field} />
+                    <Input placeholder="Apparel" {...field} disabled={isSaving} />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -111,7 +137,7 @@ export function ProductForm({ product }: ProductFormProps) {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="A stylish t-shirt..." {...field} />
+                <Textarea placeholder="A stylish t-shirt..." {...field} disabled={isSaving} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -131,7 +157,7 @@ export function ProductForm({ product }: ProductFormProps) {
                         render={({ field }) => (
                             <FormItem className="md:col-span-1">
                             <FormLabel>Color</FormLabel>
-                            <FormControl><Input placeholder="Black" {...field} /></FormControl>
+                            <FormControl><Input placeholder="Black" {...field} disabled={isSaving} /></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
@@ -142,7 +168,7 @@ export function ProductForm({ product }: ProductFormProps) {
                         render={({ field }) => (
                             <FormItem className="md:col-span-1">
                             <FormLabel>Size</FormLabel>
-                            <FormControl><Input placeholder="M" {...field} /></FormControl>
+                            <FormControl><Input placeholder="M" {...field} disabled={isSaving} /></FormControl>
                             <FormMessage />
                             </FormItem>
                         )}
@@ -153,7 +179,7 @@ export function ProductForm({ product }: ProductFormProps) {
                         render={({ field }) => (
                             <FormItem className="md:col-span-1">
                             <FormLabel>Price</FormLabel>
-                            <FormControl><Input type="number" placeholder="29.99" {...field} /></FormControl>
+                            <FormControl><Input type="number" step="0.01" placeholder="29.99" {...field} disabled={isSaving} /></FormControl>
                              <FormMessage />
                             </FormItem>
                         )}
@@ -164,7 +190,7 @@ export function ProductForm({ product }: ProductFormProps) {
                         render={({ field }) => (
                             <FormItem className="md:col-span-1">
                             <FormLabel>Stock</FormLabel>
-                            <FormControl><Input type="number" placeholder="15" {...field} /></FormControl>
+                            <FormControl><Input type="number" placeholder="15" {...field} disabled={isSaving} /></FormControl>
                              <FormMessage />
                             </FormItem>
                         )}
@@ -175,20 +201,23 @@ export function ProductForm({ product }: ProductFormProps) {
                         render={({ field }) => (
                             <FormItem className="md:col-span-2">
                             <FormLabel>Image URL</FormLabel>
-                            <FormControl><Input placeholder="https://..." {...field} /></FormControl>
+                            <FormControl><Input placeholder="https://..." {...field} disabled={isSaving} /></FormControl>
                              <FormMessage />
                             </FormItem>
                         )}
                         />
-                        <Button type="button" variant="ghost" size="icon" className="absolute -top-3 -right-3 h-7 w-7 bg-background" onClick={() => remove(index)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {fields.length > 1 && (
+                            <Button type="button" variant="ghost" size="icon" className="absolute -top-3 -right-3 h-7 w-7 bg-background" onClick={() => remove(index)} disabled={isSaving}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                        )}
                     </div>
                 ))}
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={() => append({ color: '', size: '', stock: 0, price: 0, imageUrl: '' })}
+                    onClick={() => append({ color: '', size: '', stock: 0, price: 0, imageUrl: `https://picsum.photos/seed/${Math.random()}/600/600` })}
+                    disabled={isSaving}
                 >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add Variant
@@ -196,7 +225,10 @@ export function ProductForm({ product }: ProductFormProps) {
             </CardContent>
         </Card>
 
-        <Button type="submit" size="lg">{product ? 'Save Changes' : 'Create Product'}</Button>
+        <Button type="submit" size="lg" disabled={isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSaving ? 'Saving...' : product ? 'Save Changes' : 'Create Product'}
+        </Button>
       </form>
     </Form>
   );

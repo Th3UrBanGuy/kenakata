@@ -8,11 +8,42 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { useData } from '@/context/DataProvider';
 import Image from 'next/image';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import type { Product } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminProductsPage() {
-  const { products } = useData();
+  const { products, deleteProduct } = useData();
+  const { toast } = useToast();
+
+  const handleDelete = async (product: Product) => {
+    try {
+      await deleteProduct(product.id);
+      toast({
+        title: "Product Deleted",
+        description: `"${product.name}" has been successfully deleted.`,
+      });
+    } catch (error: any) {
+      console.error("Failed to delete product:", error);
+      toast({
+        title: "Delete Failed",
+        description: error.message || "There was a problem deleting the product.",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -76,9 +107,31 @@ export default function AdminProductsPage() {
                         <Link href={`/product/${product.id}`} target="_blank">
                           <DropdownMenuItem>View on Store</DropdownMenuItem>
                         </Link>
-                        <DropdownMenuItem className="text-destructive">
-                          Delete
-                        </DropdownMenuItem>
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                               <DropdownMenuItem
+                                  className="text-destructive"
+                                  onSelect={(e) => e.preventDefault()} // Prevents dropdown from closing
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the product "{product.name}".
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(product)}>
+                                    Delete
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
