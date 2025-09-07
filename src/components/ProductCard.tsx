@@ -35,7 +35,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
 
   return (
-    <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2 group">
+    <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 group">
       <Link href={`/product/${product.id}`} className="block flex-grow">
         <CardHeader className="p-0">
           <div className="relative aspect-square w-full overflow-hidden">
@@ -64,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 </Button>
             ) : (
                  <Link href={`/product/${product.id}`} className="w-full">
-                    <Button variant="default" className="w-full">
+                    <Button variant="outline" className="w-full">
                         View
                         <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"/>
                     </Button>

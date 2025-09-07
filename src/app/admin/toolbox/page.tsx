@@ -27,23 +27,27 @@ const tools = [
 export default function ToolboxPage() {
   return (
     <div className="space-y-6">
+       <div className="flex flex-col">
+          <h1 className="text-3xl font-bold font-headline">Toolbox</h1>
+          <p className="text-muted-foreground">All your store management tools in one place.</p>
+        </div>
        <Card>
             <CardHeader>
-                <CardTitle className="font-headline">Toolbox</CardTitle>
-                <CardDescription>All your store management tools in one place.</CardDescription>
+                <CardTitle>Management Tools</CardTitle>
+                <CardDescription>Click a tool to navigate to its management page.</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col gap-2">
+            <CardContent className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tools.map((tool) => (
-                    <Link href={tool.href} key={tool.href}>
-                        <div className="flex items-center gap-4 rounded-lg p-3 text-left transition-all hover:bg-accent active:scale-[0.98]">
-                            <div className="rounded-lg bg-muted p-3">
-                                <tool.icon className="h-6 w-6 text-muted-foreground" />
+                    <Link href={tool.href} key={tool.href} className="block group">
+                        <div className="flex items-center gap-4 rounded-lg p-4 text-left transition-all hover:bg-accent border h-full active:scale-[0.98]">
+                            <div className="rounded-lg bg-muted p-3 group-hover:bg-primary/20 transition-colors">
+                                <tool.icon className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                             </div>
                             <div className="flex-1">
                                 <p className="font-semibold">{tool.label}</p>
                                 <p className="text-sm text-muted-foreground">{tool.description}</p>
                             </div>
-                             <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                             <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
                         </div>
                     </Link>
                 ))}

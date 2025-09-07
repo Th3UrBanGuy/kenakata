@@ -57,8 +57,8 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">A quick overview of your store.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="hover:border-primary/50 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -68,7 +68,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:border-primary/50 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Sales</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
@@ -78,7 +78,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">+19% from last month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:border-primary/50 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">New Customers</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -88,7 +88,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">in the last week</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:border-primary/50 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Now</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
@@ -100,7 +100,7 @@ export default function DashboardPage() {
         </Card>
       </div>
       <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-        <Card className="xl:col-span-2">
+        <Card className="xl:col-span-2 hover:border-primary/50 transition-colors">
           <CardHeader className="flex flex-row items-center">
             <div className="grid gap-2">
               <CardTitle>Recent Orders</CardTitle>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
                 A list of the most recent orders in your store.
               </CardDescription>
             </div>
-            <Button asChild size="sm" className="ml-auto gap-1">
+            <Button asChild size="sm" className="ml-auto gap-1 active-scale">
               <Link href="/admin/orders">
                 View All
                 <ArrowRight className="h-4 w-4" />
@@ -120,7 +120,7 @@ export default function DashboardPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Customer</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
+                  <TableHead className="hidden sm:table-cell text-center">Status</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                 </TableRow>
               </TableHeader>
@@ -133,7 +133,7 @@ export default function DashboardPage() {
                                 {order.customerEmail}
                             </div>
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="hidden sm:table-cell text-center">
                             <Badge className="text-xs" variant="outline">{order.status}</Badge>
                         </TableCell>
                         <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
             </Table>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="hover:border-primary/50 transition-colors">
           <CardHeader>
             <CardTitle>Recent Customers</CardTitle>
           </CardHeader>
