@@ -17,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from './ui/badge';
 import { cn } from '@/lib/utils';
 
 export function Header() {
@@ -109,7 +108,7 @@ export function Header() {
             )}
           </div>
         </div>
-         <div className={cn("md:hidden pb-4 transition-all duration-300", user ? 'block' : 'hidden')}>
+         <div className="md:hidden pb-4">
             <form>
                 <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

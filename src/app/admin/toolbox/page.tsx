@@ -8,9 +8,7 @@ import {
   Users,
   Tag,
   Heart,
-  LineChart,
   ChevronRight,
-  MessageSquare,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 

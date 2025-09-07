@@ -26,7 +26,6 @@ interface AuthContextType {
   isLoading: boolean;
   register: (email: string, pass: string, name: string) => Promise<void>;
   login: (email: string, pass: string) => Promise<void>;
-  loginAsAdmin: () => void;
   logout: () => void;
   sendPasswordReset: () => Promise<void>;
   deleteCurrentUser: () => Promise<void>;
@@ -94,15 +93,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const login = async (email: string, pass: string) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-      const loggedInUser = userCredential.user;
-
-      if (!loggedInUser.emailVerified) {
-        // Don't block login, but the UI will show prompts to verify.
-        // This is a change from the previous stricter implementation.
-      }
-      // onAuthStateChanged will handle setting the user and role state.
-
+      await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged will handle setting the user and role state after successful login.
     } catch (error: any) {
       if (error.code === 'auth/invalid-credential') {
         throw new Error('Invalid email or password. Please try again.');
@@ -111,19 +103,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw error;
     }
   };
-  
-  const loginAsAdmin = () => {
-    login('admin@example.com', 'password').catch(() => {
-      register('admin@example.com', 'password', 'Admin User').then(async () => {
-         const adminUser = auth.currentUser;
-         if(adminUser) {
-           const userDocRef = doc(db, 'users', adminUser.uid);
-           await setDoc(userDocRef, { role: 'admin' }, { merge: true });
-           setRole('admin');
-         }
-      })
-    })
-  }
 
   const logout = async () => {
     await signOut(auth);
@@ -184,7 +163,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 
   return (
-    <AuthContext.Provider value={{ user, role, isLoading, register, login, loginAsAdmin, logout, sendPasswordReset, deleteCurrentUser, sendVerificationEmail, reloadUser }}>
+    <AuthContext.Provider value={{ user, role, isLoading, register, login, logout, sendPasswordReset, deleteCurrentUser, sendVerificationEmail, reloadUser }}>
       {children}
     </AuthContext.Provider>
   );

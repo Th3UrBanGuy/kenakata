@@ -9,13 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-    const { login, loginAsAdmin } = useAuth();
+    const { login } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
     const from = searchParams.get('from') || '/account/dashboard';
@@ -39,11 +38,6 @@ export default function LoginPage() {
             setIsLoading(false);
         }
     };
-    
-    const handleAdminLogin = () => {
-        loginAsAdmin();
-        router.push('/admin/dashboard');
-    }
 
     return (
         <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
@@ -85,15 +79,6 @@ export default function LoginPage() {
                                 Login
                             </Button>
                         </form>
-                        
-                        <div className="relative my-2">
-                            <Separator />
-                            <span className="absolute left-1/2 -translate-x-1/2 top-[-10px] bg-background px-2 text-xs uppercase text-muted-foreground">
-                                or
-                            </span>
-                        </div>
-                        
-                        <Button variant="secondary" className="w-full" onClick={handleAdminLogin}>Login as Admin (Dev)</Button>
                         
                         <div className="mt-4 text-center text-sm">
                             Don&apos;t have an account?{' '}
