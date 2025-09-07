@@ -18,6 +18,7 @@ interface DataContextType {
   couponUsage: CouponUsage[];
   isLoading: boolean;
   addOrder: (order: Omit<Order, 'id' | 'date' | 'status'>) => Promise<string>;
+  updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
   addProduct: (productData: Omit<Product, 'id' | 'comments'>) => Promise<void>;
   updateProduct: (productId: string, productData: Partial<Omit<Product, 'id' | 'comments'>>) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
@@ -213,6 +214,11 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateOrderStatus = async (orderId: string, status: Order['status']) => {
+    const orderRef = doc(db, 'orders', orderId);
+    await updateDoc(orderRef, { status });
+  };
+
   const addProduct = async (productData: Omit<Product, 'id' | 'comments'>) => {
     const newProductId = `prod_${uuidv4()}`;
     const variantsWithIds = productData.variants.map(v => ({...v, id: `var_${uuidv4()}`}));
@@ -287,7 +293,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
 
   return (
-    <DataContext.Provider value={{ products, orders, users, coupons, couponUsage, isLoading, addOrder, addProduct, updateProduct, deleteProduct, addCoupon, updateCoupon, deleteCoupon, toggleCouponStatus, setUserRole, deleteUser, updateAppUser }}>
+    <DataContext.Provider value={{ products, orders, users, coupons, couponUsage, isLoading, addOrder, updateOrderStatus, addProduct, updateProduct, deleteProduct, addCoupon, updateCoupon, deleteCoupon, toggleCouponStatus, setUserRole, deleteUser, updateAppUser }}>
       {children}
     </DataContext.Provider>
   );

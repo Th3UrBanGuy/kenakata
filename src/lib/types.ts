@@ -1,9 +1,9 @@
 
-
 export type AppUser = {
   uid: string;
   email: string | null;
   name: string | null;
+  phone?: string;
   role: 'user' | 'admin';
   createdAt: any; // Firestore timestamp
   wishlist?: WishlistItem[];

@@ -9,9 +9,13 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import type { Order } from "@/lib/types";
 import { useData } from "@/context/DataProvider";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 
 export default function OrdersPage() {
     const { orders } = useData();
+    const router = useRouter();
 
     const getStatusVariant = (status: Order['status']) => {
         switch (status) {
@@ -35,6 +39,7 @@ export default function OrdersPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead>Order ID</TableHead>
                                 <TableHead>Customer</TableHead>
                                 <TableHead className="hidden sm:table-cell">Status</TableHead>
                                 <TableHead className="hidden md:table-cell">Date</TableHead>
@@ -46,7 +51,8 @@ export default function OrdersPage() {
                         </TableHeader>
                         <TableBody>
                             {[...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((order) => (
-                                <TableRow key={order.id}>
+                                <TableRow key={order.id} className="cursor-pointer" onClick={() => router.push(`/admin/orders/${order.id}`)}>
+                                    <TableCell className="font-medium">{order.id.slice(-6).toUpperCase()}</TableCell>
                                     <TableCell>
                                         <div className="font-medium">{order.customerName}</div>
                                         <div className="text-sm text-muted-foreground hidden md:block">{order.customerEmail}</div>
@@ -59,14 +65,17 @@ export default function OrdersPage() {
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon">
+                                                <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
                                                     <MoreHorizontal className="h-4 w-4"/>
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent>
-                                                <DropdownMenuItem>View Details</DropdownMenuItem>
-                                                <DropdownMenuItem>Update Status</DropdownMenuItem>
-                                                <DropdownMenuItem>Contact Customer</DropdownMenuItem>
+                                                <Link href={`/admin/orders/${order.id}`}>
+                                                    <DropdownMenuItem>View Details</DropdownMenuItem>
+                                                </Link>
+                                                <Link href={`mailto:${order.customerEmail}`}>
+                                                    <DropdownMenuItem>Contact Customer</DropdownMenuItem>
+                                                </Link>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
