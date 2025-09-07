@@ -57,7 +57,7 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">A quick overview of your store.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="hover:border-primary/50 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -88,16 +88,6 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">in the last week</p>
           </CardContent>
         </Card>
-        <Card className="hover:border-primary/50 transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Now</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+573</div>
-            <p className="text-xs text-muted-foreground">+201 since last hour</p>
-          </CardContent>
-        </Card>
       </div>
       <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
         <Card className="xl:col-span-2 hover:border-primary/50 transition-colors">
@@ -108,7 +98,7 @@ export default function DashboardPage() {
                 A list of the most recent orders in your store.
               </CardDescription>
             </div>
-            <Button asChild size="sm" className="ml-auto gap-1 active-scale">
+            <Button asChild size="sm" className="ml-auto gap-1 active:scale-[0.98]">
               <Link href="/admin/orders">
                 View All
                 <ArrowRight className="h-4 w-4" />
@@ -120,7 +110,7 @@ export default function DashboardPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Customer</TableHead>
-                  <TableHead className="hidden sm:table-cell text-center">Status</TableHead>
+                  <TableHead className="hidden text-center sm:table-cell">Status</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                 </TableRow>
               </TableHeader>
@@ -133,7 +123,7 @@ export default function DashboardPage() {
                                 {order.customerEmail}
                             </div>
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell text-center">
+                        <TableCell className="hidden text-center sm:table-cell">
                             <Badge className="text-xs" variant="outline">{order.status}</Badge>
                         </TableCell>
                         <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
