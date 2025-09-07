@@ -78,31 +78,31 @@ export function CouponForm({ coupon }: CouponFormProps) {
   async function onSubmit(data: CouponFormValues) {
     setIsSaving(true);
     
-    // Prepare data based on UI state
-    const finalData: Partial<Coupon> = {
-        ...data,
+    const couponPayload: Omit<Coupon, 'id' | 'claims'> = {
+        code: data.code,
+        discountType: data.discountType,
+        discountValue: data.discountValue,
+        isActive: data.isActive,
         applicableProductIds: productsType === 'specific' ? data.applicableProductIds : [],
     };
     
-    if (validityType === 'forever') {
-        finalData.validUntil = undefined;
-    } else if (data.validUntil) {
-        finalData.validUntil = data.validUntil.toISOString();
+    if (validityType === 'custom' && data.validUntil) {
+        couponPayload.validUntil = data.validUntil.toISOString();
     }
 
-    if (claimsType === 'unlimited') {
-        finalData.maxClaims = undefined;
+    if (claimsType === 'custom' && data.maxClaims) {
+        couponPayload.maxClaims = data.maxClaims;
     }
 
     try {
         if (coupon) {
-            await updateCoupon(coupon.id, finalData);
+            await updateCoupon(coupon.id, couponPayload);
             toast({
                 title: "Coupon Updated",
                 description: `Coupon "${data.code}" has been successfully updated.`,
             });
         } else {
-            await addCoupon(finalData as Omit<Coupon, 'id' | 'claims'>);
+            await addCoupon(couponPayload);
             toast({
                 title: "Coupon Created",
                 description: `Coupon "${data.code}" has been successfully created.`,
