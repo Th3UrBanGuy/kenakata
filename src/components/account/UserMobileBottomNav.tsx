@@ -18,12 +18,12 @@ export function UserMobileBottomNav() {
             key={item.href}
             href={item.href}
             className={cn(
-            "flex flex-col items-center justify-center gap-1 text-muted-foreground transition-all text-sm h-full",
+            "flex flex-col items-center justify-center gap-1 text-muted-foreground transition-all text-xs h-full",
             pathname === item.href ? "text-primary bg-muted/50" : "hover:bg-muted/50"
             )}
         >
             <item.icon className="h-5 w-5" />
-            <span className="text-xs">{item.label}</span>
+            <span>{item.label}</span>
         </Link>
         ))}
         </div>

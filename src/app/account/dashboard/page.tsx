@@ -39,7 +39,7 @@ export default function DashboardPage() {
                 <Skeleton className="h-9 w-3/5 mb-2" />
                 <Skeleton className="h-5 w-4/5" />
             </div>
-             <div className="grid gap-6 md:grid-cols-3">
+             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <Card><CardHeader className="pb-2"><Skeleton className="h-5 w-3/4" /></CardHeader><CardContent><Skeleton className="h-10 w-1/2" /></CardContent></Card>
                 <Card><CardHeader className="pb-2"><Skeleton className="h-5 w-3/4" /></CardHeader><CardContent><Skeleton className="h-10 w-1/2" /></CardContent></Card>
                 <Card><CardHeader className="pb-2"><Skeleton className="h-5 w-3/4" /></CardHeader><CardContent><Skeleton className="h-10 w-1/2" /></CardContent></Card>
@@ -70,7 +70,7 @@ export default function DashboardPage() {
                 <p className="text-muted-foreground mt-1">Here's a quick look at your account.</p>
             </div>
             
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <Card className="bg-gradient-to-br from-primary/10 to-background">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
@@ -118,7 +118,7 @@ export default function DashboardPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Order ID</TableHead>
-                                <TableHead>Date</TableHead>
+                                <TableHead className="hidden sm:table-cell">Date</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="text-right">Total</TableHead>
                             </TableRow>
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                             {recentOrders.map((order) => (
                                 <TableRow key={order.id}>
                                     <TableCell className="font-medium">{order.id.slice(-6).toUpperCase()}</TableCell>
-                                    <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
+                                    <TableCell className="hidden sm:table-cell">{new Date(order.date).toLocaleDateString()}</TableCell>
                                     <TableCell>
                                         <Badge variant="outline">{order.status}</Badge>
                                     </TableCell>

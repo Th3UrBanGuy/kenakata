@@ -159,7 +159,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
             )}
         />
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid sm:grid-cols-2 gap-8">
             <FormField
             control={form.control}
             name="discountType"
@@ -280,7 +280,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
             )}
         />
         
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid sm:grid-cols-2 gap-8">
             <FormField
                 name="validUntil"
                 control={form.control}

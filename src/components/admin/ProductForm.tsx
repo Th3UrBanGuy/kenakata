@@ -101,7 +101,7 @@ export function ProductForm({ product }: ProductFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid sm:grid-cols-2 gap-8">
             <FormField
             control={form.control}
             name="name"
@@ -150,12 +150,12 @@ export function ProductForm({ product }: ProductFormProps) {
             </CardHeader>
             <CardContent className="space-y-6">
                 {fields.map((field, index) => (
-                    <div key={field.id} className="grid grid-cols-1 md:grid-cols-6 gap-4 border p-4 rounded-lg relative">
+                    <div key={field.id} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 border p-4 rounded-lg relative">
                         <FormField
                         control={form.control}
                         name={`variants.${index}.color`}
                         render={({ field }) => (
-                            <FormItem className="md:col-span-1">
+                            <FormItem className="lg:col-span-1">
                             <FormLabel>Color</FormLabel>
                             <FormControl><Input placeholder="Black" {...field} disabled={isSaving} /></FormControl>
                             <FormMessage />
@@ -166,7 +166,7 @@ export function ProductForm({ product }: ProductFormProps) {
                         control={form.control}
                         name={`variants.${index}.size`}
                         render={({ field }) => (
-                            <FormItem className="md:col-span-1">
+                            <FormItem className="lg:col-span-1">
                             <FormLabel>Size</FormLabel>
                             <FormControl><Input placeholder="M" {...field} disabled={isSaving} /></FormControl>
                             <FormMessage />
@@ -177,7 +177,7 @@ export function ProductForm({ product }: ProductFormProps) {
                         control={form.control}
                         name={`variants.${index}.price`}
                         render={({ field }) => (
-                            <FormItem className="md:col-span-1">
+                            <FormItem className="lg:col-span-1">
                             <FormLabel>Price</FormLabel>
                             <FormControl><Input type="number" step="0.01" placeholder="29.99" {...field} disabled={isSaving} /></FormControl>
                              <FormMessage />
@@ -188,7 +188,7 @@ export function ProductForm({ product }: ProductFormProps) {
                         control={form.control}
                         name={`variants.${index}.stock`}
                         render={({ field }) => (
-                            <FormItem className="md:col-span-1">
+                            <FormItem className="lg:col-span-1">
                             <FormLabel>Stock</FormLabel>
                             <FormControl><Input type="number" placeholder="15" {...field} disabled={isSaving} /></FormControl>
                              <FormMessage />
@@ -199,7 +199,7 @@ export function ProductForm({ product }: ProductFormProps) {
                         control={form.control}
                         name={`variants.${index}.imageUrl`}
                         render={({ field }) => (
-                            <FormItem className="md:col-span-2">
+                            <FormItem className="sm:col-span-2 lg:col-span-2">
                             <FormLabel>Image URL</FormLabel>
                             <FormControl><Input placeholder="https://..." {...field} disabled={isSaving} /></FormControl>
                              <FormMessage />

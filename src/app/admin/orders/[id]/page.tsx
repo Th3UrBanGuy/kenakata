@@ -22,12 +22,60 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
+function OrderDetailSkeleton() {
+    return (
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="space-y-2">
+                            <Skeleton className="h-8 w-48" />
+                            <Skeleton className="h-5 w-64" />
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <Skeleton className="h-10 w-44" />
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+            <div className="grid md:grid-cols-3 gap-6">
+                <Card className="md:col-span-2">
+                    <CardHeader><Skeleton className="h-7 w-32" /></CardHeader>
+                    <CardContent className="space-y-4">
+                        <Skeleton className="h-16 w-full" />
+                        <Skeleton className="h-16 w-full" />
+                    </CardContent>
+                    <CardFooter className="flex flex-col items-end gap-2 bg-muted/50 p-6">
+                        <Skeleton className="h-5 w-40" />
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-8 w-48" />
+                    </CardFooter>
+                </Card>
+                <Card>
+                    <CardHeader><Skeleton className="h-7 w-36" /></CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <Skeleton className="h-12 w-12 rounded-full" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-5 w-24" />
+                                <Skeleton className="h-4 w-32" />
+                            </div>
+                        </div>
+                        <Skeleton className="h-px w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    )
+}
 
 export default function OrderDetailPage() {
     const params = useParams();
     const { id: orderId } = params;
-    const { orders, users, updateOrderStatus } = useData();
+    const { orders, users, updateOrderStatus, isLoading } = useData();
     const { toast } = useToast();
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
@@ -69,12 +117,12 @@ export default function OrderDetailPage() {
     };
 
 
+    if (isLoading && !order) {
+        return <OrderDetailSkeleton />;
+    }
+
     if (!order) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <p>Order not found.</p>
-            </div>
-        )
+        return notFound();
     }
     
     const { icon: StatusIcon, color: statusColor, label: statusLabel } = getStatusInfo(order.status);
@@ -112,8 +160,8 @@ export default function OrderDetailPage() {
                 </CardHeader>
             </Card>
 
-            <div className="grid md:grid-cols-3 gap-6">
-                <Card className="md:col-span-2">
+            <div className="grid lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2">
                     <CardHeader>
                         <CardTitle>Order Items</CardTitle>
                     </CardHeader>

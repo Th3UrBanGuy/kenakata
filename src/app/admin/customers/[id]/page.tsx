@@ -10,10 +10,47 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import type { Order } from '@/lib/types';
 import { DollarSign, Hash, ShoppingCart } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function CustomerDetailSkeleton() {
+    return (
+        <div className="space-y-6">
+            <Card>
+                <CardHeader className="flex flex-col md:flex-row md:items-center gap-4">
+                    <Skeleton className="h-20 w-20 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                        <Skeleton className="h-8 w-48" />
+                        <Skeleton className="h-5 w-64" />
+                    </div>
+                </CardHeader>
+                <CardContent>
+                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-24 w-full" />
+                    </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-36" />
+                    <Skeleton className="h-4 w-72" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    )
+}
 
 export default function CustomerDetailPage() {
     const params = useParams();
-    const { users, orders } = useData();
+    const { users, orders, isLoading } = useData();
     const customerId = decodeURIComponent(params.id as string);
 
     const customer = useMemo(() => {
@@ -40,13 +77,12 @@ export default function CustomerDetailPage() {
         };
     }, [customer, customerOrders]);
 
+    if (isLoading && !customer) {
+        return <CustomerDetailSkeleton />
+    }
 
     if (!customer || !customerStats) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <p>Customer not found.</p>
-            </div>
-        )
+        return notFound();
     }
     
     const getStatusVariant = (status: Order['status']) => {
@@ -72,7 +108,7 @@ export default function CustomerDetailPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                         <div className="p-4 bg-muted rounded-lg">
                             <DollarSign className="h-6 w-6 mx-auto text-primary mb-2" />
                             <p className="text-2xl font-bold">${customerStats.totalSpent.toFixed(2)}</p>
@@ -86,7 +122,6 @@ export default function CustomerDetailPage() {
                          <div className="p-4 bg-muted rounded-lg">
                             <Hash className="h-6 w-6 mx-auto text-primary mb-2" />
                             <p className="text-xl font-bold truncate">{customerOrders[0]?.id.slice(-8).toUpperCase() || 'N/A'}</p>
-
                             <p className="text-sm text-muted-foreground">Last Order ID</p>
                         </div>
                     </div>
