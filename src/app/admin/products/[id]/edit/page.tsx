@@ -6,6 +6,35 @@ import { useData } from "@/context/DataProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMemo } from "react";
 import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function EditProductPageSkeleton() {
+    return (
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-8 w-1/4" />
+                <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent className="space-y-8">
+                <div className="grid md:grid-cols-2 gap-8">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+                <Skeleton className="h-24 w-full" />
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-32" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Skeleton className="h-24 w-full" />
+                        <Skeleton className="h-10 w-32" />
+                    </CardContent>
+                </Card>
+                <Skeleton className="h-12 w-40" />
+            </CardContent>
+        </Card>
+    );
+}
 
 export default function EditProductPage() {
     const params = useParams();
@@ -14,8 +43,8 @@ export default function EditProductPage() {
     
     const product = useMemo(() => products.find(p => p.id === id), [products, id]);
 
-    if (isLoading) {
-        return <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    if (isLoading && !product) {
+        return <EditProductPageSkeleton />;
     }
 
     if (!product) {
