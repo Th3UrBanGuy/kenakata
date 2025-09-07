@@ -3,17 +3,23 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { collection, doc, writeBatch } from "firebase/firestore";
 import { initialProducts } from "../src/lib/data";
+import 'dotenv/config'
 
-// This is the same config from your FirebaseProvider
+// Load config from environment variables
 const firebaseConfig = {
-  projectId: "kenakata-online-store",
-  appId: "1:226909259084:web:70078f69682f33593dfbe9",
-  storageBucket: "kenakata-online-store.firebasestorage.app",
-  apiKey: "AIzaSyDWeyM0pfNtBZJqZZ4y6Ojxc3akKt6Zykc",
-  authDomain: "kenakata-online-store.firebaseapp.com",
-  measurementId: "",
-  messagingSenderId: "226909259084"
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
 };
+
+// Check if all required environment variables are set
+if (!firebaseConfig.projectId || !firebaseConfig.apiKey) {
+    console.error("Firebase configuration is missing. Make sure you have a .env file with all the required NEXT_PUBLIC_FIREBASE_ variables.");
+    process.exit(1);
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
