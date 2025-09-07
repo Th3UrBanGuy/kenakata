@@ -14,10 +14,12 @@ import { useRouter } from 'next/navigation';
 import type { Coupon } from '@/lib/types';
 import { Textarea } from '../ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { CalendarIcon, Pen, Pencil } from 'lucide-react';
+import { CalendarIcon, Loader2, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
+import { useData } from '@/context/DataProvider';
+import { useState } from 'react';
 
 const couponSchema = z.object({
   code: z.string().min(3, 'Code must be at least 3 characters').toUpperCase(),
@@ -38,6 +40,8 @@ interface CouponFormProps {
 export function CouponForm({ coupon }: CouponFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const { addCoupon, updateCoupon } = useData();
+  const [isSaving, setIsSaving] = useState(false);
   
   const defaultValues = coupon
     ? { 
@@ -61,18 +65,38 @@ export function CouponForm({ coupon }: CouponFormProps) {
     defaultValues,
   });
 
-  function onSubmit(data: CouponFormValues) {
-    const finalData = {
-        ...data,
-        applicableProductIds: data.applicableProductIds?.split(',').map(s => s.trim()).filter(Boolean),
-        validUntil: data.validUntil?.toISOString()
+  async function onSubmit(data: CouponFormValues) {
+    setIsSaving(true);
+    try {
+        const finalData = {
+            ...data,
+            applicableProductIds: data.applicableProductIds?.split(',').map(s => s.trim()).filter(Boolean),
+            validUntil: data.validUntil?.toISOString()
+        }
+        
+        if (coupon) {
+            await updateCoupon(coupon.id, finalData);
+            toast({
+                title: "Coupon Updated",
+                description: `Coupon "${data.code}" has been successfully updated.`,
+            });
+        } else {
+            await addCoupon(finalData);
+            toast({
+                title: "Coupon Created",
+                description: `Coupon "${data.code}" has been successfully created.`,
+            });
+        }
+        router.push('/admin/coupons');
+    } catch (error: any) {
+        toast({
+            title: "Save Failed",
+            description: error.message || "There was a problem saving the coupon.",
+            variant: "destructive"
+        });
+    } finally {
+        setIsSaving(false);
     }
-    console.log(finalData);
-    toast({
-      title: `Coupon ${coupon ? 'Updated' : 'Created'}`,
-      description: `Coupon "${data.code}" has been successfully saved.`,
-    });
-    router.push('/admin/coupons');
   }
 
   return (
@@ -91,6 +115,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    disabled={isSaving}
                   />
                 </FormControl>
               </FormItem>
@@ -103,7 +128,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
               <FormItem>
                 <FormLabel>Coupon Code</FormLabel>
                 <FormControl>
-                  <Input placeholder="SUMMER25" {...field} />
+                  <Input placeholder="SUMMER25" {...field} disabled={isSaving} />
                 </FormControl>
                 <FormDescription>The code customers will enter at checkout.</FormDescription>
                 <FormMessage />
@@ -118,7 +143,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
             render={({ field }) => (
                 <FormItem>
                 <FormLabel>Discount Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSaving}>
                     <FormControl>
                     <SelectTrigger>
                         <SelectValue placeholder="Select a discount type" />
@@ -140,7 +165,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                 <FormItem>
                 <FormLabel>Discount Value</FormLabel>
                 <FormControl>
-                    <Input type="number" step="0.01" placeholder={form.watch('discountType') === 'percentage' ? '10' : '10.00'} {...field} />
+                    <Input type="number" step="0.01" placeholder={form.watch('discountType') === 'percentage' ? '10' : '10.00'} {...field} disabled={isSaving}/>
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -164,6 +189,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                                 "w-full pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                             )}
+                            disabled={isSaving}
                             >
                             {field.value ? (
                                 format(field.value, "PPP")
@@ -197,7 +223,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                     <FormItem>
                     <FormLabel>Max Claims (Optional)</FormLabel>
                     <FormControl>
-                        <Input type="number" placeholder="100" {...field} />
+                        <Input type="number" placeholder="100" {...field} disabled={isSaving} />
                     </FormControl>
                     <FormDescription>
                         The maximum number of times this coupon can be used.
@@ -215,7 +241,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
               <FormItem>
                 <FormLabel>Applicable Products (Optional)</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="prod_1, prod_2, prod_5" {...field} />
+                  <Textarea placeholder="prod_1, prod_2, prod_5" {...field} disabled={isSaving}/>
                 </FormControl>
                 <FormDescription>
                     Enter a comma-separated list of product IDs. If left blank, the coupon will apply to all products.
@@ -225,7 +251,8 @@ export function CouponForm({ coupon }: CouponFormProps) {
             )}
           />
 
-        <Button type="submit" size="lg">
+        <Button type="submit" size="lg" disabled={isSaving}>
+          {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <Pencil className="mr-2 h-4 w-4" />
           {coupon ? 'Save Changes' : 'Create Coupon'}
         </Button>

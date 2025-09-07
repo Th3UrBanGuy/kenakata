@@ -3,7 +3,6 @@
 
 import { useMemo } from 'react';
 import { notFound, useParams } from 'next/navigation';
-import { coupons, couponUsage, orders } from '@/lib/data';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -11,15 +10,19 @@ import { DollarSign, Percent, User, Hash } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { useData } from '@/context/DataProvider';
+import { Loader2 } from 'lucide-react';
 
 export default function CouponAnalyticsPage() {
   const params = useParams();
   const { id } = params;
-  const coupon = coupons.find(c => c.id === id);
+  const { coupons, couponUsage, isLoading } = useData();
+  
+  const coupon = useMemo(() => coupons.find(c => c.id === id), [coupons, id]);
 
   const usageData = useMemo(() => {
     return couponUsage.filter(u => u.couponCode === coupon?.code);
-  }, [coupon]);
+  }, [coupon, couponUsage]);
 
   const chartData = useMemo(() => {
     const dailyUsage: { [key: string]: number } = {};
@@ -34,8 +37,12 @@ export default function CouponAnalyticsPage() {
     return usageData.reduce((sum, u) => sum + u.discountAmount, 0);
   }, [usageData]);
 
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+  }
+
   if (!coupon) {
-    notFound();
+    return notFound();
   }
 
   return (

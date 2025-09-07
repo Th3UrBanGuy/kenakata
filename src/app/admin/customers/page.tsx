@@ -1,19 +1,60 @@
 
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useData } from "@/context/DataProvider";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { Loader2, MoreHorizontal, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
 import type { AppUser } from "@/lib/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthProvider";
 
 export default function CustomersPage() {
-    const { users } = useData();
+    const { users, isLoading, setUserRole, deleteUser } = useData();
+    const { toast } = useToast();
+    const { user: currentUser } = useAuth();
+
+    const handleDelete = async (user: AppUser) => {
+        if (currentUser?.uid === user.uid) {
+            toast({ title: "Action Forbidden", description: "You cannot delete your own account.", variant: 'destructive' });
+            return;
+        }
+        try {
+            await deleteUser(user.uid);
+            toast({ title: "User Deleted", description: `${user.email} has been deleted.` });
+        } catch (error: any) {
+            toast({ title: "Error", description: `Failed to delete user: ${error.message}`, variant: 'destructive' });
+        }
+    };
+
+    const handleRoleChange = async (user: AppUser) => {
+        if (currentUser?.uid === user.uid) {
+            toast({ title: "Action Forbidden", description: "You cannot change your own role.", variant: 'destructive' });
+            return;
+        }
+        const newRole = user.role === 'admin' ? 'user' : 'admin';
+        try {
+            await setUserRole(user.uid, newRole);
+            toast({ title: "Role Updated", description: `${user.email} is now a(n) ${newRole}.` });
+        } catch (error: any) {
+            toast({ title: "Error", description: `Failed to update role: ${error.message}`, variant: 'destructive' });
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -37,6 +78,13 @@ export default function CustomersPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
+                            {isLoading && (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="h-24 text-center">
+                                        <Loader2 className="mx-auto h-8 w-8 animate-spin" />
+                                    </TableCell>
+                                </TableRow>
+                            )}
                             {users.map((user: AppUser) => (
                                 <TableRow key={user.uid}>
                                     <TableCell className="font-medium">{user.name || 'N/A'}</TableCell>
@@ -55,8 +103,34 @@ export default function CustomersPage() {
                                                 <Link href={`/admin/customers/${encodeURIComponent(user.uid)}`}>
                                                     <DropdownMenuItem>View Profile</DropdownMenuItem>
                                                 </Link>
-                                                <DropdownMenuItem>Make Admin</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive">Delete User</DropdownMenuItem>
+                                                <DropdownMenuItem onSelect={() => handleRoleChange(user)}>
+                                                    {user.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <DropdownMenuItem
+                                                            className="text-destructive"
+                                                            onSelect={(e) => e.preventDefault()}
+                                                            disabled={currentUser?.uid === user.uid}
+                                                        >
+                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                            Delete User
+                                                        </DropdownMenuItem>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                This action will permanently delete the user "{user.email}". This cannot be undone.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDelete(user)}>Delete</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

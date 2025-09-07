@@ -3,16 +3,64 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, PlusCircle, Trash2, LineChart, Pencil } from 'lucide-react';
-import { coupons } from '@/lib/data';
 import type { Coupon } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
+import { useData } from '@/context/DataProvider';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function CouponsPage() {
+  const { coupons, deleteCoupon, toggleCouponStatus } = useData();
+  const { toast } = useToast();
+
+  const handleDelete = async (coupon: Coupon) => {
+    try {
+      await deleteCoupon(coupon.id);
+      toast({
+        title: "Coupon Deleted",
+        description: `Coupon "${coupon.code}" has been successfully deleted.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Delete Failed",
+        description: error.message || "There was a problem deleting the coupon.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleToggleStatus = async (coupon: Coupon) => {
+     try {
+      await toggleCouponStatus(coupon.id, !coupon.isActive);
+      toast({
+        title: `Coupon ${!coupon.isActive ? 'Activated' : 'Deactivated'}`,
+        description: `Coupon "${coupon.code}" has been updated.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Update Failed",
+        description: error.message || "There was a problem updating the coupon status.",
+        variant: "destructive",
+      });
+    }
+  };
+
+
   const formatDiscount = (type: Coupon['discountType'], value: number) => {
     if (type === 'percentage') {
       return `${value}%`;
@@ -103,11 +151,31 @@ export default function CouponsPage() {
                                   Edit
                                 </DropdownMenuItem>
                             </Link>
-                            <DropdownMenuItem>{coupon.isActive ? 'Deactivate' : 'Activate'}</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => handleToggleStatus(coupon)}>{coupon.isActive ? 'Deactivate' : 'Activate'}</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                             <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <DropdownMenuItem
+                                    className="text-destructive"
+                                    onSelect={(e) => e.preventDefault()}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This action will permanently delete the coupon "{coupon.code}".
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDelete(coupon)}>Delete</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                         </DropdownMenuContent>
                         </DropdownMenu>
                     </TableCell>

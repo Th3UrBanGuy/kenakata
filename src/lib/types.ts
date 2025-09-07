@@ -86,6 +86,7 @@ export type Coupon = {
 };
 
 export type CouponUsage = {
+    id: string;
     couponCode: string;
     orderId: string;
     customerEmail: string;

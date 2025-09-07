@@ -3,8 +3,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Product, Order, SupportTicket, AppUser } from '@/lib/types';
-import { initialSupportTickets } from '@/lib/data';
+import type { Product, Order, SupportTicket, AppUser, Coupon, CouponUsage } from '@/lib/types';
 import { useFirebase } from './FirebaseProvider';
 import { collection, onSnapshot, query, where, doc, runTransaction, addDoc, updateDoc, deleteDoc, setDoc, getDocs, writeBatch } from 'firebase/firestore';
 import { useAuth } from './AuthProvider';
@@ -16,10 +15,19 @@ interface DataContextType {
   orders: Order[];
   users: AppUser[];
   supportTickets: SupportTicket[];
+  coupons: Coupon[];
+  couponUsage: CouponUsage[];
+  isLoading: boolean;
   addOrder: (order: Omit<Order, 'id' | 'date' | 'status'>) => Promise<string>;
   addProduct: (productData: Omit<Product, 'id' | 'comments'>) => Promise<void>;
   updateProduct: (productId: string, productData: Omit<Product, 'id' | 'comments'>) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
+  addCoupon: (couponData: Omit<Coupon, 'id' | 'claims'>) => Promise<void>;
+  updateCoupon: (couponId: string, couponData: Omit<Coupon, 'id' | 'claims'>) => Promise<void>;
+  deleteCoupon: (couponId: string) => Promise<void>;
+  toggleCouponStatus: (couponId: string, isActive: boolean) => Promise<void>;
+  setUserRole: (userId: string, role: 'user' | 'admin') => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
   addSupportMessage: (ticketId: string, text: string) => void;
   addSupportReply: (ticketId: string, text: string) => void;
 }
@@ -32,15 +40,43 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<AppUser[]>([]);
-  const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(initialSupportTickets);
+  const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [couponUsage, setCouponUsage] = useState<CouponUsage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     const unsubProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
         const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
         setProducts(productsData);
+        setIsLoading(false);
+    }, (error) => {
+        console.error("Error fetching products:", error);
+        setIsLoading(false);
     });
 
-    return () => unsubProducts();
+    const unsubCoupons = onSnapshot(collection(db, 'coupons'), (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Coupon));
+        setCoupons(data);
+    });
+    
+    const unsubCouponUsage = onSnapshot(collection(db, 'couponUsage'), (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CouponUsage));
+        setCouponUsage(data);
+    });
+    
+    const unsubSupportTickets = onSnapshot(collection(db, 'supportTickets'), (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SupportTicket));
+        setSupportTickets(data);
+    });
+
+    return () => {
+        unsubProducts();
+        unsubCoupons();
+        unsubCouponUsage();
+        unsubSupportTickets();
+    };
   }, [db]);
   
   useEffect(() => {
@@ -160,18 +196,84 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     const productRef = doc(db, 'products', productId);
     await deleteDoc(productRef);
   }
-  
-  const addSupportMessage = (ticketId: string, text: string) => {
-     // TODO: Implement Firestore logic
+
+  const addCoupon = async (couponData: Omit<Coupon, 'id' | 'claims'>) => {
+    await addDoc(collection(db, 'coupons'), {
+        ...couponData,
+        claims: 0
+    });
+  }
+
+  const updateCoupon = async (couponId: string, couponData: Omit<Coupon, 'id' | 'claims'>) => {
+    const couponRef = doc(db, 'coupons', couponId);
+    await updateDoc(couponRef, couponData);
+  }
+
+  const deleteCoupon = async (couponId: string) => {
+    const couponRef = doc(db, 'coupons', couponId);
+    await deleteDoc(couponRef);
+  }
+
+  const toggleCouponStatus = async (couponId: string, isActive: boolean) => {
+    const couponRef = doc(db, 'coupons', couponId);
+    await updateDoc(couponRef, { isActive });
+  }
+
+  const setUserRole = async (userId: string, role: 'user' | 'admin') => {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, { role });
   };
 
-  const addSupportReply = (ticketId: string, text: string) => {
-       // TODO: Implement Firestore logic
+  const deleteUser = async (userId: string) => {
+    // This only deletes the Firestore user document, not the Auth user.
+    // For a real app, you'd need a Cloud Function to handle full user deletion.
+    const userRef = doc(db, 'users', userId);
+    await deleteDoc(userRef);
+  };
+  
+  const addSupportMessage = async (ticketId: string, text: string) => {
+    const ticketRef = doc(db, 'supportTickets', ticketId);
+    const message = {
+        sender: 'user' as const,
+        text,
+        timestamp: new Date().toISOString()
+    };
+    
+    try {
+        await runTransaction(db, async (transaction) => {
+            const ticketDoc = await transaction.get(ticketRef);
+            if (!ticketDoc.exists()) {
+                transaction.set(ticketRef, {
+                    status: 'open',
+                    messages: [message]
+                });
+            } else {
+                transaction.update(ticketRef, {
+                    messages: arrayUnion(message),
+                    status: 'open'
+                });
+            }
+        });
+    } catch (error) {
+        console.error("Error sending message:", error);
+    }
+  };
+
+  const addSupportReply = async (ticketId: string, text: string) => {
+    const ticketRef = doc(db, 'supportTickets', ticketId);
+    const message = {
+        sender: 'admin' as const,
+        text,
+        timestamp: new Date().toISOString()
+    };
+    await updateDoc(ticketRef, {
+        messages: arrayUnion(message)
+    });
   };
 
 
   return (
-    <DataContext.Provider value={{ products, orders, users, supportTickets, addOrder, addProduct, updateProduct, deleteProduct, addSupportMessage, addSupportReply }}>
+    <DataContext.Provider value={{ products, orders, users, supportTickets, coupons, couponUsage, isLoading, addOrder, addProduct, updateProduct, deleteProduct, addCoupon, updateCoupon, deleteCoupon, toggleCouponStatus, setUserRole, deleteUser, addSupportMessage, addSupportReply }}>
       {children}
     </DataContext.Provider>
   );

@@ -2,13 +2,21 @@
 'use client';
 import { notFound, useParams } from "next/navigation";
 import { CouponForm } from "@/components/admin/CouponForm";
-import { coupons } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useData } from "@/context/DataProvider";
+import { useMemo } from "react";
+import { Loader2 } from "lucide-react";
 
 export default function EditCouponPage() {
     const params = useParams();
     const { id } = params;
-    const coupon = coupons.find(p => p.id === id);
+    const { coupons, isLoading } = useData();
+
+    const coupon = useMemo(() => coupons.find(c => c.id === id), [coupons, id]);
+
+    if (isLoading) {
+        return <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    }
 
     if (!coupon) {
         notFound();
