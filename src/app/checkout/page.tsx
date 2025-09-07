@@ -28,7 +28,7 @@ export default function CheckoutPage() {
   const { addOrder } = useData();
   const { toast } = useToast();
   const [step, setStep] = useState<CheckoutStep>('shipping');
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState<string | null>(null);
 
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
@@ -56,7 +56,6 @@ export default function CheckoutPage() {
   
   const handlePlaceOrder = async () => {
     if (!user) return;
-    setIsProcessing(true);
 
     const shipping = 5.00;
     const taxes = subtotal * 0.08;
@@ -73,7 +72,17 @@ export default function CheckoutPage() {
     };
     
     try {
+        setProcessingStatus("Processing Payment...");
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        setProcessingStatus("Validating Stock...");
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        setProcessingStatus("Confirming Order...");
         const newOrderId = await addOrder(newOrder);
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         toast({
             title: "Order Placed!",
             description: "Your order has been successfully placed.",
@@ -87,8 +96,7 @@ export default function CheckoutPage() {
             description: error.message || "There was an issue placing your order.",
             variant: "destructive"
         })
-    } finally {
-        setIsProcessing(false);
+        setProcessingStatus(null);
     }
   };
 
@@ -107,7 +115,7 @@ export default function CheckoutPage() {
     );
   }
 
-  if (cart.length === 0 && !isProcessing) {
+  if (cart.length === 0 && !processingStatus) {
       return (
            <div className="flex flex-col min-h-screen">
               <Header />
@@ -231,13 +239,19 @@ export default function CheckoutPage() {
                     </Card>
                     
                     <div className="flex flex-col-reverse md:flex-row gap-4">
-                        <Button size="lg" variant="outline" onClick={() => setStep('shipping')} className="w-full md:w-auto" disabled={isProcessing}>
+                        <Button size="lg" variant="outline" onClick={() => setStep('shipping')} className="w-full md:w-auto" disabled={!!processingStatus}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Shipping
                         </Button>
-                        <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={handlePlaceOrder} disabled={isProcessing}>
-                            {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {isProcessing ? 'Processing...' : 'Place Order'}
+                        <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={handlePlaceOrder} disabled={!!processingStatus}>
+                            {processingStatus ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    {processingStatus}
+                                </>
+                            ) : (
+                                'Place Order'
+                            )}
                         </Button>
                     </div>
                 </>
