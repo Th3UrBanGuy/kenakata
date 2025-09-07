@@ -9,10 +9,13 @@ import {
     User,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    signOut
+    signOut,
+    sendPasswordResetEmail,
+    deleteUser as deleteFirebaseUser
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import type { AppUser } from '@/lib/types';
+import { useData } from './DataProvider';
 
 type Role = 'user' | 'admin' | null;
 
@@ -24,6 +27,8 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   loginAsAdmin: () => void;
   logout: () => void;
+  sendPasswordReset: () => Promise<void>;
+  deleteCurrentUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -82,12 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const loginAsAdmin = () => {
-    // This is a dev-only function
-    // In a real app, admin roles would be assigned manually or via a backend process
-    // This simulates an admin login for development convenience
-    // You could replace this with a real admin user login
     login('admin@example.com', 'password').catch(() => {
-      // If admin doesn't exist, create it for demo purposes.
       register('admin@example.com', 'password', 'Admin User').then(async () => {
          const adminUser = auth.currentUser;
          if(adminUser) {
@@ -107,8 +107,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const sendPasswordReset = async () => {
+    if (!user || !user.email) {
+        throw new Error("You must be logged in to reset your password.");
+    }
+    await sendPasswordResetEmail(auth, user.email);
+  };
+
+  const deleteCurrentUser = async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+          throw new Error("No user is currently logged in.");
+      }
+      try {
+          // First, delete the Firestore document
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          await deleteDoc(userDocRef);
+
+          // Then, delete the Firebase Auth user
+          await deleteFirebaseUser(currentUser);
+          
+          setUser(null);
+          setRole(null);
+          router.push('/');
+      } catch (error: any) {
+          console.error("Error deleting user:", error);
+          // Handle re-authentication if required
+          if (error.code === 'auth/requires-recent-login') {
+              throw new Error("This is a sensitive operation and requires recent authentication. Please log in again before deleting your account.");
+          }
+          throw error;
+      }
+  };
+
+
   return (
-    <AuthContext.Provider value={{ user, role, isLoading, register, login, loginAsAdmin, logout }}>
+    <AuthContext.Provider value={{ user, role, isLoading, register, login, loginAsAdmin, logout, sendPasswordReset, deleteCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );

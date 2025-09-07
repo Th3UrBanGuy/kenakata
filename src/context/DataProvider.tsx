@@ -29,6 +29,7 @@ interface DataContextType {
   deleteUser: (userId: string) => Promise<void>;
   addSupportMessage: (ticketId: string, text: string) => Promise<void>;
   addSupportReply: (ticketId: string, text: string) => Promise<void>;
+  updateAppUser: (userId: string, data: Partial<AppUser>) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -305,9 +306,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const updateAppUser = async (userId: string, data: Partial<AppUser>) => {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, data);
+  };
+
 
   return (
-    <DataContext.Provider value={{ products, orders, users, supportTickets, coupons, couponUsage, isLoading, addOrder, addProduct, updateProduct, deleteProduct, addCoupon, updateCoupon, deleteCoupon, toggleCouponStatus, setUserRole, deleteUser, addSupportMessage, addSupportReply }}>
+    <DataContext.Provider value={{ products, orders, users, supportTickets, coupons, couponUsage, isLoading, addOrder, addProduct, updateProduct, deleteProduct, addCoupon, updateCoupon, deleteCoupon, toggleCouponStatus, setUserRole, deleteUser, addSupportMessage, addSupportReply, updateAppUser }}>
       {children}
     </DataContext.Provider>
   );
