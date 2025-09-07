@@ -88,7 +88,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const login = async (email: string, pass: string) => {
-    await signInWithEmailAndPassword(auth, email, pass);
+    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+    const loggedInUser = userCredential.user;
+
+    if (!loggedInUser.emailVerified) {
+      await signOut(auth); // Sign them out immediately
+      throw new Error("Please verify your email before logging in.");
+    }
   };
   
   const loginAsAdmin = () => {
