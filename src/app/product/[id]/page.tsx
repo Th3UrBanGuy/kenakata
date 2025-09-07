@@ -19,15 +19,50 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/AuthProvider';
 import { useData } from '@/context/DataProvider';
 import type { WishlistItem } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function ProductPageSkeleton() {
+    return (
+        <div className="rounded-xl border bg-card/50 text-card-foreground shadow-lg backdrop-blur-lg p-6 md:p-10">
+            <div className="grid md:grid-cols-2 gap-12 items-start">
+                <div className="space-y-4">
+                    <Skeleton className="aspect-square relative rounded-lg" />
+                </div>
+                <div className="space-y-6">
+                    <Skeleton className="h-10 w-3/4" />
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-10 w-1/4" />
+                    <div className="space-y-4">
+                        <Skeleton className="h-6 w-1/5" />
+                        <div className="flex gap-3">
+                            <Skeleton className="h-12 w-20" />
+                            <Skeleton className="h-12 w-20" />
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <Skeleton className="h-6 w-1/5" />
+                        <div className="flex gap-3">
+                           <Skeleton className="h-10 w-16" />
+                           <Skeleton className="h-10 w-16" />
+                        </div>
+                    </div>
+                     <Skeleton className="h-12 w-full" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
 
 export default function ProductPage() {
   const params = useParams();
   const { id } = params;
-  const { products } = useData();
+  const { products, isLoading: isDataLoading } = useData();
   const { addToCart } = useCart();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { role } = useAuth();
-  const product = products.find((p) => p.id === id);
+  
+  const product = useMemo(() => products.find((p) => p.id === id), [products, id]);
 
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -76,6 +111,20 @@ export default function ProductPage() {
       (v) => v.color === selectedColor && v.size === selectedSize
     );
   }, [product, selectedColor, selectedSize]);
+
+  
+  if (isDataLoading) {
+     return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-1 container py-12 md:py-24">
+            <ProductPageSkeleton />
+          </main>
+          <Footer />
+        </div>
+      );
+  }
+
 
   if (!product) {
     notFound();
