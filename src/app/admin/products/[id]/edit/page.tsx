@@ -5,7 +5,6 @@ import { ProductForm } from "@/components/admin/ProductForm";
 import { useData } from "@/context/DataProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMemo } from "react";
-import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function EditProductPageSkeleton() {
@@ -17,16 +16,29 @@ function EditProductPageSkeleton() {
             </CardHeader>
             <CardContent className="space-y-8">
                 <div className="grid md:grid-cols-2 gap-8">
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
                 </div>
-                <Skeleton className="h-24 w-full" />
+                 <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-24 w-full" />
+                </div>
                 <Card>
                     <CardHeader>
                         <Skeleton className="h-6 w-32" />
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <Skeleton className="h-24 w-full" />
+                        <div className="border p-4 rounded-lg space-y-4">
+                            <Skeleton className="h-10 w-full" />
+                            <Skeleton className="h-10 w-full" />
+                            <Skeleton className="h-10 w-full" />
+                        </div>
                         <Skeleton className="h-10 w-32" />
                     </CardContent>
                 </Card>
@@ -48,7 +60,7 @@ export default function EditProductPage() {
     }
 
     if (!product) {
-        notFound();
+        return notFound();
     }
     
     return (
