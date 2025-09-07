@@ -85,7 +85,7 @@ export function ProductForm({ product }: ProductFormProps) {
             });
         }
         router.push('/admin/products');
-        router.refresh(); // Helps ensure the page re-fetches if needed, though onSnapshot should handle it.
+        router.refresh();
     } catch (error: any) {
         console.error("Failed to save product:", error);
         toast({

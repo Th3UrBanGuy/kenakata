@@ -41,13 +41,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       if (user) {
         setUser(user);
-        // Fetch user role from Firestore
         const userDocRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           setRole(userDoc.data().role);
         } else {
-          // This case might happen if a user was authenticated but their doc was deleted
           setRole('user');
         }
       } else {
@@ -64,36 +62,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const newUser = userCredential.user;
     
-    // Create a user document in Firestore IMMEDIATELY after auth creation.
-    // This prevents race conditions where other parts of the app (like WishlistProvider)
-    // might try to update a document that doesn't exist yet.
     const userDocRef = doc(db, 'users', newUser.uid);
     const newAppUser: AppUser = {
       uid: newUser.uid,
       email: newUser.email,
       name: name,
-      role: 'user', // Default role
+      role: 'user',
       createdAt: new Date(),
-      wishlist: [] // Initialize with an empty wishlist
+      wishlist: []
     };
     await setDoc(userDocRef, newAppUser);
     
-    // Now that the document is guaranteed to exist, update the local state.
     setUser(newUser);
     setRole(newAppUser.role);
   };
   
   const login = async (email: string, pass: string) => {
     await signInWithEmailAndPassword(auth, email, pass);
-    // onAuthStateChanged will handle setting user and role
   };
   
   const loginAsAdmin = () => {
-    // This is a dev-only function to simulate an admin login
-    // In a real app, this would not exist.
-    setRole('admin');
-    // We can simulate a user object for dev purposes if needed
-    // For now, many components check role > user
+    // This is a dev-only function
+    // In a real app, admin roles would be assigned manually or via a backend process
+    // This simulates an admin login for development convenience
+    // You could replace this with a real admin user login
+    login('admin@example.com', 'password').catch(() => {
+      // If admin doesn't exist, create it for demo purposes.
+      register('admin@example.com', 'password', 'Admin User').then(async () => {
+         const adminUser = auth.currentUser;
+         if(adminUser) {
+           const userDocRef = doc(db, 'users', adminUser.uid);
+           await setDoc(userDocRef, { role: 'admin' }, { merge: true });
+           setRole('admin');
+         }
+      })
+    })
   }
 
   const logout = async () => {

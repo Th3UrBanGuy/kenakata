@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { Product, Order, SupportTicket, AppUser, Coupon, CouponUsage } from '@/lib/types';
 import { useFirebase } from './FirebaseProvider';
-import { collection, onSnapshot, query, where, doc, runTransaction, addDoc, updateDoc, deleteDoc, setDoc, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, doc, runTransaction, addDoc, updateDoc, deleteDoc, setDoc, getDocs, writeBatch, arrayUnion } from 'firebase/firestore';
 import { useAuth } from './AuthProvider';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -28,8 +27,8 @@ interface DataContextType {
   toggleCouponStatus: (couponId: string, isActive: boolean) => Promise<void>;
   setUserRole: (userId: string, role: 'user' | 'admin') => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
-  addSupportMessage: (ticketId: string, text: string) => void;
-  addSupportReply: (ticketId: string, text: string) => void;
+  addSupportMessage: (ticketId: string, text: string) => Promise<void>;
+  addSupportReply: (ticketId: string, text: string) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -225,8 +224,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deleteUser = async (userId: string) => {
-    // This only deletes the Firestore user document, not the Auth user.
-    // For a real app, you'd need a Cloud Function to handle full user deletion.
     const userRef = doc(db, 'users', userId);
     await deleteDoc(userRef);
   };

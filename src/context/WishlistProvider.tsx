@@ -30,11 +30,10 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
         if (doc.exists()) {
           const userData = doc.data();
           const dbWishlist = userData.wishlist || [];
-          // Check if server wishlist is different from local state before updating
-          if (JSON.stringify(dbWishlist) !== JSON.stringify(wishlist)) {
-            setWishlist(dbWishlist);
-          }
+          setWishlist(dbWishlist);
         }
+      }, (error) => {
+          console.error("Error fetching wishlist:", error);
       });
       return () => unsubscribe();
     } else {
@@ -52,31 +51,40 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     const userDocRef = doc(db, 'users', user.uid);
-    await updateDoc(userDocRef, {
-        wishlist: arrayUnion(newItem)
-    });
-    toast({
-        title: "Added to wishlist",
-        description: `Item has been added to your wishlist.`,
-    });
+    try {
+        await updateDoc(userDocRef, {
+            wishlist: arrayUnion(newItem)
+        });
+        toast({
+            title: "Added to wishlist",
+            description: `Item has been added to your wishlist.`,
+        });
+    } catch (error: any) {
+        console.error("Failed to add to wishlist:", error);
+        toast({ title: "Error", description: "Could not add item to wishlist.", variant: "destructive" });
+    }
   };
 
   const removeFromWishlist = async (variantId: string) => {
     if (!user) return;
     
+    // Find the exact object to remove. Firestore's arrayRemove needs the full object.
     const itemToRemove = wishlist.find(item => item.variantId === variantId);
     if (!itemToRemove) return;
 
     const userDocRef = doc(db, 'users', user.uid);
-    await updateDoc(userDocRef, {
-        wishlist: arrayRemove(itemToRemove)
-    });
-
-    toast({
-        title: "Removed from wishlist",
-        description: `Item has been removed from your wishlist.`,
-        variant: 'destructive'
-    });
+    try {
+        await updateDoc(userDocRef, {
+            wishlist: arrayRemove(itemToRemove)
+        });
+        toast({
+            title: "Removed from wishlist",
+            description: `Item has been removed from your wishlist.`,
+        });
+    } catch (error: any) {
+        console.error("Failed to remove from wishlist:", error);
+        toast({ title: "Error", description: "Could not remove item from wishlist.", variant: "destructive" });
+    }
   };
 
   const isWishlisted = (variantId: string) => {
