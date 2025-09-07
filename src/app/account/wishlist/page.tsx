@@ -27,20 +27,24 @@ export default function WishlistPage() {
     const { products } = useData();
 
     const wishlistItems = useMemo(() => {
-        return wishlist.map(wishlistItem => {
-            const product = products.find(p => p.id === wishlistItem.productId);
-            if (!product) return null;
-            const variant = product.variants.find(v => v.id === wishlistItem.variantId);
-            if (!variant) return null;
-            return {
-                ...wishlistItem,
-                name: product.name,
-                price: variant.price,
-                imageUrl: variant.imageUrl,
-                color: variant.color,
-                size: variant.size
-            }
-        }).filter(item => item !== null);
+        return wishlist
+            .map(wishlistItem => {
+                const product = products.find(p => p.id === wishlistItem.productId);
+                if (!product) return null;
+
+                const variant = product.variants.find(v => v.id === wishlistItem.variantId);
+                if (!variant) return null;
+
+                return {
+                    ...wishlistItem,
+                    name: product.name,
+                    price: variant.price,
+                    imageUrl: variant.imageUrl,
+                    color: variant.color,
+                    size: variant.size
+                };
+            })
+            .filter((item): item is NonNullable<typeof item> => item !== null); // Safely filter out null items
     }, [wishlist, products]);
 
 
@@ -54,12 +58,12 @@ export default function WishlistPage() {
                 {wishlistItems.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {wishlistItems.map(item => (
-                            <Card key={item!.variantId} className="group relative overflow-hidden">
-                                <Link href={`/product/${item!.productId}`}>
+                            <Card key={item.variantId} className="group relative overflow-hidden">
+                                <Link href={`/product/${item.productId}`}>
                                     <div className="relative aspect-square w-full">
                                         <Image
-                                            src={item!.imageUrl}
-                                            alt={item!.name}
+                                            src={item.imageUrl}
+                                            alt={item.name}
                                             fill
                                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                                             data-ai-hint="product photo"
@@ -67,9 +71,9 @@ export default function WishlistPage() {
                                     </div>
                                 </Link>
                                 <div className="p-4">
-                                    <h3 className="font-semibold text-lg">{item!.name}</h3>
-                                    <p className="text-sm text-muted-foreground capitalize">{item!.color} / {item!.size}</p>
-                                    <p className="font-bold text-primary mt-2">${item!.price.toFixed(2)}</p>
+                                    <h3 className="font-semibold text-lg">{item.name}</h3>
+                                    <p className="text-sm text-muted-foreground capitalize">{item.color} / {item.size}</p>
+                                    <p className="font-bold text-primary mt-2">${item.price.toFixed(2)}</p>
                                 </div>
                                 
                                 <AlertDialog>
@@ -82,12 +86,12 @@ export default function WishlistPage() {
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        This action will remove "{item!.name}" from your wishlist.
+                                        This action will remove "{item.name}" from your wishlist.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => removeFromWishlist(item!.variantId)}>
+                                      <AlertDialogAction onClick={() => removeFromWishlist(item.variantId)}>
                                         Remove
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
