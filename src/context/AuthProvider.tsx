@@ -64,7 +64,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const newUser = userCredential.user;
     
-    // Create a user document in Firestore
+    // Create a user document in Firestore IMMEDIATELY after auth creation.
+    // This prevents race conditions where other parts of the app (like WishlistProvider)
+    // might try to update a document that doesn't exist yet.
     const userDocRef = doc(db, 'users', newUser.uid);
     const newAppUser: AppUser = {
       uid: newUser.uid,
@@ -72,10 +74,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       name: name,
       role: 'user', // Default role
       createdAt: new Date(),
-      wishlist: []
+      wishlist: [] // Initialize with an empty wishlist
     };
     await setDoc(userDocRef, newAppUser);
     
+    // Now that the document is guaranteed to exist, update the local state.
     setUser(newUser);
     setRole(newAppUser.role);
   };
