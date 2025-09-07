@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/CartProvider';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, ShieldCheck } from 'lucide-react';
 import { useData } from '@/context/DataProvider';
 import { useToast } from '@/hooks/use-toast';
 import type { Order } from '@/lib/types';
@@ -43,6 +43,11 @@ export default function CheckoutPage() {
     if (!isAuthLoading && !user) {
       router.push('/login?from=/checkout');
     } else if (user) {
+      if (!user.emailVerified) {
+        // Redirect to verify page if not verified
+        router.push('/verify-email');
+        return;
+      }
       setShippingInfo({
         name: user.displayName || '',
         address: '', // These would typically be fetched from a user profile
@@ -56,6 +61,16 @@ export default function CheckoutPage() {
   
   const handlePlaceOrder = async () => {
     if (!user) return;
+    
+    if (!user.emailVerified) {
+        toast({
+            title: "Verification Required",
+            description: "Please verify your email before placing an order.",
+            variant: "destructive"
+        });
+        router.push('/verify-email');
+        return;
+    }
 
     const shipping = 5.00;
     const taxes = subtotal * 0.08; // Tax is usually on pre-discount subtotal
@@ -100,7 +115,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (isAuthLoading) {
+  if (isAuthLoading || !user) {
     return (
       <div className="flex flex-col min-h-screen">
         <Header />
@@ -113,6 +128,29 @@ export default function CheckoutPage() {
         <Footer />
       </div>
     );
+  }
+  
+  if (user && !user.emailVerified) {
+     return (
+       <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 flex items-center justify-center container">
+            <Card className="w-full max-w-md text-center">
+                <CardHeader>
+                    <CardTitle className="flex items-center justify-center gap-2"><ShieldCheck className="h-8 w-8 text-primary"/> Email Verification Required</CardTitle>
+                    <CardDescription>You must verify your email address before you can proceed to checkout.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground mb-4">A verification link has been sent to <strong>{user.email}</strong>.</p>
+                    <Link href="/verify-email">
+                        <Button>Go to Verification Page</Button>
+                    </Link>
+                </CardContent>
+            </Card>
+        </main>
+        <Footer />
+      </div>
+     )
   }
 
   if (cart.length === 0 && !processingStatus) {

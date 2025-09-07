@@ -11,11 +11,11 @@ import {
     signInWithEmailAndPassword,
     signOut,
     sendPasswordResetEmail,
-    deleteUser as deleteFirebaseUser
+    deleteUser as deleteFirebaseUser,
+    sendEmailVerification
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import type { AppUser } from '@/lib/types';
-import { useData } from './DataProvider';
 
 type Role = 'user' | 'admin' | null;
 
@@ -29,6 +29,8 @@ interface AuthContextType {
   logout: () => void;
   sendPasswordReset: () => Promise<void>;
   deleteCurrentUser: () => Promise<void>;
+  sendVerificationEmail: () => Promise<void>;
+  reloadUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,6 +69,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const newUser = userCredential.user;
     
+    // Send verification email
+    await sendEmailVerification(newUser);
+    
     const userDocRef = doc(db, 'users', newUser.uid);
     const newAppUser: AppUser = {
       uid: newUser.uid,
@@ -102,9 +107,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await signOut(auth);
     setRole(null);
-    if (pathname.includes('/account') || pathname.includes('/admin')) {
-      router.push('/');
-    }
+    router.push('/');
+  };
+  
+  const reloadUser = async () => {
+      if (!auth.currentUser) return;
+      await auth.currentUser.reload();
+      // This will trigger onAuthStateChanged to update the user state
+      // To force an immediate re-render with the new state:
+      setUser({...auth.currentUser});
   };
 
   const sendPasswordReset = async () => {
@@ -139,10 +150,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           throw error;
       }
   };
+  
+  const sendVerificationEmail = async () => {
+      if (!auth.currentUser) {
+          throw new Error("No user is currently logged in to send verification email.");
+      }
+      await sendEmailVerification(auth.currentUser);
+  }
 
 
   return (
-    <AuthContext.Provider value={{ user, role, isLoading, register, login, loginAsAdmin, logout, sendPasswordReset, deleteCurrentUser }}>
+    <AuthContext.Provider value={{ user, role, isLoading, register, login, loginAsAdmin, logout, sendPasswordReset, deleteCurrentUser, sendVerificationEmail, reloadUser }}>
       {children}
     </AuthContext.Provider>
   );

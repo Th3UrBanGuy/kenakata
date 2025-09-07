@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogIn, LogOut, Package2, Search, ShoppingBag, User } from 'lucide-react';
+import { LogIn, LogOut, Package2, Search, ShoppingBag, User, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -17,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Badge } from './ui/badge';
 
 export function Header() {
   const { totalItems } = useCart();
@@ -75,6 +76,14 @@ export function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+                  {!user.emailVerified && (
+                     <Link href="/verify-email" passHref>
+                        <DropdownMenuItem className="text-destructive focus:bg-destructive/20 focus:text-destructive">
+                           <ShieldAlert className="mr-2 h-4 w-4" />
+                            <span>Verify Email</span>
+                        </DropdownMenuItem>
+                    </Link>
+                  )}
                   <DropdownMenuSeparator />
                   <Link href={role === 'admin' ? '/admin/dashboard' : '/account/dashboard'} passHref>
                     <DropdownMenuItem>
@@ -99,6 +108,11 @@ export function Header() {
             )}
           </div>
         </div>
+        {!user?.emailVerified && user && (
+            <div className="bg-yellow-500/10 border-l-4 border-yellow-500 text-yellow-700 p-2 text-center text-xs mb-2 rounded-r-md">
+                Your email is not verified. Please check your inbox or <Link href="/verify-email" className="font-bold underline">go here</Link> to complete verification.
+            </div>
+        )}
         <div className="md:hidden pb-4">
             <form>
                 <div className="relative">

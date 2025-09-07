@@ -33,8 +33,8 @@ export default function RegisterPage() {
         setIsLoading(true);
         try {
             await register(email, password, fullName);
-            toast({ title: "Registration Successful", description: "Your account has been created." });
-            router.push('/account/dashboard');
+            toast({ title: "Registration Successful", description: "A verification email has been sent." });
+            router.push('/verify-email');
         } catch (error: any) {
             console.error("Registration failed:", error);
             toast({ title: "Registration Failed", description: error.message, variant: 'destructive' });
