@@ -1,11 +1,14 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Unrestricted access for any authenticated user.
-    // This is for demo purposes to prevent any permission-denied errors.
+    // Unrestricted access for demo purposes.
+    // Anyone (including non-logged-in users) can read data.
+    // Any logged-in user can write data.
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null;
     }
   }
 }
