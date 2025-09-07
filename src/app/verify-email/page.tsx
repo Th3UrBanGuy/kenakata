@@ -16,6 +16,7 @@ import { Footer } from '@/components/Footer';
 import { Loader2, MailCheck, MailWarning } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
+import { Separator } from '@/components/ui/separator';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
