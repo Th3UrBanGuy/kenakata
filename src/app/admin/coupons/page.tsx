@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, PlusCircle, Trash2, LineChart, Pencil } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash2, LineChart, Pencil, Loader2 } from 'lucide-react';
 import type { Coupon } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
 import { useData } from '@/context/DataProvider';
@@ -23,12 +23,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useState } from 'react';
 
 export default function CouponsPage() {
-  const { coupons, deleteCoupon, toggleCouponStatus } = useData();
+  const { coupons, deleteCoupon, toggleCouponStatus, isLoading } = useData();
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   const handleDelete = async (coupon: Coupon) => {
+    setIsDeleting(coupon.id);
     try {
       await deleteCoupon(coupon.id);
       toast({
@@ -41,6 +44,8 @@ export default function CouponsPage() {
         description: error.message || "There was a problem deleting the coupon.",
         variant: "destructive",
       });
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -105,83 +110,91 @@ export default function CouponsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {coupons.map((coupon) => {
-                const status = getStatus(coupon);
-                const usagePercentage = coupon.maxClaims ? ((coupon.claims || 0) / coupon.maxClaims) * 100 : 0;
-                
-                return (
-                    <TableRow key={coupon.id}>
-                    <TableCell className="font-medium">{coupon.code}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{formatDiscount(coupon.discountType, coupon.discountValue)}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                        <Badge variant={status.variant}>
-                            {status.text}
-                        </Badge>
+              {isLoading && !coupons.length ? (
+                 <TableRow>
+                    <TableCell colSpan={6} className="h-24 text-center">
+                      <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                        {coupon.maxClaims ? (
-                            <div className="flex items-center gap-2">
-                               <Progress value={usagePercentage} className="w-24" />
-                               <span className="text-muted-foreground text-xs">{coupon.claims || 0}/{coupon.maxClaims}</span>
-                            </div>
-                        ) : (
-                            <span className="text-muted-foreground">{coupon.claims || 0} used</span>
-                        )}
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                        {coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString() : 'Never'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                        <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                             <Link href={`/admin/coupons/${coupon.id}/analytics`}>
-                                <DropdownMenuItem>
-                                    <LineChart className="mr-2 h-4 w-4" />
-                                    Analytics
-                                </DropdownMenuItem>
-                            </Link>
-                            <Link href={`/admin/coupons/${coupon.id}/edit`}>
-                                <DropdownMenuItem>
-                                  <Pencil className="mr-2 h-4 w-4" />
-                                  Edit
-                                </DropdownMenuItem>
-                            </Link>
-                            <DropdownMenuItem onSelect={() => handleToggleStatus(coupon)}>{coupon.isActive ? 'Deactivate' : 'Activate'}</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                             <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem
-                                    className="text-destructive"
-                                    onSelect={(e) => e.preventDefault()}
-                                  >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
+                  </TableRow>
+              ) : (
+                coupons.map((coupon) => {
+                  const status = getStatus(coupon);
+                  const usagePercentage = coupon.maxClaims ? ((coupon.claims || 0) / coupon.maxClaims) * 100 : 0;
+                  
+                  return (
+                      <TableRow key={coupon.id}>
+                      <TableCell className="font-medium">{coupon.code}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{formatDiscount(coupon.discountType, coupon.discountValue)}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                          <Badge variant={status.variant}>
+                              {status.text}
+                          </Badge>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                          {coupon.maxClaims ? (
+                              <div className="flex items-center gap-2">
+                                <Progress value={usagePercentage} className="w-24" />
+                                <span className="text-muted-foreground text-xs">{coupon.claims || 0}/{coupon.maxClaims}</span>
+                              </div>
+                          ) : (
+                              <span className="text-muted-foreground">{coupon.claims || 0} used</span>
+                          )}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                          {coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString() : 'Never'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                          <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" disabled={isDeleting === coupon.id}>
+                                {isDeleting === coupon.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
+                              </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                              <Link href={`/admin/coupons/${coupon.id}/analytics`}>
+                                  <DropdownMenuItem>
+                                      <LineChart className="mr-2 h-4 w-4" />
+                                      Analytics
                                   </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This action will permanently delete the coupon "{coupon.code}".
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDelete(coupon)}>Delete</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                        </DropdownMenuContent>
-                        </DropdownMenu>
-                    </TableCell>
-                    </TableRow>
-                )
-              })}
+                              </Link>
+                              <Link href={`/admin/coupons/${coupon.id}/edit`}>
+                                  <DropdownMenuItem>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Edit
+                                  </DropdownMenuItem>
+                              </Link>
+                              <DropdownMenuItem onSelect={() => handleToggleStatus(coupon)}>{coupon.isActive ? 'Deactivate' : 'Activate'}</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem
+                                      className="text-destructive"
+                                      onSelect={(e) => e.preventDefault()}
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Delete
+                                    </DropdownMenuItem>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This action will permanently delete the coupon "{coupon.code}".
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDelete(coupon)}>Delete</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                          </DropdownMenuContent>
+                          </DropdownMenu>
+                      </TableCell>
+                      </TableRow>
+                  )
+                })
+              )}
             </TableBody>
           </Table>
         </CardContent>

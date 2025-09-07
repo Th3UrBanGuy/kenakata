@@ -18,12 +18,12 @@ type ProfileFormValues = {
 };
 
 export default function ProfilePage() {
-    const { user } = useAuth();
+    const { user, reloadUser } = useAuth();
     const { updateAppUser } = useData();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
 
-    const { register, handleSubmit, reset, formState: { isDirty } } = useForm<ProfileFormValues>({
+    const { register, handleSubmit, reset, formState: { isDirty, isSubmitting } } = useForm<ProfileFormValues>({
         defaultValues: {
             name: '',
             phone: ''
@@ -44,10 +44,15 @@ export default function ProfilePage() {
         setIsLoading(true);
         try {
             await updateAppUser(user.uid, { name: data.name, phone: data.phone });
+            // Also update the auth user display name if it has changed
+            if (user.displayName !== data.name) {
+                 await reloadUser(); // This is a bit of a heavy hammer, but ensures state is consistent
+            }
             toast({
                 title: "Profile Updated",
                 description: "Your personal information has been saved.",
             });
+            reset(data); // Resets the dirty state
         } catch (error: any) {
             toast({
                 title: "Update Failed",
@@ -69,7 +74,7 @@ export default function ProfilePage() {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" {...register('name')} />
+                        <Input id="name" {...register('name')} disabled={isSubmitting} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
@@ -77,9 +82,9 @@ export default function ProfilePage() {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="phone">Phone Number</Label>
-                        <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" {...register('phone')} />
+                        <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" {...register('phone')} disabled={isSubmitting} />
                     </div>
-                    <Button type="submit" disabled={isLoading || !isDirty}>
+                    <Button type="submit" disabled={isLoading || !isDirty || isSubmitting}>
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Save Changes
                     </Button>

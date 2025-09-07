@@ -16,11 +16,11 @@ import type { Order } from '@/lib/types';
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
-  const { orders } = useData();
+  const { orders, isLoading } = useData();
 
   const order: Order | undefined = orders.find(o => o.id === orderId);
 
-  if (!order) {
+  if (isLoading || !order) {
     return (
       <div className="flex flex-col items-center justify-center text-center py-16">
         <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
@@ -31,8 +31,8 @@ function CheckoutSuccessContent() {
 
   const subtotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = 5.00;
-  const taxes = subtotal * 0.08;
-  const total = subtotal + shipping + taxes;
+  // Note: Tax calculation might be different in a real app (e.g. post-discount)
+  const taxes = subtotal * 0.08; 
 
   return (
     <Card className="w-full max-w-2xl">
@@ -67,6 +67,14 @@ function CheckoutSuccessContent() {
                 <span className="text-muted-foreground">Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
             </div>
+             {order.discountAmount > 0 && (
+                <div className="flex justify-between text-green-500">
+                    <span className="flex items-center gap-2">
+                        Coupon "{order.couponCode}"
+                    </span>
+                    <span>-${order.discountAmount.toFixed(2)}</span>
+                </div>
+            )}
             <div className="flex justify-between">
                 <span className="text-muted-foreground">Shipping</span>
                 <span>${shipping.toFixed(2)}</span>
@@ -78,7 +86,7 @@ function CheckoutSuccessContent() {
             <Separator />
             <div className="flex justify-between font-bold text-lg">
                 <span>Total Paid</span>
-                <span>${total.toFixed(2)}</span>
+                <span>${order.total.toFixed(2)}</span>
             </div>
         </div>
 
@@ -116,7 +124,7 @@ export default function CheckoutSuccessPage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1 container py-12 md:py-24 flex items-center justify-center">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
           <CheckoutSuccessContent />
         </Suspense>
       </main>

@@ -21,7 +21,7 @@ import {
 import { Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
-    const { sendPasswordReset, deleteCurrentUser } = useAuth();
+    const { user, sendPasswordReset, deleteCurrentUser } = useAuth();
     const { toast } = useToast();
     const [isPasswordLoading, setIsPasswordLoading] = useState(false);
     const [isDeleteLoading, setIsDeleteLoading] = useState(false);
@@ -53,6 +53,7 @@ export default function SettingsPage() {
                 title: "Account Deleted",
                 description: "Your account has been permanently deleted.",
             });
+            // The user will be redirected automatically by the AuthProvider
         } catch (error: any) {
             toast({
                 title: "Deletion Failed",
@@ -73,7 +74,7 @@ export default function SettingsPage() {
                 <div className="space-y-4">
                      <h3 className="font-semibold">Change Password</h3>
                      <p className="text-sm text-muted-foreground">Click the button below to receive an email with a link to reset your password.</p>
-                    <Button onClick={handlePasswordReset} disabled={isPasswordLoading}>
+                    <Button onClick={handlePasswordReset} disabled={isPasswordLoading || !user}>
                         {isPasswordLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Send Password Reset Email
                     </Button>
@@ -84,8 +85,7 @@ export default function SettingsPage() {
                      <p className="text-sm text-muted-foreground">Permanently delete your account and all associated data. This action cannot be undone.</p>
                      <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="destructive" disabled={isDeleteLoading}>
-                                {isDeleteLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            <Button variant="destructive" disabled={isDeleteLoading || !user}>
                                 Delete My Account
                             </Button>
                         </AlertDialogTrigger>
@@ -98,7 +98,8 @@ export default function SettingsPage() {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+                                <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground" disabled={isDeleteLoading}>
+                                     {isDeleteLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Yes, delete my account
                                 </AlertDialogAction>
                             </AlertDialogFooter>

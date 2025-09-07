@@ -7,6 +7,7 @@ import { useFirebase } from './FirebaseProvider';
 import { collection, onSnapshot, query, where, doc, runTransaction, addDoc, updateDoc, deleteDoc, setDoc, getDocs, writeBatch, arrayUnion, increment } from 'firebase/firestore';
 import { useAuth } from './AuthProvider';
 import { v4 as uuidv4 } from 'uuid';
+import { getAuth, updateProfile } from 'firebase/auth';
 
 
 interface DataContextType {
@@ -21,7 +22,7 @@ interface DataContextType {
   addProduct: (productData: Omit<Product, 'id' | 'comments'>) => Promise<void>;
   updateProduct: (productId: string, productData: Partial<Omit<Product, 'id' | 'comments'>>) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
-  addCoupon: (couponData: Omit<Coupon, 'id' | 'claims'>) => Promise<void>;
+  addCoupon: (couponData: Partial<Omit<Coupon, 'id' | 'claims'>>) => Promise<void>;
   updateCoupon: (couponId: string, couponData: Partial<Omit<Coupon, 'id' | 'claims'>>) => Promise<void>;
   deleteCoupon: (couponId: string) => Promise<void>;
   toggleCouponStatus: (couponId: string, isActive: boolean) => Promise<void>;
@@ -46,36 +47,52 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    const unsubProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
+    let isMounted = true;
+    const unsubscribers: (() => void)[] = [];
+    
+    const fetchData = () => {
+      setIsLoading(true);
+
+      const unsubProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
+        if (!isMounted) return;
         const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
         setProducts(productsData);
-        setIsLoading(false);
-    }, (error) => {
-        console.error("Error fetching products:", error);
-        setIsLoading(false);
-    });
+      }, (error) => console.error("Error fetching products:", error));
+      unsubscribers.push(unsubProducts);
 
-    const unsubCoupons = onSnapshot(collection(db, 'coupons'), (snapshot) => {
+      const unsubCoupons = onSnapshot(collection(db, 'coupons'), (snapshot) => {
+        if (!isMounted) return;
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Coupon));
         setCoupons(data);
-    });
-    
-    const unsubCouponUsage = onSnapshot(collection(db, 'couponUsage'), (snapshot) => {
+      });
+      unsubscribers.push(unsubCoupons);
+      
+      const unsubCouponUsage = onSnapshot(collection(db, 'couponUsage'), (snapshot) => {
+        if (!isMounted) return;
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CouponUsage));
         setCouponUsage(data);
-    });
-    
-    const unsubSupportTickets = onSnapshot(collection(db, 'supportTickets'), (snapshot) => {
+      });
+      unsubscribers.push(unsubCouponUsage);
+      
+      const unsubSupportTickets = onSnapshot(collection(db, 'supportTickets'), (snapshot) => {
+        if (!isMounted) return;
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SupportTicket));
         setSupportTickets(data);
-    });
+      });
+      unsubscribers.push(unsubSupportTickets);
+
+      // Stop loading after initial fetches setup
+      // A more robust solution might use Promise.all with getDocs for initial load
+      setTimeout(() => {
+        if (isMounted) setIsLoading(false);
+      }, 1500); 
+    };
+
+    fetchData();
 
     return () => {
-        unsubProducts();
-        unsubCoupons();
-        unsubCouponUsage();
-        unsubSupportTickets();
+      isMounted = false;
+      unsubscribers.forEach(unsub => unsub());
     };
   }, [db]);
   
@@ -105,7 +122,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
             setOrders(ordersData);
         });
-        setUsers([]);
+        setUsers([]); // Non-admins shouldn't have access to the user list
     }
 
     return () => {
@@ -234,7 +251,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     await deleteDoc(productRef);
   }
 
-  const addCoupon = async (couponData: Omit<Coupon, 'id' | 'claims'>) => {
+  const addCoupon = async (couponData: Partial<Omit<Coupon, 'id' | 'claims'>>) => {
     await addDoc(collection(db, 'coupons'), {
         ...couponData,
         claims: 0
@@ -263,6 +280,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteUser = async (userId: string) => {
     const userRef = doc(db, 'users', userId);
+    // This only deletes the firestore record. The auth user must be deleted separately.
     await deleteDoc(userRef);
   };
   
@@ -307,8 +325,15 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateAppUser = async (userId: string, data: Partial<AppUser>) => {
+    // Update Firestore document
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, data);
+
+    // Update Firebase Auth profile if name is changed
+    const auth = getAuth();
+    if(auth.currentUser && data.name && auth.currentUser.displayName !== data.name) {
+      await updateProfile(auth.currentUser, { displayName: data.name });
+    }
   };
 
 

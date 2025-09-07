@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { useData } from '@/context/DataProvider';
 import Image from 'next/image';
-import { MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
+import { Loader2, MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
@@ -23,12 +23,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 export default function AdminProductsPage() {
-  const { products, deleteProduct } = useData();
+  const { products, deleteProduct, isLoading } = useData();
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+
 
   const handleDelete = async (product: Product) => {
+    setIsDeleting(product.id);
     try {
       await deleteProduct(product.id);
       toast({
@@ -42,6 +46,8 @@ export default function AdminProductsPage() {
         description: error.message || "There was a problem deleting the product.",
         variant: "destructive"
       });
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -76,67 +82,75 @@ export default function AdminProductsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="hidden sm:table-cell p-2">
-                    <Image
-                      alt={product.name}
-                      className="aspect-square rounded-md object-cover"
-                      height="64"
-                      src={product.variants[0]?.imageUrl || '/placeholder.svg'}
-                      width="64"
-                      data-ai-hint="product photo"
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Badge variant="outline">{product.category}</Badge>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">{product.variants.length}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <Link href={`/admin/products/${product.id}/edit`}>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                        </Link>
-                        <Link href={`/product/${product.id}`} target="_blank">
-                          <DropdownMenuItem>View on Store</DropdownMenuItem>
-                        </Link>
-                         <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                               <DropdownMenuItem
-                                  className="text-destructive"
-                                  onSelect={(e) => e.preventDefault()} // Prevents dropdown from closing
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the product "{product.name}".
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(product)}>
+              {isLoading && !products.length ? (
+                 <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                      <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                    </TableCell>
+                  </TableRow>
+              ) : (
+                products.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="hidden sm:table-cell p-2">
+                      <Image
+                        alt={product.name}
+                        className="aspect-square rounded-md object-cover"
+                        height="64"
+                        src={product.variants[0]?.imageUrl || '/placeholder.svg'}
+                        width="64"
+                        data-ai-hint="product photo"
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge variant="outline">{product.category}</Badge>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">{product.variants.length}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" disabled={isDeleting === product.id}>
+                            {isDeleting === product.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <Link href={`/admin/products/${product.id}/edit`}>
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                          </Link>
+                          <Link href={`/product/${product.id}`} target="_blank">
+                            <DropdownMenuItem>View on Store</DropdownMenuItem>
+                          </Link>
+                          <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem
+                                    className="text-destructive"
+                                    onSelect={(e) => e.preventDefault()} // Prevents dropdown from closing
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
                                     Delete
-                                </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
+                                  </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                      This action cannot be undone. This will permanently delete the product "{product.name}".
+                                  </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDelete(product)}>
+                                      Delete
+                                  </AlertDialogAction>
+                                  </AlertDialogFooter>
+                              </AlertDialogContent>
+                          </AlertDialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

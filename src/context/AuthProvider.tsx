@@ -12,7 +12,8 @@ import {
     signOut,
     sendPasswordResetEmail,
     deleteUser as deleteFirebaseUser,
-    sendEmailVerification
+    sendEmailVerification,
+    updateProfile
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import type { AppUser } from '@/lib/types';
@@ -53,6 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (userDoc.exists()) {
           setRole(userDoc.data().role);
         } else {
+          // This case might happen if the Firestore doc is deleted but auth record isn't
           setRole('user');
         }
       } else {
@@ -68,6 +70,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (email: string, pass: string, name: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     const newUser = userCredential.user;
+
+    // Update Firebase Auth profile
+    await updateProfile(newUser, { displayName: name });
     
     // Send verification email
     await sendEmailVerification(newUser);
@@ -89,7 +94,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const login = async (email: string, pass: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
+      const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+      const loggedInUser = userCredential.user;
+
+      if (!loggedInUser.emailVerified) {
+        // Don't block login, but the UI will show prompts to verify.
+        // This is a change from the previous stricter implementation.
+      }
+      // onAuthStateChanged will handle setting the user and role state.
+
     } catch (error: any) {
       if (error.code === 'auth/invalid-credential') {
         throw new Error('Invalid email or password. Please try again.');
@@ -115,13 +128,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await signOut(auth);
     setRole(null);
+    setUser(null);
+    // Redirect to home and clear router cache to prevent showing protected pages
     router.push('/');
+    router.refresh();
   };
   
   const reloadUser = async () => {
       if (!auth.currentUser) return;
       await auth.currentUser.reload();
-      // This will trigger onAuthStateChanged to update the user state
       // To force an immediate re-render with the new state:
       setUser({...auth.currentUser});
   };
@@ -149,6 +164,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(null);
           setRole(null);
           router.push('/');
+          router.refresh();
       } catch (error: any) {
           console.error("Error deleting user:", error);
           // Handle re-authentication if required
