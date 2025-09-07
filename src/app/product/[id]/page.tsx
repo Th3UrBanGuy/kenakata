@@ -128,139 +128,141 @@ export default function ProductPage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1 container py-12 md:py-24">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div className="space-y-4">
-            <div className="aspect-square relative rounded-lg overflow-hidden border shadow-lg">
-                <Image
-                src={imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover transition-opacity duration-300"
-                data-ai-hint="product photo"
-                />
-            </div>
-            {/* Thumbnails can be added here */}
-          </div>
-          <div className="space-y-6">
-            <h1 className="text-4xl font-bold font-headline">{product.name}</h1>
-            <p className="text-muted-foreground text-lg">{product.description}</p>
-            <p className="text-3xl font-bold text-primary">
-              ${selectedVariant ? selectedVariant.price.toFixed(2) : product.variants[0].price.toFixed(2)}
-            </p>
-            
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Color</h3>
-              <div className="flex gap-3">
-                {availableColors.map((color) => (
-                  <Button
-                    key={color}
-                    variant="outline"
-                    className={cn(
-                      'capitalize p-4 border-2',
-                      selectedColor === color ? 'border-primary' : 'border-border'
-                    )}
-                    onClick={() => handleColorSelect(color)}
-                  >
-                    {color}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {selectedColor && availableSizes.length > 0 && (
+        <div className="rounded-xl border bg-card/50 text-card-foreground shadow-lg backdrop-blur-lg p-6 md:p-10">
+            <div className="grid md:grid-cols-2 gap-12 items-start">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Size</h3>
-                <RadioGroup value={selectedSize || ''} onValueChange={setSelectedSize}>
-                  <div className="flex gap-3 flex-wrap">
-                    {availableSizes.map((size) => {
-                      const variantForSize = product.variants.find(v => v.color === selectedColor && v.size === size);
-                      const isAvailable = variantForSize && variantForSize.stock > 0;
-                      return (
-                        <div key={size}>
-                          <RadioGroupItem value={size} id={size} className="sr-only" disabled={!isAvailable} />
-                          <Label
-                            htmlFor={size}
-                            className={cn(
-                              "flex items-center justify-center rounded-md border-2 px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
-                              selectedSize === size && 'border-primary',
-                              !isAvailable ? 'cursor-not-allowed opacity-50 bg-muted/50' : 'cursor-pointer'
-                            )}
-                          >
-                            {size}
-                          </Label>
-                        </div>
-                      )
-                    })}
+                <div className="aspect-square relative rounded-lg overflow-hidden border shadow-lg">
+                    <Image
+                    src={imageUrl}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-opacity duration-300"
+                    data-ai-hint="product photo"
+                    />
+                </div>
+                {/* Thumbnails can be added here */}
+              </div>
+              <div className="space-y-6">
+                <h1 className="text-4xl font-bold font-headline">{product.name}</h1>
+                <p className="text-muted-foreground text-lg">{product.description}</p>
+                <p className="text-3xl font-bold text-primary">
+                  ${selectedVariant ? selectedVariant.price.toFixed(2) : product.variants[0].price.toFixed(2)}
+                </p>
+                
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Color</h3>
+                  <div className="flex gap-3">
+                    {availableColors.map((color) => (
+                      <Button
+                        key={color}
+                        variant="outline"
+                        className={cn(
+                          'capitalize p-4 border-2',
+                          selectedColor === color ? 'border-primary' : 'border-border'
+                        )}
+                        onClick={() => handleColorSelect(color)}
+                      >
+                        {color}
+                      </Button>
+                    ))}
                   </div>
-                </RadioGroup>
-              </div>
-            )}
-            
-            {role !== 'admin' && (
-              <div className="flex gap-4">
-                  <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={!selectedVariant || selectedVariant.stock === 0}>
-                      {selectedVariant?.stock === 0 ? 'Out of Stock' : (
-                          <>
-                              <ShoppingBag className="mr-2 h-5 w-5" />
-                              Add to Bag
-                          </>
-                      )}
-                  </Button>
-                  <Button size="lg" variant="outline" className="px-4" onClick={handleWishlistToggle} disabled={!selectedVariant}>
-                      <Heart className={cn("h-5 w-5", isWishlisted && "text-red-500 fill-current")} />
-                  </Button>
-              </div>
-            )}
+                </div>
 
-            {selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 10 && (
-                <p className="text-yellow-500 text-sm text-center">
-                    Hurry! Only {selectedVariant.stock} left in stock.
-                </p>
-            )}
-             {selectedVariant && selectedVariant.stock === 0 && (
-                 <p className="text-red-500 text-sm text-center">
-                    This variant is out of stock.
-                </p>
-            )}
-          </div>
-        </div>
+                {selectedColor && availableSizes.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Size</h3>
+                    <RadioGroup value={selectedSize || ''} onValueChange={setSelectedSize}>
+                      <div className="flex gap-3 flex-wrap">
+                        {availableSizes.map((size) => {
+                          const variantForSize = product.variants.find(v => v.color === selectedColor && v.size === size);
+                          const isAvailable = variantForSize && variantForSize.stock > 0;
+                          return (
+                            <div key={size}>
+                              <RadioGroupItem value={size} id={size} className="sr-only" disabled={!isAvailable} />
+                              <Label
+                                htmlFor={size}
+                                className={cn(
+                                  "flex items-center justify-center rounded-md border-2 px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
+                                  selectedSize === size && 'border-primary',
+                                  !isAvailable ? 'cursor-not-allowed opacity-50 bg-muted/50' : 'cursor-pointer'
+                                )}
+                              >
+                                {size}
+                              </Label>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </RadioGroup>
+                  </div>
+                )}
+                
+                {role !== 'admin' && (
+                  <div className="flex gap-4">
+                      <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={!selectedVariant || selectedVariant.stock === 0}>
+                          {selectedVariant?.stock === 0 ? 'Out of Stock' : (
+                              <>
+                                  <ShoppingBag className="mr-2 h-5 w-5" />
+                                  Add to Bag
+                              </>
+                          )}
+                      </Button>
+                      <Button size="lg" variant="outline" className="px-4" onClick={handleWishlistToggle} disabled={!selectedVariant}>
+                          <Heart className={cn("h-5 w-5", isWishlisted && "text-red-500 fill-current")} />
+                      </Button>
+                  </div>
+                )}
 
-        <div className="mt-16">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">Customer Reviews</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {product.comments.length > 0 ? (
-                        <div className="space-y-6">
-                            {product.comments.map((comment, index) => (
-                                <div key={comment.id}>
-                                    <div className="flex gap-4">
-                                        <Avatar>
-                                            <AvatarFallback>{comment.author.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex-1">
-                                            <div className="flex items-center justify-between">
-                                                <p className="font-semibold">{comment.author}</p>
-                                                <div className="flex items-center gap-1">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star key={i} className={cn("h-4 w-4", i < comment.rating ? "text-primary fill-primary" : "text-muted-foreground")}/>
-                                                    ))}
+                {selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 10 && (
+                    <p className="text-yellow-500 text-sm text-center">
+                        Hurry! Only {selectedVariant.stock} left in stock.
+                    </p>
+                )}
+                 {selectedVariant && selectedVariant.stock === 0 && (
+                     <p className="text-red-500 text-sm text-center">
+                        This variant is out of stock.
+                    </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-16">
+                <Card className="bg-transparent border-0 shadow-none">
+                    <CardHeader className="p-0 mb-6">
+                        <CardTitle className="font-headline">Customer Reviews</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        {product.comments.length > 0 ? (
+                            <div className="space-y-6">
+                                {product.comments.map((comment, index) => (
+                                    <div key={comment.id}>
+                                        <div className="flex gap-4">
+                                            <Avatar>
+                                                <AvatarFallback>{comment.author.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between">
+                                                    <p className="font-semibold">{comment.author}</p>
+                                                    <div className="flex items-center gap-1">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star key={i} className={cn("h-4 w-4", i < comment.rating ? "text-primary fill-primary" : "text-muted-foreground")}/>
+                                                        ))}
+                                                    </div>
                                                 </div>
+                                                <p className="text-sm text-muted-foreground mb-2">{isClient ? new Date(comment.date).toLocaleDateString() : ''}</p>
+                                                <p>{comment.text}</p>
                                             </div>
-                                            <p className="text-sm text-muted-foreground mb-2">{isClient ? new Date(comment.date).toLocaleDateString() : ''}</p>
-                                            <p>{comment.text}</p>
                                         </div>
+                                        {index < product.comments.length - 1 && <Separator className="mt-6" />}
                                     </div>
-                                    {index < product.comments.length - 1 && <Separator className="mt-6" />}
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-muted-foreground">No reviews yet for this product.</p>
-                    )}
-                </CardContent>
-            </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-muted-foreground">No reviews yet for this product.</p>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
         </div>
       </main>
       <Footer />
