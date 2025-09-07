@@ -24,7 +24,7 @@ type CheckoutStep = 'shipping' | 'payment';
 export default function CheckoutPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
-  const { cart, totalPrice, clearCart } = useCart();
+  const { cart, subtotal, discount, total, clearCart, appliedCoupon } = useCart();
   const { addOrder } = useData();
   const { toast } = useToast();
   const [step, setStep] = useState<CheckoutStep>('shipping');
@@ -58,18 +58,18 @@ export default function CheckoutPage() {
     if (!user) return;
     setIsProcessing(true);
 
-    const subtotal = totalPrice;
     const shipping = 5.00;
     const taxes = subtotal * 0.08;
-    const total = subtotal + shipping + taxes;
 
     const newOrder: Omit<Order, 'id' | 'date' | 'status'> = {
       customerUid: user.uid,
       customerName: shippingInfo.name,
       customerEmail: shippingInfo.email,
-      total: total,
+      total: total + shipping + taxes,
       paymentMethod: 'Credit Card',
       items: cart,
+      couponCode: appliedCoupon?.code,
+      discountAmount: discount,
     };
     
     try {
@@ -204,20 +204,28 @@ export default function CheckoutPage() {
                         <CardContent className="space-y-4">
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Subtotal</span>
-                                <span>${totalPrice.toFixed(2)}</span>
+                                <span>${subtotal.toFixed(2)}</span>
                             </div>
+                            {discount > 0 && (
+                                <div className="flex justify-between text-green-500">
+                                    <span className="flex items-center gap-2">
+                                        Coupon "{appliedCoupon?.code}"
+                                    </span>
+                                    <span>-${discount.toFixed(2)}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Shipping</span>
                                 <span>$5.00</span>
                             </div>
                              <div className="flex justify-between">
                                 <span className="text-muted-foreground">Taxes</span>
-                                <span>${(totalPrice * 0.08).toFixed(2)}</span>
+                                <span>${(subtotal * 0.08).toFixed(2)}</span>
                             </div>
                             <Separator/>
                             <div className="flex justify-between font-bold text-lg">
                                 <span>Total</span>
-                                <span>${(totalPrice + 5 + totalPrice * 0.08).toFixed(2)}</span>
+                                <span>${(total + 5 + subtotal * 0.08).toFixed(2)}</span>
                             </div>
                         </CardContent>
                     </Card>

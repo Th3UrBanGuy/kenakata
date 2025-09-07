@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { Product, Order, SupportTicket, AppUser, Coupon, CouponUsage } from '@/lib/types';
 import { useFirebase } from './FirebaseProvider';
-import { collection, onSnapshot, query, where, doc, runTransaction, addDoc, updateDoc, deleteDoc, setDoc, getDocs, writeBatch, arrayUnion } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, doc, runTransaction, addDoc, updateDoc, deleteDoc, setDoc, getDocs, writeBatch, arrayUnion, increment } from 'firebase/firestore';
 import { useAuth } from './AuthProvider';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,10 +19,10 @@ interface DataContextType {
   isLoading: boolean;
   addOrder: (order: Omit<Order, 'id' | 'date' | 'status'>) => Promise<string>;
   addProduct: (productData: Omit<Product, 'id' | 'comments'>) => Promise<void>;
-  updateProduct: (productId: string, productData: Omit<Product, 'id' | 'comments'>) => Promise<void>;
+  updateProduct: (productId: string, productData: Partial<Omit<Product, 'id' | 'comments'>>) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
   addCoupon: (couponData: Omit<Coupon, 'id' | 'claims'>) => Promise<void>;
-  updateCoupon: (couponId: string, couponData: Omit<Coupon, 'id' | 'claims'>) => Promise<void>;
+  updateCoupon: (couponId: string, couponData: Partial<Omit<Coupon, 'id' | 'claims'>>) => Promise<void>;
   deleteCoupon: (couponId: string) => Promise<void>;
   toggleCouponStatus: (couponId: string, isActive: boolean) => Promise<void>;
   setUserRole: (userId: string, role: 'user' | 'admin') => Promise<void>;
@@ -123,6 +123,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             const productRefs = new Map<string, any>();
             const productsToUpdate: {ref: any, data: Product}[] = [];
 
+            // Pre-fetch all product documents
             for (const item of orderData.items) {
                 if (!productRefs.has(item.productId)) {
                     const productRef = doc(db, 'products', item.productId);
@@ -133,7 +134,39 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                     productRefs.set(item.productId, { ref: productRef, doc: productDoc });
                 }
             }
+            
+            // Validate coupon if one was applied
+            if (orderData.couponCode) {
+                 const couponsRef = collection(db, 'coupons');
+                 const q = query(couponsRef, where("code", "==", orderData.couponCode));
+                 const couponSnapshot = await getDocs(q); // Use getDocs, not transaction.get for queries
+                 if (couponSnapshot.empty) {
+                     throw new Error(`Coupon "${orderData.couponCode}" not found.`);
+                 }
+                 const couponDoc = couponSnapshot.docs[0];
+                 const coupon = { id: couponDoc.id, ...couponDoc.data()} as Coupon;
 
+                 if (!coupon.isActive) throw new Error("Coupon is not active.");
+                 if (coupon.validUntil && new Date(coupon.validUntil) < new Date()) throw new Error("Coupon has expired.");
+                 if (coupon.maxClaims && (coupon.claims || 0) >= coupon.maxClaims) throw new Error("Coupon has reached its usage limit.");
+
+                 // If all checks pass, increment the claim count and log the usage
+                 const couponRef = doc(db, 'coupons', coupon.id);
+                 transaction.update(couponRef, { claims: increment(1) });
+                 
+                 const usageRef = doc(collection(db, 'couponUsage'));
+                 const usageLog: CouponUsage = {
+                    id: usageRef.id,
+                    couponCode: coupon.code,
+                    orderId: newOrderRef.id,
+                    customerEmail: orderData.customerEmail,
+                    usageDate: new Date().toISOString(),
+                    discountAmount: orderData.discountAmount || 0,
+                 }
+                 transaction.set(usageRef, usageLog);
+            }
+
+            // Process product stock updates
             for (const item of orderData.items) {
                 const { doc: productDoc, ref: productRef } = productRefs.get(item.productId);
                 const productData = productDoc.data() as Product;
@@ -157,13 +190,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                 transaction.update(ref, { variants: data.variants });
             });
 
+            // Finally, create the order document
             const completeOrder = {
                 ...orderData,
                 id: newOrderRef.id,
                 date: new Date().toISOString(),
                 status: 'Pending' as const,
             };
-
             transaction.set(newOrderRef, completeOrder);
         });
         return newOrderRef.id;
@@ -185,10 +218,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     await setDoc(doc(db, 'products', newProductId), newProduct);
   };
 
-  const updateProduct = async (productId: string, productData: Omit<Product, 'id' | 'comments'>) => {
+  const updateProduct = async (productId: string, productData: Partial<Omit<Product, 'id' | 'comments'>>) => {
     const productRef = doc(db, 'products', productId);
-    const variantsWithIds = productData.variants.map(v => v.id ? v : {...v, id: `var_${uuidv4()}`});
-    await updateDoc(productRef, {...productData, variants: variantsWithIds});
+    const variantsWithIds = productData.variants?.map(v => v.id ? v : {...v, id: `var_${uuidv4()}`});
+    const updateData = {...productData};
+    if(variantsWithIds) {
+      updateData.variants = variantsWithIds;
+    }
+    await updateDoc(productRef, updateData);
   };
 
   const deleteProduct = async (productId: string) => {
@@ -203,7 +240,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     });
   }
 
-  const updateCoupon = async (couponId: string, couponData: Omit<Coupon, 'id' | 'claims'>) => {
+  const updateCoupon = async (couponId: string, couponData: Partial<Omit<Coupon, 'id' | 'claims'>>) => {
     const couponRef = doc(db, 'coupons', couponId);
     await updateDoc(couponRef, couponData);
   }

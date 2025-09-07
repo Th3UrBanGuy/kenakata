@@ -6,14 +6,35 @@ import { Button } from '@/components/ui/button';
 import { SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
-import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
-import { Separator } from './ui/separator';
+import { Minus, Plus, Trash2, ShoppingBag, Loader2, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthProvider';
+import { Input } from './ui/input';
+import { useState } from 'react';
 
 export function Cart() {
-  const { cart, removeFromCart, updateQuantity, totalItems, totalPrice } = useCart();
+  const { 
+    cart, 
+    removeFromCart, 
+    updateQuantity, 
+    totalItems, 
+    subtotal, 
+    discount,
+    total,
+    applyCoupon,
+    removeCoupon,
+    appliedCoupon,
+    isApplyingCoupon
+  } = useCart();
   const { role } = useAuth();
+  const [couponCode, setCouponCode] = useState('');
+
+  const handleApplyCoupon = () => {
+    if (couponCode.trim()) {
+      applyCoupon(couponCode.trim());
+      setCouponCode('');
+    }
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -57,10 +78,40 @@ export function Cart() {
             </ScrollArea>
             <SheetFooter className="mt-auto p-0">
                 <div className="w-full space-y-4 pt-6 border-t">
-                    <div className="flex justify-between font-bold text-xl">
-                        <span>Subtotal</span>
-                        <span>${totalPrice.toFixed(2)}</span>
+                    <div className="flex gap-2">
+                        <Input 
+                            placeholder="Coupon Code" 
+                            value={couponCode} 
+                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                            disabled={isApplyingCoupon || !!appliedCoupon}
+                        />
+                        <Button onClick={handleApplyCoupon} disabled={!couponCode || isApplyingCoupon || !!appliedCoupon}>
+                            {isApplyingCoupon && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                            Apply
+                        </Button>
                     </div>
+
+                    <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                            <span>Subtotal</span>
+                            <span>${subtotal.toFixed(2)}</span>
+                        </div>
+                        {appliedCoupon && (
+                            <div className="flex justify-between text-green-500">
+                                <span className="flex items-center gap-2">
+                                    Coupon "{appliedCoupon.code}"
+                                    <button onClick={removeCoupon} className="text-destructive"><XCircle className="h-4 w-4"/></button>
+                                </span>
+                                <span>-${discount.toFixed(2)}</span>
+                            </div>
+                        )}
+                    </div>
+                    
+                    <div className="flex justify-between font-bold text-xl border-t pt-4">
+                        <span>Total</span>
+                        <span>${total.toFixed(2)}</span>
+                    </div>
+
                     {role !== 'admin' && (
                         <Link href="/checkout" className="w-full">
                             <Button className="w-full" size="lg">

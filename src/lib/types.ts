@@ -71,6 +71,7 @@ export type Order = {
   paymentMethod: string;
   items: CartItem[];
   couponCode?: string;
+  discountAmount?: number;
 };
 
 export type Coupon = {
