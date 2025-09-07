@@ -19,9 +19,7 @@ const tools = [
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart, description: 'View and process customer orders' },
   { href: '/admin/customers', label: 'Customers', icon: Users, description: 'Manage all registered users' },
   { href: '/admin/coupons', label: 'Coupons', icon: Tag, description: 'Create and manage promotional codes' },
-  { href: '/admin/messages', label: 'Messages', icon: MessageSquare, description: 'Interact with user support tickets' },
   { href: '/admin/wishlist', label: 'Wishlist', icon: Heart, description: 'See what products users are loving' },
-  { href: '/admin/analytics', label: 'Analytics', icon: LineChart, description: 'Analyze your store performance' },
 ];
 
 export default function ToolboxPage() {

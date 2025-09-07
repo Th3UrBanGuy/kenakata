@@ -103,15 +103,3 @@ export type Announcement = {
   link: string;
   tag: string;
 };
-
-export type SupportMessage = {
-    sender: 'user' | 'admin';
-    text: string;
-    timestamp: string;
-};
-
-export type SupportTicket = {
-    id: string;
-    status: 'open' | 'closed';
-    messages: SupportMessage[];
-};

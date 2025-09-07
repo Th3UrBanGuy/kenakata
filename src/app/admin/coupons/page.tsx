@@ -151,12 +151,6 @@ export default function CouponsPage() {
                               </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                              <Link href={`/admin/coupons/${coupon.id}/analytics`}>
-                                  <DropdownMenuItem>
-                                      <LineChart className="mr-2 h-4 w-4" />
-                                      Analytics
-                                  </DropdownMenuItem>
-                              </Link>
                               <Link href={`/admin/coupons/${coupon.id}/edit`}>
                                   <DropdownMenuItem>
                                     <Pencil className="mr-2 h-4 w-4" />

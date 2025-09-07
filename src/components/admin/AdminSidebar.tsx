@@ -28,7 +28,6 @@ export function AdminSidebar() {
     { href: "/admin/customers", icon: Users, label: "Customers" },
     { href: "/admin/coupons", icon: Tag, label: "Coupons" },
     { href: "/admin/wishlist", icon: Heart, label: "Wishlist" },
-    { href: "/admin/analytics", icon: LineChart, label: "Analytics" },
   ];
 
   return (

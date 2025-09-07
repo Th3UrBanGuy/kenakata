@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { Product, Order, SupportTicket, AppUser, Coupon, CouponUsage } from '@/lib/types';
+import type { Product, Order, AppUser, Coupon, CouponUsage } from '@/lib/types';
 import { useFirebase } from './FirebaseProvider';
 import { collection, onSnapshot, query, where, doc, runTransaction, addDoc, updateDoc, deleteDoc, setDoc, getDocs, writeBatch, arrayUnion, increment } from 'firebase/firestore';
 import { useAuth } from './AuthProvider';
@@ -14,7 +14,6 @@ interface DataContextType {
   products: Product[];
   orders: Order[];
   users: AppUser[];
-  supportTickets: SupportTicket[];
   coupons: Coupon[];
   couponUsage: CouponUsage[];
   isLoading: boolean;
@@ -28,8 +27,6 @@ interface DataContextType {
   toggleCouponStatus: (couponId: string, isActive: boolean) => Promise<void>;
   setUserRole: (userId: string, role: 'user' | 'admin') => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
-  addSupportMessage: (ticketId: string, text: string) => Promise<void>;
-  addSupportReply: (ticketId: string, text: string) => Promise<void>;
   updateAppUser: (userId: string, data: Partial<AppUser>) => Promise<void>;
 }
 
@@ -41,7 +38,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<AppUser[]>([]);
-  const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [couponUsage, setCouponUsage] = useState<CouponUsage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,13 +70,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       });
       unsubscribers.push(unsubCouponUsage);
       
-      const unsubSupportTickets = onSnapshot(collection(db, 'supportTickets'), (snapshot) => {
-        if (!isMounted) return;
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SupportTicket));
-        setSupportTickets(data);
-      });
-      unsubscribers.push(unsubSupportTickets);
-
       // Stop loading after initial fetches setup
       // A more robust solution might use Promise.all with getDocs for initial load
       setTimeout(() => {
@@ -284,46 +273,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     await deleteDoc(userRef);
   };
   
-  const addSupportMessage = async (ticketId: string, text: string) => {
-    const ticketRef = doc(db, 'supportTickets', ticketId);
-    const message = {
-        sender: 'user' as const,
-        text,
-        timestamp: new Date().toISOString()
-    };
-    
-    try {
-        await runTransaction(db, async (transaction) => {
-            const ticketDoc = await transaction.get(ticketRef);
-            if (!ticketDoc.exists()) {
-                transaction.set(ticketRef, {
-                    status: 'open',
-                    messages: [message]
-                });
-            } else {
-                transaction.update(ticketRef, {
-                    messages: arrayUnion(message),
-                    status: 'open'
-                });
-            }
-        });
-    } catch (error) {
-        console.error("Error sending message:", error);
-    }
-  };
-
-  const addSupportReply = async (ticketId: string, text: string) => {
-    const ticketRef = doc(db, 'supportTickets', ticketId);
-    const message = {
-        sender: 'admin' as const,
-        text,
-        timestamp: new Date().toISOString()
-    };
-    await updateDoc(ticketRef, {
-        messages: arrayUnion(message)
-    });
-  };
-
   const updateAppUser = async (userId: string, data: Partial<AppUser>) => {
     // Update Firestore document
     const userRef = doc(db, 'users', userId);
@@ -338,7 +287,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
 
   return (
-    <DataContext.Provider value={{ products, orders, users, supportTickets, coupons, couponUsage, isLoading, addOrder, addProduct, updateProduct, deleteProduct, addCoupon, updateCoupon, deleteCoupon, toggleCouponStatus, setUserRole, deleteUser, addSupportMessage, addSupportReply, updateAppUser }}>
+    <DataContext.Provider value={{ products, orders, users, coupons, couponUsage, isLoading, addOrder, addProduct, updateProduct, deleteProduct, addCoupon, updateCoupon, deleteCoupon, toggleCouponStatus, setUserRole, deleteUser, updateAppUser }}>
       {children}
     </DataContext.Provider>
   );
