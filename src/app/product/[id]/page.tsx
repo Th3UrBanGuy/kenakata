@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/context/AuthProvider';
 import { useData } from '@/context/DataProvider';
+import type { WishlistItem } from '@/lib/types';
 
 export default function ProductPage() {
   const params = useParams();
@@ -98,18 +99,15 @@ export default function ProductPage() {
 
   const handleWishlistToggle = () => {
     if (selectedVariant && product) {
+      const wishlistItem: WishlistItem = {
+        productId: product.id,
+        variantId: selectedVariant.id,
+      };
+
       if (isWishlisted) {
         removeFromWishlist(selectedVariant.id);
       } else {
-        addToWishlist({
-          productId: product.id,
-          variantId: selectedVariant.id,
-          name: product.name,
-          color: selectedVariant.color,
-          size: selectedVariant.size,
-          price: selectedVariant.price,
-          imageUrl: selectedVariant.imageUrl,
-        });
+        addToWishlist(wishlistItem);
       }
     }
   };

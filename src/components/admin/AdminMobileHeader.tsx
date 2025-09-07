@@ -36,6 +36,7 @@ const pageTitles: { [key: string]: string } = {
     '/admin/analytics': 'Analytics',
     '/admin/toolbox': 'Toolbox',
     '/admin': 'Admin',
+    '/admin/messages': 'Messages',
 }
 
 export function AdminMobileHeader() {
@@ -43,6 +44,12 @@ export function AdminMobileHeader() {
     const pathname = usePathname();
     
     const getTitle = () => {
+        // Find a matching title, even for sub-pages like /edit
+        for (const path in pageTitles) {
+            if (pathname.startsWith(path) && path !== '/admin') {
+                return pageTitles[path];
+            }
+        }
         return pageTitles[pathname] || 'Admin';
     }
 

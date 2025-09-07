@@ -6,7 +6,7 @@ export type AppUser = {
   name: string | null;
   role: 'user' | 'admin';
   createdAt: any; // Firestore timestamp
-  wishlist?: string[];
+  wishlist?: WishlistItem[];
 }
 
 export type ProductVariant = {
@@ -50,11 +50,6 @@ export type CartItem = {
 export type WishlistItem = {
   productId: string;
   variantId: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-  color: string;
-  size: string;
 };
 
 export type UserWishlistItem = {

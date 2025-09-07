@@ -22,15 +22,7 @@ export function AdminMobileBottomNav() {
         <div className="grid h-16 grid-cols-5 items-center">
         {navItems.map((item) => {
             // Make the check less strict to account for sub-pages
-            const isActive = pathname.startsWith(item.href) && (pathname === item.href || item.href !== '/admin/dashboard');
-             if (item.href === '/admin/dashboard' && pathname !== '/admin/dashboard') {
-                return (
-                    <Link key={item.href} href={item.href} className={cn("flex flex-col items-center justify-center gap-1 text-muted-foreground transition-all text-sm h-full", "hover:bg-muted/50")}>
-                        <item.icon className="h-5 w-5" />
-                        <span className="text-xs">{item.label}</span>
-                    </Link>
-                );
-            }
+            const isActive = item.href === '/admin/dashboard' ? pathname === item.href : pathname.startsWith(item.href);
 
             return (
                  <Link

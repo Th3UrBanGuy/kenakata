@@ -1,9 +1,12 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { WishlistItem } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from './AuthProvider';
+import { useFirebase } from './FirebaseProvider';
+import { doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 interface WishlistContextType {
   wishlist: WishlistItem[];
@@ -17,53 +20,63 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const { toast } = useToast();
-  const previousWishlist = useRef<WishlistItem[]>([]);
+  const { user } = useAuth();
+  const { db } = useFirebase();
 
   useEffect(() => {
-    // Check if an item was added
-    if (previousWishlist.current.length < wishlist.length) {
-      const addedItem = wishlist.find(
-        (currentItem) => !previousWishlist.current.some((prevItem) => prevItem.variantId === currentItem.variantId)
-      );
-      if (addedItem) {
-        toast({
-          title: "Added to wishlist",
-          description: `${addedItem.name} has been added to your wishlist.`,
-        });
-      }
+    if (user) {
+      const userDocRef = doc(db, 'users', user.uid);
+      const unsubscribe = onSnapshot(userDocRef, (doc) => {
+        if (doc.exists()) {
+          const userData = doc.data();
+          const dbWishlist = userData.wishlist || [];
+          // Check if server wishlist is different from local state before updating
+          if (JSON.stringify(dbWishlist) !== JSON.stringify(wishlist)) {
+            setWishlist(dbWishlist);
+          }
+        }
+      });
+      return () => unsubscribe();
+    } else {
+      setWishlist([]); // Clear wishlist on logout
     }
-    
-    // Check if an item was removed
-    if (previousWishlist.current.length > wishlist.length) {
-      const removedItem = previousWishlist.current.find(
-        (prevItem) => !wishlist.some((currentItem) => currentItem.variantId === prevItem.variantId)
-      );
+  }, [user, db]);
 
-      if (removedItem) {
-        toast({
-          title: "Removed from wishlist",
-          description: `${removedItem.name} has been removed from your wishlist.`,
-          variant: 'destructive'
-        });
-      }
+  const addToWishlist = async (newItem: WishlistItem) => {
+    if (!user) {
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to add items to your wishlist.",
+        variant: "destructive"
+      });
+      return;
     }
-    // Update the ref to the current wishlist for the next render
-    previousWishlist.current = wishlist;
-  }, [wishlist, toast]);
-
-  const addToWishlist = (newItem: WishlistItem) => {
-    setWishlist((prevWishlist) => {
-      if (prevWishlist.some(item => item.variantId === newItem.variantId)) {
-        return prevWishlist;
-      }
-      return [...prevWishlist, newItem];
+    const userDocRef = doc(db, 'users', user.uid);
+    await updateDoc(userDocRef, {
+        wishlist: arrayUnion(newItem)
+    });
+    toast({
+        title: "Added to wishlist",
+        description: `Item has been added to your wishlist.`,
     });
   };
 
-  const removeFromWishlist = (variantId: string) => {
-    setWishlist((prevWishlist) => 
-        prevWishlist.filter((item) => item.variantId !== variantId)
-    );
+  const removeFromWishlist = async (variantId: string) => {
+    if (!user) return;
+    
+    const itemToRemove = wishlist.find(item => item.variantId === variantId);
+    if (!itemToRemove) return;
+
+    const userDocRef = doc(db, 'users', user.uid);
+    await updateDoc(userDocRef, {
+        wishlist: arrayRemove(itemToRemove)
+    });
+
+    toast({
+        title: "Removed from wishlist",
+        description: `Item has been removed from your wishlist.`,
+        variant: 'destructive'
+    });
   };
 
   const isWishlisted = (variantId: string) => {
