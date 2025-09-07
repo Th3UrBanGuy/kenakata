@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -12,14 +11,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
     const { login } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
     const from = searchParams.get('from') || '/account/dashboard';
-    const [email, setEmail] = useState('demo@example.com');
-    const [password, setPassword] = useState('password');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
@@ -38,6 +38,16 @@ export default function LoginPage() {
             setIsLoading(false);
         }
     };
+
+    const fillAdminCreds = () => {
+        setEmail('mrash541@gmail.com');
+        setPassword('Ra726ma@#$');
+    }
+    
+    const fillUserCreds = () => {
+        setEmail('ra726ma@gmail.com');
+        setPassword('726268');
+    }
 
     return (
         <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
@@ -86,6 +96,16 @@ export default function LoginPage() {
                                 Sign up
                             </Link>
                         </div>
+                        
+                        <div className="space-y-4 pt-4">
+                            <Separator />
+                            <p className="text-center text-xs text-muted-foreground">For Demo Purposes</p>
+                            <div className="flex gap-2">
+                                <Button variant="secondary" className="w-full" onClick={fillAdminCreds}>Login as Admin</Button>
+                                <Button variant="secondary" className="w-full" onClick={fillUserCreds}>Login as User</Button>
+                            </div>
+                        </div>
+
                     </CardContent>
                 </Card>
             </div>
