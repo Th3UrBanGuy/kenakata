@@ -2,6 +2,7 @@
 'use client';
 
 import { DollarSign, Users, ShoppingCart, Activity, ArrowRight } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import {
   Card,
   CardContent,
@@ -17,15 +18,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useData } from '@/context/DataProvider';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useMemo } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Lazy load components that are not critical for the initial view
+const Avatar = dynamic(() => import('@/components/ui/avatar').then(mod => mod.Avatar), { ssr: false, loading: () => <Skeleton className="h-9 w-9 rounded-full" /> });
+const AvatarFallback = dynamic(() => import('@/components/ui/avatar').then(mod => mod.AvatarFallback), { ssr: false });
+const AvatarImage = dynamic(() => import('@/components/ui/avatar').then(mod => mod.AvatarImage), { ssr: false });
+const Badge = dynamic(() => import('@/components/ui/badge').then(mod => mod.Badge), { ssr: false });
 
 export default function DashboardPage() {
-  const { orders } = useData();
+  const { orders, isLoading } = useData();
 
   const recentOrders = useMemo(() => {
     return [...orders]
@@ -64,7 +70,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
+            {isLoading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>}
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           </CardContent>
         </Card>
@@ -74,7 +80,7 @@ export default function DashboardPage() {
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{totalSales}</div>
+             {isLoading ? <Skeleton className="h-8 w-1/2" /> : <div className="text-2xl font-bold">+{totalSales}</div>}
             <p className="text-xs text-muted-foreground">+19% from last month</p>
           </CardContent>
         </Card>
@@ -84,7 +90,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{recentCustomers.length}</div>
+            {isLoading ? <Skeleton className="h-8 w-1/2" /> : <div className="text-2xl font-bold">+{recentCustomers.length}</div>}
             <p className="text-xs text-muted-foreground">in the last week</p>
           </CardContent>
         </Card>
@@ -115,20 +121,37 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentOrders.map(order => (
-                    <TableRow key={order.id}>
-                        <TableCell>
-                            <div className="font-medium">{order.customerName}</div>
-                            <div className="hidden text-sm text-muted-foreground md:inline">
-                                {order.customerEmail}
-                            </div>
-                        </TableCell>
-                        <TableCell className="hidden text-center sm:table-cell">
-                            <Badge className="text-xs" variant="outline">{order.status}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <Skeleton className="h-5 w-24 mb-1" />
+                        <Skeleton className="h-4 w-32" />
+                      </TableCell>
+                      <TableCell className="hidden text-center sm:table-cell">
+                        <Skeleton className="h-6 w-16 mx-auto" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-5 w-12 ml-auto" />
+                      </TableCell>
                     </TableRow>
-                ))}
+                  ))
+                ) : (
+                  recentOrders.map(order => (
+                      <TableRow key={order.id}>
+                          <TableCell>
+                              <div className="font-medium">{order.customerName}</div>
+                              <div className="hidden text-sm text-muted-foreground md:inline">
+                                  {order.customerEmail}
+                              </div>
+                          </TableCell>
+                          <TableCell className="hidden text-center sm:table-cell">
+                              <Badge className="text-xs" variant="outline">{order.status}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+                      </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -138,18 +161,30 @@ export default function DashboardPage() {
             <CardTitle>Recent Customers</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-8">
-            {recentCustomers.map(customer => (
-                <div key={customer.email} className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarImage src={`https://avatar.vercel.sh/${customer.email}.png`} alt="Avatar" />
-                        <AvatarFallback>{customer.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                        <p className="text-sm font-medium leading-none">{customer.name}</p>
-                        <p className="text-sm text-muted-foreground">{customer.email}</p>
-                    </div>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-9 w-9 rounded-full" />
+                  <div className="grid gap-1 w-full">
+                    <Skeleton className="h-5 w-2/4" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
                 </div>
-            ))}
+              ))
+            ) : (
+              recentCustomers.map(customer => (
+                  <div key={customer.email} className="flex items-center gap-4">
+                      <Avatar className="hidden h-9 w-9 sm:flex">
+                          <AvatarImage src={`https://avatar.vercel.sh/${customer.email}.png`} alt="Avatar" />
+                          <AvatarFallback>{customer.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="grid gap-1">
+                          <p className="text-sm font-medium leading-none">{customer.name}</p>
+                          <p className="text-sm text-muted-foreground">{customer.email}</p>
+                      </div>
+                  </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>

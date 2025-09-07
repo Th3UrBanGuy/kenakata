@@ -11,17 +11,17 @@ export const metadata: Metadata = {
   description: 'A modern online store experience.',
 };
 
-const poppins = Poppins({
+const fontHeadline = Poppins({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-poppins',
+  variable: '--font-headline',
   weight: ['400', '500', '600', '700'],
 });
 
-const inter = Inter({
+const fontBody = Inter({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-body',
 });
 
 export default function RootLayout({
@@ -34,8 +34,8 @@ export default function RootLayout({
       <body
         className={cn(
           'min-h-screen bg-background font-body antialiased',
-          poppins.variable,
-          inter.variable
+          fontHeadline.variable,
+          fontBody.variable
         )}
       >
         <Providers>

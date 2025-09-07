@@ -24,6 +24,7 @@ import {
 import type { Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminProductsPage() {
   const { products, deleteProduct, isLoading } = useData();
@@ -82,12 +83,20 @@ export default function AdminProductsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading && !products.length ? (
-                 <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-                    </TableCell>
-                  </TableRow>
+              {isLoading ? (
+                 Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="hidden sm:table-cell p-2">
+                        <Skeleton className="h-16 w-16 rounded-md" />
+                      </TableCell>
+                      <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                      <TableCell className="hidden md:table-cell"><Skeleton className="h-6 w-20" /></TableCell>
+                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-5 w-10" /></TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-8 w-8 ml-auto" />
+                      </TableCell>
+                    </TableRow>
+                 ))
               ) : (
                 products.map((product) => (
                   <TableRow key={product.id}>
