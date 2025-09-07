@@ -68,10 +68,15 @@ export function CouponForm({ coupon }: CouponFormProps) {
   async function onSubmit(data: CouponFormValues) {
     setIsSaving(true);
     try {
-        const finalData = {
+        const finalData: Partial<Coupon> = {
             ...data,
             applicableProductIds: data.applicableProductIds?.split(',').map(s => s.trim()).filter(Boolean),
-            validUntil: data.validUntil?.toISOString()
+        };
+
+        if (data.validUntil) {
+            finalData.validUntil = data.validUntil.toISOString();
+        } else {
+            delete finalData.validUntil;
         }
         
         if (coupon) {
@@ -81,7 +86,7 @@ export function CouponForm({ coupon }: CouponFormProps) {
                 description: `Coupon "${data.code}" has been successfully updated.`,
             });
         } else {
-            await addCoupon(finalData);
+            await addCoupon(finalData as Omit<Coupon, 'id' | 'claims'>);
             toast({
                 title: "Coupon Created",
                 description: `Coupon "${data.code}" has been successfully created.`,
