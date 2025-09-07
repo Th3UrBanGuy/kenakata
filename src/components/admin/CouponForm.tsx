@@ -24,6 +24,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
+import { Label } from '../ui/label';
 
 
 const couponSchema = z.object({
@@ -84,13 +85,13 @@ export function CouponForm({ coupon }: CouponFormProps) {
     };
     
     if (validityType === 'forever') {
-        delete finalData.validUntil;
+        finalData.validUntil = undefined;
     } else if (data.validUntil) {
         finalData.validUntil = data.validUntil.toISOString();
     }
 
     if (claimsType === 'unlimited') {
-        delete finalData.maxClaims;
+        finalData.maxClaims = undefined;
     }
 
     try {
