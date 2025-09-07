@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from './ui/badge';
+import { cn } from '@/lib/utils';
 
 export function Header() {
   const { totalItems } = useCart();
@@ -26,7 +27,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
       <div className="container px-4 md:px-6">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2 font-semibold">
                 <Package2 className="h-6 w-6 text-primary" />
@@ -108,12 +109,7 @@ export function Header() {
             )}
           </div>
         </div>
-        {!user?.emailVerified && user && (
-            <div className="bg-yellow-500/10 border-l-4 border-yellow-500 text-yellow-700 p-2 text-center text-xs mb-2 rounded-r-md">
-                Your email is not verified. Please check your inbox or <Link href="/verify-email" className="font-bold underline">go here</Link> to complete verification.
-            </div>
-        )}
-        <div className="md:hidden pb-4">
+         <div className={cn("md:hidden pb-4 transition-all duration-300", user ? 'block' : 'hidden')}>
             <form>
                 <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -126,6 +122,11 @@ export function Header() {
             </form>
         </div>
       </div>
+      {!user?.emailVerified && user && (
+            <div className="bg-yellow-500/10 border-l-4 border-yellow-500 text-yellow-700 p-2 text-center text-xs rounded-r-md mx-4 mb-2">
+                Your email is not verified. Please check your inbox or <Link href="/verify-email" className="font-bold underline">go here</Link> to complete verification.
+            </div>
+      )}
     </header>
   );
 }

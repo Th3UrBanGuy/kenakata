@@ -88,12 +88,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const login = async (email: string, pass: string) => {
-    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-    const loggedInUser = userCredential.user;
-
-    if (!loggedInUser.emailVerified) {
-      await signOut(auth); // Sign them out immediately
-      throw new Error("Please verify your email before logging in.");
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (error: any) {
+      if (error.code === 'auth/invalid-credential') {
+        throw new Error('Invalid email or password. Please try again.');
+      }
+      // Re-throw other errors to be handled by the caller
+      throw error;
     }
   };
   
