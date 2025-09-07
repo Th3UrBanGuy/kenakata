@@ -10,16 +10,19 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthProvider";
 import { useData } from "@/context/DataProvider";
 import { useMemo } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
     const { user } = useAuth();
-    const { orders } = useData();
+    const { orders, isLoading } = useData();
 
     const recentOrders = useMemo(() => {
+        if (!orders) return [];
         return [...orders].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0,3)
     }, [orders]);
 
     const totalItemsPurchased = useMemo(() => {
+        if (!orders) return 0;
         return orders.reduce((acc, order) => acc + order.items.length, 0);
     }, [orders]);
 
@@ -29,6 +32,36 @@ export default function DashboardPage() {
         }
         return 'a while';
     }, [user]);
+
+    const DashboardSkeleton = () => (
+        <div className="space-y-8">
+            <div className="p-6 rounded-lg bg-card shadow-sm">
+                <Skeleton className="h-9 w-3/5 mb-2" />
+                <Skeleton className="h-5 w-4/5" />
+            </div>
+             <div className="grid gap-6 md:grid-cols-3">
+                <Card><CardHeader className="pb-2"><Skeleton className="h-5 w-3/4" /></CardHeader><CardContent><Skeleton className="h-10 w-1/2" /></CardContent></Card>
+                <Card><CardHeader className="pb-2"><Skeleton className="h-5 w-3/4" /></CardHeader><CardContent><Skeleton className="h-10 w-1/2" /></CardContent></Card>
+                <Card><CardHeader className="pb-2"><Skeleton className="h-5 w-3/4" /></CardHeader><CardContent><Skeleton className="h-10 w-1/2" /></CardContent></Card>
+            </div>
+            <Card>
+                <CardHeader>
+                     <Skeleton className="h-8 w-2/5" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                        <Skeleton className="h-12 w-full" />
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    )
+
+    if (isLoading && orders.length === 0) {
+        return <DashboardSkeleton />
+    }
 
     return (
         <div className="space-y-8">

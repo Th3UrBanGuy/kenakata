@@ -2,7 +2,6 @@
 'use client';
 
 import { DollarSign, Users, ShoppingCart, Activity, ArrowRight } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import {
   Card,
   CardContent,
@@ -23,15 +22,12 @@ import { Button } from '@/components/ui/button';
 import { useData } from '@/context/DataProvider';
 import { useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
-// Lazy load components that are not critical for the initial view
-const Avatar = dynamic(() => import('@/components/ui/avatar').then(mod => mod.Avatar), { ssr: false, loading: () => <Skeleton className="h-9 w-9 rounded-full" /> });
-const AvatarFallback = dynamic(() => import('@/components/ui/avatar').then(mod => mod.AvatarFallback), { ssr: false });
-const AvatarImage = dynamic(() => import('@/components/ui/avatar').then(mod => mod.AvatarImage), { ssr: false });
-const Badge = dynamic(() => import('@/components/ui/badge').then(mod => mod.Badge), { ssr: false });
 
 export default function DashboardPage() {
-  const { orders, isLoading } = useData();
+  const { orders, users, isLoading } = useData();
 
   const recentOrders = useMemo(() => {
     return [...orders]
@@ -54,7 +50,43 @@ export default function DashboardPage() {
   }, [orders]);
   
   const totalRevenue = useMemo(() => orders.reduce((sum, order) => sum + order.total, 0), [orders]);
-  const totalSales = useMemo(() => orders.reduce((sum, order) => sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0), [orders]);
+  const totalSales = useMemo(() => orders.length, [orders]);
+
+  const DashboardSkeleton = () => (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col">
+        <Skeleton className="h-9 w-48 mb-2" />
+        <Skeleton className="h-5 w-64" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card><CardHeader className="pb-2"><Skeleton className="h-5 w-2/4" /></CardHeader><CardContent><Skeleton className="h-8 w-3/4" /></CardContent></Card>
+        <Card><CardHeader className="pb-2"><Skeleton className="h-5 w-2/4" /></CardHeader><CardContent><Skeleton className="h-8 w-3/4" /></CardContent></Card>
+        <Card><CardHeader className="pb-2"><Skeleton className="h-5 w-2/4" /></CardHeader><CardContent><Skeleton className="h-8 w-3/4" /></CardContent></Card>
+      </div>
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+        <Card className="xl:col-span-2">
+            <CardHeader><Skeleton className="h-8 w-3/5" /></CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader><Skeleton className="h-8 w-4/5" /></CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+
+  if (isLoading && orders.length === 0 && users.length === 0) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -64,39 +96,39 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="hover:border-primary/50 transition-colors">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>}
+            <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           </CardContent>
         </Card>
-        <Card className="hover:border-primary/50 transition-colors">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sales</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-             {isLoading ? <Skeleton className="h-8 w-1/2" /> : <div className="text-2xl font-bold">+{totalSales}</div>}
-            <p className="text-xs text-muted-foreground">+19% from last month</p>
+            <div className="text-2xl font-bold">+{totalSales}</div>
+            <p className="text-xs text-muted-foreground">+180.1% from last month</p>
           </CardContent>
         </Card>
-        <Card className="hover:border-primary/50 transition-colors">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Customers</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-1/2" /> : <div className="text-2xl font-bold">+{recentCustomers.length}</div>}
-            <p className="text-xs text-muted-foreground">in the last week</p>
+            <div className="text-2xl font-bold">+{users.length}</div>
+            <p className="text-xs text-muted-foreground">+19% from last month</p>
           </CardContent>
         </Card>
       </div>
       <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-        <Card className="xl:col-span-2 hover:border-primary/50 transition-colors">
+        <Card className="xl:col-span-2">
           <CardHeader className="flex flex-row items-center">
             <div className="grid gap-2">
               <CardTitle>Recent Orders</CardTitle>
@@ -104,7 +136,7 @@ export default function DashboardPage() {
                 A list of the most recent orders in your store.
               </CardDescription>
             </div>
-            <Button asChild size="sm" className="ml-auto gap-1 active:scale-[0.98]">
+            <Button asChild size="sm" className="ml-auto gap-1">
               <Link href="/admin/orders">
                 View All
                 <ArrowRight className="h-4 w-4" />
@@ -121,70 +153,41 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <Skeleton className="h-5 w-24 mb-1" />
-                        <Skeleton className="h-4 w-32" />
-                      </TableCell>
-                      <TableCell className="hidden text-center sm:table-cell">
-                        <Skeleton className="h-6 w-16 mx-auto" />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Skeleton className="h-5 w-12 ml-auto" />
-                      </TableCell>
+                {recentOrders.map(order => (
+                    <TableRow key={order.id}>
+                        <TableCell>
+                            <div className="font-medium">{order.customerName}</div>
+                            <div className="hidden text-sm text-muted-foreground md:inline">
+                                {order.customerEmail}
+                            </div>
+                        </TableCell>
+                        <TableCell className="hidden text-center sm:table-cell">
+                            <Badge className="text-xs" variant="outline">{order.status}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  recentOrders.map(order => (
-                      <TableRow key={order.id}>
-                          <TableCell>
-                              <div className="font-medium">{order.customerName}</div>
-                              <div className="hidden text-sm text-muted-foreground md:inline">
-                                  {order.customerEmail}
-                              </div>
-                          </TableCell>
-                          <TableCell className="hidden text-center sm:table-cell">
-                              <Badge className="text-xs" variant="outline">{order.status}</Badge>
-                          </TableCell>
-                          <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
-                      </TableRow>
-                  ))
-                )}
+                ))}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
-        <Card className="hover:border-primary/50 transition-colors">
+        <Card>
           <CardHeader>
             <CardTitle>Recent Customers</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-8">
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <Skeleton className="h-9 w-9 rounded-full" />
-                  <div className="grid gap-1 w-full">
-                    <Skeleton className="h-5 w-2/4" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
+            {recentCustomers.map(customer => (
+                <div key={customer.email} className="flex items-center gap-4">
+                    <Avatar className="hidden h-9 w-9 sm:flex">
+                        <AvatarImage src={`https://avatar.vercel.sh/${customer.email}.png`} alt="Avatar" />
+                        <AvatarFallback>{customer.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="grid gap-1">
+                        <p className="text-sm font-medium leading-none">{customer.name}</p>
+                        <p className="text-sm text-muted-foreground">{customer.email}</p>
+                    </div>
                 </div>
-              ))
-            ) : (
-              recentCustomers.map(customer => (
-                  <div key={customer.email} className="flex items-center gap-4">
-                      <Avatar className="hidden h-9 w-9 sm:flex">
-                          <AvatarImage src={`https://avatar.vercel.sh/${customer.email}.png`} alt="Avatar" />
-                          <AvatarFallback>{customer.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div className="grid gap-1">
-                          <p className="text-sm font-medium leading-none">{customer.name}</p>
-                          <p className="text-sm text-muted-foreground">{customer.email}</p>
-                      </div>
-                  </div>
-              ))
-            )}
+            ))}
           </CardContent>
         </Card>
       </div>

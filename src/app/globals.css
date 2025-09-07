@@ -79,7 +79,7 @@ body {
   }
 
   /* Add a subtle scale effect on click for tactile feedback */
-  .btn:active, [role="button"]:active, button:active, .active-scale:active {
+  button:active, .active-scale:active {
     @apply transform-gpu scale-[0.98];
   }
 }

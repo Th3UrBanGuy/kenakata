@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CouponsPage() {
   const { coupons, deleteCoupon, toggleCouponStatus, isLoading } = useData();
@@ -110,12 +111,17 @@ export default function CouponsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading && !coupons.length ? (
-                 <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                      <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-                    </TableCell>
-                  </TableRow>
+              {isLoading && coupons.length === 0 ? (
+                 Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-5 w-16" /></TableCell>
+                      <TableCell className="hidden md:table-cell"><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                      <TableCell className="hidden lg:table-cell"><Skeleton className="h-5 w-32" /></TableCell>
+                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-5 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                    </TableRow>
+                  ))
               ) : (
                 coupons.map((coupon) => {
                   const status = getStatus(coupon);
