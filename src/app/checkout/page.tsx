@@ -58,13 +58,13 @@ export default function CheckoutPage() {
     if (!user) return;
 
     const shipping = 5.00;
-    const taxes = subtotal * 0.08;
+    const taxes = subtotal * 0.08; // Tax is usually on pre-discount subtotal
 
     const newOrder: Omit<Order, 'id' | 'date' | 'status'> = {
       customerUid: user.uid,
       customerName: shippingInfo.name,
       customerEmail: shippingInfo.email,
-      total: total + shipping + taxes,
+      total: total + shipping + taxes, // 'total' from useCart already includes the discount
       paymentMethod: 'Credit Card',
       items: cart,
       couponCode: appliedCoupon?.code,
